@@ -303,6 +303,148 @@ function buildDocument(records, meta) {
   };
 }
 
+/* ---------------- publishing into the Figma file itself ------------------- */
+
+/*
+ * Publishing writes the export into this Figma file's shared plugin data, where
+ * Unreal reads it back with the ordinary REST files endpoint
+ * (GET /v1/files/:key?plugin_data=shared&depth=1). That endpoint works on every
+ * plan, unlike the Enterprise-only Variables API, so no file ever has to be
+ * downloaded, sent or committed by a person.
+ *
+ * Layout, all under PUBLISH_NAMESPACE on the document node:
+ *
+ *   manifest/<linkId>                 which publish is current, and its checksum
+ *   chunk/<linkId>/<publishId>/<n>    the export JSON, split into pieces
+ *
+ * Why chunks: Figma caps each entry (namespace + key + value) at 100 kB, and the
+ * real 171-variable system is already close to that. Figma does not say whether
+ * it counts UTF-8 or UTF-16 bytes, so chunks are kept pure ASCII and small enough
+ * to fit either way.
+ *
+ * Why the publish id is in the chunk key: the manifest is written last and names
+ * its chunks explicitly, so a reader never mixes pieces of two publishes. The
+ * checksum catches anything that still goes wrong, such as two designers
+ * publishing at the same moment and one clean-up removing the other's chunks.
+ */
+
+var PUBLISH_SCHEMA = 'figma-token-bridge-publish/1';
+var PUBLISH_NAMESPACE = 'figmaTokenBridge';
+var PUBLISH_CHUNK_CHARS = 40000;
+var MANIFEST_PREFIX = 'manifest/';
+var CHUNK_PREFIX = 'chunk/';
+
+/**
+ * JSON with every non-ASCII character written as a \u escape. Still valid JSON,
+ * and it makes one character exactly one byte in any encoding, so chunk sizes
+ * and the checksum mean the same thing here and in Unreal.
+ */
+function asciiJson(value) {
+  return JSON.stringify(value).replace(/[\u007f-￿]/g, function (c) {
+    return '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4);
+  });
+}
+
+/** FNV-1a, 32 bit, over char codes. Unreal implements the same function. */
+function fnv1a32(text) {
+  var h = 0x811c9dc5;
+  for (var i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return ('00000000' + h.toString(16)).slice(-8);
+}
+
+function manifestKey(linkId) { return MANIFEST_PREFIX + linkId; }
+function chunkKeyPrefix(linkId) { return CHUNK_PREFIX + linkId + '/'; }
+
+/**
+ * doc:  a buildDocument() result's `doc`, already free of errors.
+ * info: { linkId, publishId, publishedAt, publishedBy, publishedCount, chunkChars? }
+ *
+ * Returns { manifest: { key, value }, chunks: [{ key, value }], length, checksum }.
+ * Pure: writing the entries is the caller's job.
+ */
+function planPublication(doc, info) {
+  var text = asciiJson(doc);
+  var size = info.chunkChars || PUBLISH_CHUNK_CHARS;
+  var chunks = [];
+
+  for (var offset = 0, n = 0; offset < text.length; offset += size, n++) {
+    chunks.push({
+      key: chunkKeyPrefix(info.linkId) + info.publishId + '/' + n,
+      value: text.slice(offset, offset + size)
+    });
+  }
+
+  var target = doc.target || {};
+  var manifest = {
+    schema: PUBLISH_SCHEMA,
+    linkId: info.linkId,
+    linkName: target.linkName || null,
+    projectId: target.projectId || null,
+    projectName: target.projectName || null,
+    fileKey: (doc.source && doc.source.fileKey) || null,
+    publishId: info.publishId,
+    publishedAt: info.publishedAt,
+    publishedBy: info.publishedBy || null,
+    // Unreal compares this with the asset it last imported to tell whether
+    // anything new has been published, without downloading the chunks.
+    exportedAt: (doc.source && doc.source.exportedAt) || null,
+    publishedCount: info.publishedCount === undefined ? null : info.publishedCount,
+    total: doc.colours ? doc.colours.length : null,
+    chunks: chunks.map(function (c) { return c.key; }),
+    length: text.length,
+    checksum: fnv1a32(text)
+  };
+
+  return {
+    manifest: { key: manifestKey(info.linkId), value: JSON.stringify(manifest) },
+    chunks: chunks,
+    length: text.length,
+    checksum: manifest.checksum
+  };
+}
+
+/**
+ * Chunk keys belonging to linkId that are not in `keep`. Called after a publish
+ * to remove the previous one, and with an empty `keep` when a link is deleted.
+ */
+function staleChunkKeys(allKeys, linkId, keep) {
+  var prefix = chunkKeyPrefix(linkId);
+  var keepSet = {};
+  (keep || []).forEach(function (k) { keepSet[k] = true; });
+  return allKeys.filter(function (k) { return k.indexOf(prefix) === 0 && !keepSet[k]; });
+}
+
+/**
+ * The reverse of planPublication, over a { key: value } map of one namespace —
+ * the same shape the REST API returns under sharedPluginData[namespace].
+ *
+ * Unreal has its own implementation; this one exists so tools/ can prove the
+ * round trip and the failure cases without Figma. Returns { doc, manifest } or
+ * { error }.
+ */
+function readPublication(entries, linkId) {
+  var raw = entries[manifestKey(linkId)];
+  if (!raw) return { error: 'nothing published for link ' + linkId };
+
+  var manifest;
+  try { manifest = JSON.parse(raw); } catch (e) { return { error: 'manifest is not valid JSON' }; }
+  if (manifest.schema !== PUBLISH_SCHEMA) return { error: 'unsupported publish schema ' + manifest.schema };
+
+  var text = '';
+  for (var i = 0; i < manifest.chunks.length; i++) {
+    var part = entries[manifest.chunks[i]];
+    if (part === undefined || part === '') return { error: 'missing chunk ' + manifest.chunks[i] };
+    text += part;
+  }
+  if (text.length !== manifest.length) return { error: 'length ' + text.length + ' does not match ' + manifest.length };
+  if (fnv1a32(text) !== manifest.checksum) return { error: 'checksum mismatch' };
+
+  return { doc: JSON.parse(text), manifest: manifest };
+}
+
 /* ============================================================
    PART 2 — Figma runtime
    ============================================================ */
@@ -585,142 +727,310 @@ function looksLikeProjectId(value) {
 /* ------------------------------- Figma runtime ---------------------------- */
 
 if (typeof figma !== 'undefined') {
-  figma.showUI(__html__, { width: 400, height: 640, themeColors: true });
-
   // Scans are not cheap on a large page, so the result is reused between
-  // configuring a link and exporting it.
+  // configuring a link, exporting it and publishing it.
   var cached = null;
 
-  var reply = function (payload) { figma.ui.postMessage(payload); };
-
-  var fail = function (message, detail) {
-    reply({ type: 'error', message: message, details: detail ? [String(detail)] : [] });
+  var findLink = function (store, id) {
+    for (var i = 0; i < store.links.length; i++) {
+      if (store.links[i].id === id) return store.links[i];
+    }
+    return null;
   };
 
-  figma.ui.onmessage = async function (msg) {
-    try {
-      if (msg.type === 'init') {
-        var store = loadLinkStore();
-        reply({
-          type: 'init',
-          fileName: figma.root.name,
-          fileKey: safeFileKey(),
-          links: store.links,
-          activeLinkId: store.activeLinkId
-        });
-        return;
-      }
+  var buildForLink = function (link) {
+    return buildDocument(cached.records, {
+      // The API wins when it is available, because it cannot be mistyped.
+      fileKey: cached.meta.fileKey || link.fileKey || null,
+      fileName: cached.meta.fileName,
+      readMode: cached.meta.readMode,
+      collectionId: cached.meta.collectionId,
+      defaultModeId: cached.meta.defaultModeId,
+      modes: cached.meta.modes,
+      published: link.published,
+      target: link,
+      exportedAt: new Date().toISOString(),
+      exportedBy: currentUserName()
+    });
+  };
 
-      if (msg.type === 'scan') {
-        cached = await scan();
-        reply({
-          type: 'scan',
-          readMode: cached.meta.readMode,
-          total: cached.records.length,
-          warnings: cached.warnings || [],
-          inventory: inventory(cached.records)
-        });
-        return;
-      }
-
-      if (msg.type === 'saveLink') {
-        if (!msg.link || !msg.link.linkName) {
-          return fail('A link needs a name.');
-        }
-        if (!looksLikeProjectId(msg.link.projectId)) {
-          return fail('That does not look like an Unreal project id.',
-            'Copy it from Project Settings > Plugins > Figma Token Bridge > Project Id.');
-        }
-        if (!msg.link.published || !msg.link.published.length) {
-          return fail('Select at least one tier or group to publish.');
-        }
-        // Unreal refuses an export whose file key does not match the one the
-        // project is paired with, so an export without a key is useless the
-        // moment that check is on. Better to refuse here, where the designer
-        // can see the key in their own address bar.
-        if (!looksLikeFileKey(msg.link.fileKey)) {
-          return fail('That does not look like a Figma file key.',
-            'It is the part of this file\u2019s URL after /design/ and before the file name.');
-        }
-
-        var s = loadLinkStore();
-        var link = {
-          id: msg.link.id || ('link-' + Date.now()),
-          linkName: msg.link.linkName,
-          fileKey: msg.link.fileKey.trim(),
-          projectId: msg.link.projectId.trim(),
-          projectName: msg.link.projectName || '',
-          published: msg.link.published,
-          linkedBy: currentUserName(),
-          linkedAt: new Date().toISOString()
+  /**
+   * What each link last published, read back from its manifest, so every
+   * designer in the file can see whether Unreal has something current.
+   */
+  var publicationStatus = function (links) {
+    var status = {};
+    links.forEach(function (link) {
+      var raw = figma.root.getSharedPluginData(PUBLISH_NAMESPACE, manifestKey(link.id));
+      if (!raw) return;
+      try {
+        var m = JSON.parse(raw);
+        status[link.id] = {
+          publishedAt: m.publishedAt,
+          publishedBy: m.publishedBy,
+          publishedCount: m.publishedCount,
+          total: m.total
         };
-
-        var idx = -1;
-        for (var i = 0; i < s.links.length; i++) {
-          if (s.links[i].id === link.id) { idx = i; break; }
-        }
-        if (idx >= 0) { s.links[idx] = link; } else { s.links.push(link); }
-        s.activeLinkId = link.id;
-        saveLinkStore(s);
-
-        reply({ type: 'links', links: s.links, activeLinkId: s.activeLinkId, saved: link.id });
-        return;
+      } catch (e) {
+        // An unreadable manifest is replaced by the next publish. Show nothing
+        // rather than failing to open.
       }
+    });
+    return status;
+  };
 
-      if (msg.type === 'deleteLink') {
-        var st = loadLinkStore();
-        st.links = st.links.filter(function (l) { return l.id !== msg.id; });
-        if (st.activeLinkId === msg.id) st.activeLinkId = st.links.length ? st.links[0].id : null;
-        saveLinkStore(st);
-        reply({ type: 'links', links: st.links, activeLinkId: st.activeLinkId });
-        return;
-      }
+  var removePublication = function (linkId) {
+    var keys = figma.root.getSharedPluginDataKeys(PUBLISH_NAMESPACE);
+    staleChunkKeys(keys, linkId, []).forEach(function (k) {
+      figma.root.setSharedPluginData(PUBLISH_NAMESPACE, k, '');
+    });
+    figma.root.setSharedPluginData(PUBLISH_NAMESPACE, manifestKey(linkId), '');
+  };
 
-      if (msg.type === 'export') {
-        if (!cached) {
-          cached = await scan();
-        }
-
-        var store2 = loadLinkStore();
-        var chosen = null;
-        for (var j = 0; j < store2.links.length; j++) {
-          if (store2.links[j].id === msg.id) { chosen = store2.links[j]; break; }
-        }
-        if (!chosen) {
-          return fail('That link no longer exists. Re-create it and try again.');
-        }
-
-        var built = buildDocument(cached.records, {
-          // The API wins when it is available, because it cannot be mistyped.
-          fileKey: cached.meta.fileKey || chosen.fileKey || null,
-          fileName: cached.meta.fileName,
-          readMode: cached.meta.readMode,
-          collectionId: cached.meta.collectionId,
-          defaultModeId: cached.meta.defaultModeId,
-          modes: cached.meta.modes,
-          published: chosen.published,
-          target: chosen,
-          exportedAt: new Date().toISOString(),
-          exportedBy: currentUserName()
-        });
-
-        reply({
-          type: 'export',
-          link: chosen,
-          readMode: cached.meta.readMode,
-          total: built.doc.colours.length,
-          publishedCount: built.publishedCount,
-          counts: built.counts,
-          warnings: built.warnings,
-          errors: built.errors,
-          doc: built.doc
-        });
-        return;
-      }
+  /**
+   * Adds a "Publish tokens to Unreal" button to the properties panel, shown on
+   * every page when nothing is selected. After the first link exists,
+   * publishing is one click and the plugin window never has to open.
+   */
+  var offerRelaunch = function () {
+    try {
+      figma.root.setRelaunchData({ 'publish-all': 'Send the current tokens to every linked Unreal project' });
     } catch (e) {
-      fail('Something went wrong.', e && e.message ? e.message : e);
+      // Convenience only; never worth failing a save or publish over.
     }
   };
+
+  /**
+   * Build one link's export and write it into this file. Synchronous once the
+   * scan is cached. Refuses to publish anything with errors, because Unreal will
+   * pull whatever is published without anyone looking at it first.
+   */
+  var publishLink = function (link) {
+    var built = buildForLink(link);
+    var result = {
+      link: link,
+      ok: false,
+      readMode: cached.meta.readMode,
+      total: built.doc.colours.length,
+      publishedCount: built.publishedCount,
+      counts: built.counts,
+      warnings: built.warnings,
+      errors: built.errors
+    };
+    if (built.errors.length) return result;
+
+    var plan = planPublication(built.doc, {
+      linkId: link.id,
+      publishId: String(Date.now()),
+      publishedAt: new Date().toISOString(),
+      publishedBy: currentUserName(),
+      publishedCount: built.publishedCount
+    });
+
+    // Chunks first, manifest last: until the manifest changes, Unreal keeps
+    // reading the previous publish, whose chunks are still in place.
+    plan.chunks.forEach(function (c) {
+      figma.root.setSharedPluginData(PUBLISH_NAMESPACE, c.key, c.value);
+    });
+    figma.root.setSharedPluginData(PUBLISH_NAMESPACE, plan.manifest.key, plan.manifest.value);
+
+    var keys = figma.root.getSharedPluginDataKeys(PUBLISH_NAMESPACE);
+    staleChunkKeys(keys, link.id, plan.chunks.map(function (c) { return c.key; })).forEach(function (k) {
+      figma.root.setSharedPluginData(PUBLISH_NAMESPACE, k, '');
+    });
+
+    result.ok = true;
+    result.chunks = plan.chunks.length;
+    result.bytes = plan.length;
+    return result;
+  };
+
+  /**
+   * The "Publish all links" menu command and properties-panel button. It runs
+   * without a window: scan, publish every link, show a toast, close.
+   */
+  var publishAllHeadless = async function () {
+    try {
+      var store = loadLinkStore();
+      if (!store.links.length) {
+        figma.closePlugin('No Unreal links in this file yet. Open Figma Token Bridge to create one.');
+        return;
+      }
+
+      cached = await scan();
+      var results = store.links.map(publishLink);
+      var failed = results.filter(function (r) { return !r.ok; });
+
+      if (failed.length) {
+        figma.notify('Not published: ' + failed.map(function (r) {
+          return r.link.linkName + ' (' + r.errors[0] + ')';
+        }).join('; '), { error: true, timeout: 12000 });
+      }
+
+      var ok = results.length - failed.length;
+      var note = ok
+        ? 'Published ' + ok + ' link' + (ok === 1 ? '' : 's') + ' to Unreal. Developers pick it up with Sync Design Tokens.'
+        : 'Nothing was published.';
+      // A consuming file only sees what this page binds, so say so every time
+      // rather than let a partial set pass for the whole system.
+      if (ok && cached.meta.readMode === 'consumer') {
+        note += ' Read from a consuming file: only variables bound on this page were included.';
+      }
+      if (ok) offerRelaunch();
+      figma.closePlugin(note);
+    } catch (e) {
+      figma.notify('Publishing failed: ' + (e && e.message ? e.message : e), { error: true });
+      figma.closePlugin();
+    }
+  };
+
+  if (figma.command === 'publish-all') {
+    publishAllHeadless();
+  } else {
+    figma.showUI(__html__, { width: 400, height: 640, themeColors: true });
+
+    var reply = function (payload) { figma.ui.postMessage(payload); };
+
+    var fail = function (message, detail) {
+      reply({ type: 'error', message: message, details: detail ? [String(detail)] : [] });
+    };
+
+    figma.ui.onmessage = async function (msg) {
+      try {
+        if (msg.type === 'init') {
+          var store = loadLinkStore();
+          reply({
+            type: 'init',
+            fileName: figma.root.name,
+            fileKey: safeFileKey(),
+            links: store.links,
+            activeLinkId: store.activeLinkId,
+            publications: publicationStatus(store.links)
+          });
+          return;
+        }
+
+        if (msg.type === 'scan') {
+          cached = await scan();
+          reply({
+            type: 'scan',
+            readMode: cached.meta.readMode,
+            total: cached.records.length,
+            warnings: cached.warnings || [],
+            inventory: inventory(cached.records)
+          });
+          return;
+        }
+
+        if (msg.type === 'saveLink') {
+          if (!msg.link || !msg.link.linkName) {
+            return fail('A link needs a name.');
+          }
+          if (!looksLikeProjectId(msg.link.projectId)) {
+            return fail('That does not look like an Unreal project id.',
+              'Copy it from Project Settings > Plugins > Figma Token Bridge > Project Id.');
+          }
+          if (!msg.link.published || !msg.link.published.length) {
+            return fail('Select at least one tier or group to publish.');
+          }
+          // Unreal refuses an export whose file key does not match the one the
+          // project is paired with, so an export without a key is useless the
+          // moment that check is on. Better to refuse here, where the designer
+          // can see the key in their own address bar.
+          if (!looksLikeFileKey(msg.link.fileKey)) {
+            return fail('That does not look like a Figma file key.',
+              'It is the part of this file’s URL after /design/ and before the file name.');
+          }
+
+          var s = loadLinkStore();
+          var link = {
+            id: msg.link.id || ('link-' + Date.now()),
+            linkName: msg.link.linkName,
+            fileKey: msg.link.fileKey.trim(),
+            projectId: msg.link.projectId.trim(),
+            projectName: msg.link.projectName || '',
+            published: msg.link.published,
+            linkedBy: currentUserName(),
+            linkedAt: new Date().toISOString()
+          };
+
+          var idx = -1;
+          for (var i = 0; i < s.links.length; i++) {
+            if (s.links[i].id === link.id) { idx = i; break; }
+          }
+          if (idx >= 0) { s.links[idx] = link; } else { s.links.push(link); }
+          s.activeLinkId = link.id;
+          saveLinkStore(s);
+          offerRelaunch();
+
+          reply({ type: 'links', links: s.links, activeLinkId: s.activeLinkId, saved: link.id,
+            publications: publicationStatus(s.links) });
+          return;
+        }
+
+        if (msg.type === 'deleteLink') {
+          var st = loadLinkStore();
+          st.links = st.links.filter(function (l) { return l.id !== msg.id; });
+          if (st.activeLinkId === msg.id) st.activeLinkId = st.links.length ? st.links[0].id : null;
+          saveLinkStore(st);
+          // Otherwise Unreal would keep pulling a link nobody can see any more.
+          removePublication(msg.id);
+          reply({ type: 'links', links: st.links, activeLinkId: st.activeLinkId,
+            publications: publicationStatus(st.links) });
+          return;
+        }
+
+        if (msg.type === 'export') {
+          if (!cached) {
+            cached = await scan();
+          }
+
+          var chosen = findLink(loadLinkStore(), msg.id);
+          if (!chosen) {
+            return fail('That link no longer exists. Re-create it and try again.');
+          }
+
+          var built = buildForLink(chosen);
+          reply({
+            type: 'export',
+            link: chosen,
+            readMode: cached.meta.readMode,
+            total: built.doc.colours.length,
+            publishedCount: built.publishedCount,
+            counts: built.counts,
+            warnings: built.warnings,
+            errors: built.errors,
+            doc: built.doc
+          });
+          return;
+        }
+
+        if (msg.type === 'publish') {
+          // Always rescan: a publish is read by Unreal unattended, so it must
+          // reflect the file as it is now, not as it was when the window opened.
+          cached = await scan();
+
+          var store3 = loadLinkStore();
+          var targets = msg.id ? [findLink(store3, msg.id)] : store3.links;
+          if (!targets.length || !targets[0]) {
+            return fail('That link no longer exists. Re-create it and try again.');
+          }
+
+          var results = targets.map(publishLink);
+          if (results.some(function (r) { return r.ok; })) offerRelaunch();
+
+          reply({
+            type: 'published',
+            results: results,
+            publications: publicationStatus(store3.links)
+          });
+          return;
+        }
+      } catch (e) {
+        fail('Something went wrong.', e && e.message ? e.message : e);
+      }
+    };
+  }
 }
 
 // Exported for tools/ and tests. `module` does not exist in the Figma sandbox.
@@ -735,6 +1045,14 @@ if (typeof module !== 'undefined' && module.exports) {
     resolveTerminal: resolveTerminal,
     srgbChannelToLinear: srgbChannelToLinear,
     srgbHexToLinear: srgbHexToLinear,
-    buildDocument: buildDocument
+    buildDocument: buildDocument,
+    PUBLISH_SCHEMA: PUBLISH_SCHEMA,
+    PUBLISH_NAMESPACE: PUBLISH_NAMESPACE,
+    PUBLISH_CHUNK_CHARS: PUBLISH_CHUNK_CHARS,
+    asciiJson: asciiJson,
+    fnv1a32: fnv1a32,
+    planPublication: planPublication,
+    staleChunkKeys: staleChunkKeys,
+    readPublication: readPublication
   };
 }

@@ -80,7 +80,22 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "Figma Link")
 	bool bRequireProjectIdMatch = true;
 
-	/** tokens.json produced by the Figma plugin, relative to the project root. */
+	/**
+	 * On Sync, fetch the designer's latest publish straight from the Figma file
+	 * rather than reading a tokens.json someone had to send over. The fetched
+	 * export is still written to TokensFile, so it can be reviewed and committed.
+	 *
+	 * Needs FigmaFileKey here, plus a Figma access token in Editor Preferences >
+	 * Plugins > Figma Token Bridge. That token is per user and never committed. A
+	 * user without one falls back to the local TokensFile, with a warning.
+	 */
+	UPROPERTY(Config, EditAnywhere, Category = "Figma Link")
+	bool bPullFromFigma = true;
+
+	/**
+	 * tokens.json produced by the Figma plugin, relative to the project root.
+	 * When pulling from Figma, each sync overwrites it with what was fetched.
+	 */
 	UPROPERTY(Config, EditAnywhere, Category = "Figma Link", meta = (FilePathFilter = "json", RelativeToGameDir))
 	FFilePath TokensFile;
 

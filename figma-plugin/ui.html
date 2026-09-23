@@ -1,7 +1,8 @@
 <!-- Figma Token Bridge — the designer's authoring surface.
      A link says: this part of the design system feeds that Unreal project.
      Links live in the Figma file, so every designer sees the same set.
-     No network access; the export is a file a person saves and commits. -->
+     No network access. Publishing stores the tokens in this Figma file, where
+     Unreal pulls them; the downloadable file remains as a fallback. -->
 <style>
   :root { color-scheme: light dark; }
   * { box-sizing: border-box; }
@@ -83,7 +84,10 @@
 
 <h2>Unreal links</h2>
 <div id="links"></div>
-<button id="add" class="sec wide">New link…</button>
+<div class="row">
+  <button id="add" class="sec wide">New link…</button>
+  <button id="publishAll" class="sec wide hide">Publish all</button>
+</div>
 
 <div id="editor" class="hide">
   <h2 id="editorTitle">New link</h2>
@@ -114,7 +118,17 @@
 <div id="exportReport"></div>
 
 <script>
-  var state = { links: [], activeLinkId: null, inventory: null, readMode: null, total: 0, editing: null, doc: null, fileKey: null };
+  var state = { links: [], activeLinkId: null, inventory: null, readMode: null, total: 0, editing: null, doc: null, fileKey: null, publications: {} };
+
+  /** "3 min ago", falling back to the date once it stops being recent. */
+  function ago(iso) {
+    var s = Math.round((Date.now() - new Date(iso).getTime()) / 1000);
+    if (isNaN(s)) return iso;
+    if (s < 60) return 'just now';
+    if (s < 3600) return Math.round(s / 60) + ' min ago';
+    if (s < 86400) return Math.round(s / 3600) + ' h ago';
+    return new Date(iso).toLocaleDateString();
+  }
 
   function el(t, c, x) { var n = document.createElement(t); if (c) n.className = c; if (x !== undefined) n.textContent = x; return n; }
   function $(id) { return document.getElementById(id); }
@@ -146,6 +160,8 @@
     var host = $('links');
     clear(host);
 
+    $('publishAll').classList.toggle('hide', state.links.length < 2);
+
     if (!state.links.length) {
       host.appendChild(el('div', 'empty', 'No links yet. A link says which parts of this design system feed which Unreal project.'));
       return;
@@ -160,10 +176,24 @@
       if (link.fileKey) meta.appendChild(el('div', null, 'from file ' + link.fileKey));
       meta.appendChild(el('div', null, 'publishes ' + link.published.join(', ')));
       if (link.linkedBy) meta.appendChild(el('div', null, 'linked by ' + link.linkedBy));
+      var pub = state.publications[link.id];
+      meta.appendChild(el('div', null, pub
+        ? 'published ' + ago(pub.publishedAt) + (pub.publishedBy ? ' by ' + pub.publishedBy : '') +
+          (pub.publishedCount !== null && pub.publishedCount !== undefined ? ' · ' + pub.publishedCount + ' tokens' : '')
+        : 'not published yet — Unreal has nothing to sync'));
       card.appendChild(meta);
 
       var row = el('div', 'row');
-      var exportBtn = el('button', 'tiny', 'Export tokens.json');
+      var publishBtn = el('button', 'tiny', 'Publish to Unreal');
+      publishBtn.onclick = function () {
+        publishBtn.disabled = true;
+        publishBtn.textContent = 'Publishing…';
+        send({ type: 'publish', id: link.id });
+      };
+      row.appendChild(publishBtn);
+
+      // Kept for review outside Figma, or a project that is not pulling yet.
+      var exportBtn = el('button', 'tiny sec', 'Export file');
       exportBtn.onclick = function () { send({ type: 'export', id: link.id }); };
       row.appendChild(exportBtn);
 
@@ -238,6 +268,10 @@
   }
 
   $('add').onclick = function () { openEditor(null); };
+  $('publishAll').onclick = function () {
+    this.disabled = true;
+    send({ type: 'publish' });
+  };
   $('cancel').onclick = closeEditor;
 
   $('save').onclick = function () {
@@ -284,6 +318,7 @@
         (m.fileKey ? ' · ' + m.fileKey : ' · file key unavailable — enter it when linking');
       state.links = m.links;
       state.activeLinkId = m.activeLinkId;
+      state.publications = m.publications || {};
       renderLinks();
       return;
     }
@@ -326,8 +361,37 @@
     if (m.type === 'links') {
       state.links = m.links;
       state.activeLinkId = m.activeLinkId;
+      state.publications = m.publications || state.publications;
       renderLinks();
       if (m.saved) closeEditor();
+      return;
+    }
+
+    if (m.type === 'published') {
+      state.publications = m.publications || {};
+      $('publishAll').disabled = false;
+      renderLinks();
+
+      var out = $('exportReport');
+      clear(out);
+      m.results.forEach(function (r) {
+        out.appendChild(el('h2', null, 'Publish — ' + r.link.linkName));
+        if (!r.ok) {
+          out.appendChild(msg('err', 'Not published. Unreal keeps the previous publish until these are fixed:', r.errors));
+        } else {
+          out.appendChild(stat('Published to Unreal', r.publishedCount));
+          out.appendChild(stat('Stored in total', r.total));
+          var ok = el('div', 'msg ok');
+          ok.appendChild(el('div', null,
+            'Stored in this Figma file. Developers pick it up with Tools › Sync Design Tokens — nothing to send.'));
+          out.appendChild(ok);
+          if (r.readMode === 'consumer') {
+            out.appendChild(msg('warn',
+              'Read from a consuming file, so only variables bound on this page were published. Publish from the library file for the full set.'));
+          }
+        }
+        if (r.warnings.length) out.appendChild(msg('warn', 'Warnings:', r.warnings));
+      });
       return;
     }
 
@@ -370,6 +434,8 @@
     if (m.type === 'error') {
       $('scan').disabled = false;
       $('scan').textContent = 'Scan this file';
+      $('publishAll').disabled = false;
+      renderLinks();  // re-enables any Publish button left saying "Publishing…"
       var target = $('editor').classList.contains('hide') ? $('exportReport') : $('editorMsg');
       clear(target);
       target.appendChild(msg('err', m.message, m.details));

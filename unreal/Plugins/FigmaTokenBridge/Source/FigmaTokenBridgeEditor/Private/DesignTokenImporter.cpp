@@ -5,6 +5,7 @@
 #include "DesignTokens.h"
 #include "DesignTokenLibrary.h"
 #include "DesignTokenSettings.h"
+#include "FigmaPublication.h"
 #include "FigmaTokenBridgeLog.h"
 
 #include "AssetRegistry/AssetRegistryModule.h"
@@ -555,6 +556,34 @@ FDesignTokenImportResult FDesignTokenImporter::ImportFromSettings()
 	}
 
 	return ImportFromFile(Path);
+}
+
+FDesignTokenImportResult FDesignTokenImporter::ImportFromText(const FString& JsonText, const FString& SaveToPath)
+{
+	FDesignTokenImportResult Result;
+
+	FDesignTokenDocument Doc;
+	if (!ParseDocument(JsonText, Doc, Result))
+	{
+		return Result;
+	}
+
+	if (!SaveToPath.IsEmpty())
+	{
+		// A failed write is not worth failing the sync over: the asset is what the
+		// game uses. The file is for review, so say plainly that it is now stale.
+		if (!FFileHelper::SaveStringToFile(FFigmaPublicationReader::PrettyPrint(JsonText), *SaveToPath,
+			FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM))
+		{
+			Result.Warnings.Add(FString::Printf(
+				TEXT("Imported, but could not update '%s' (is it read-only or checked in?). It no longer matches the asset."),
+				*SaveToPath));
+		}
+	}
+
+	FDesignTokenImportResult Written = WriteAsset(Doc);
+	Written.Warnings.Append(Result.Warnings);
+	return Written;
 }
 
 #undef LOCTEXT_NAMESPACE

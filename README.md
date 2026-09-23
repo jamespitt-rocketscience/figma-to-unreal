@@ -65,7 +65,7 @@ tokens/
   FigmaUnrealTest.tokens.json   from the real Rocket Science system
   FigmaBridgeTest.tokens.json   from the small purpose-built test system
 tools/
-  build-tokens.cjs        replays PART 1 over a fixture; 44 assertions
+  build-tokens.cjs        replays PART 1 over a fixture; 60 assertions
   setup-test-project.ps1  junctions the plugin into the test project
   build-unreal.ps1        builds the plugin, then runs the automation tests
   md-to-confluence.cjs    regenerates the Confluence version of docs/
@@ -98,7 +98,7 @@ node tools/build-tokens.cjs --fixture tools/fixtures/tokenbridgetest.raw.json
 Replays the plugin's pure logic over a captured fixture and runs every assertion.
 No Figma account needed, well under a second. Two fixtures: the real 171-variable
 Rocket Science system, and a 25-variable one built to contain every awkward case
-on purpose. The same 44 assertions run against both, which is the point — the
+on purpose. The same 60 assertions run against both, which is the point — the
 counts live in the fixture, the rules are shared.
 
 A run defaults to a deliberately impossible target project id, so an export it
@@ -129,8 +129,10 @@ are published to it, and a name for humans.
 
 In outline: copy the plugin into a project and build it; **Tools → Copy Project
 Id for Figma** puts this project's GUID on the clipboard; the designer pastes it
-into a new link in the Figma plugin, ticks what that project may use, and exports
-`tokens.json`; **Tools → Sync Design Tokens** brings it in. After that,
+into a new link in the Figma plugin, ticks what that project may use, and clicks
+**Publish to Unreal**, which stores the export inside the Figma file;
+**Tools → Sync Design Tokens** fetches it with Figma's REST API and rewrites
+`tokens.json` for review. Nobody downloads or sends a file. After that,
 `Get Design Colour` in any Blueprint offers a searchable dropdown of exactly what
 the designer published, so a typo is not possible and neither is reaching for
 something out of scope.
@@ -231,7 +233,7 @@ Phase 0 is deliberately colour-only. Deferred, in order:
   `EAutomationTestFlags` and `FSavePackageArgs`, were both already correct.
 - **The exporter is validated against two independent design systems** — the
   real 171-variable one and a 25-variable one built from scratch in a fresh
-  Figma file via the Plugin API. All 44 assertions pass against both. What
+  Figma file via the Plugin API. All 60 assertions pass against both. What
   that does *not* cover is PART 2 of `code.js`, the half that talks to Figma:
   the packaged plugin has still not been imported into Figma desktop, so
   `scan()` and the link UI are the only things left untested. See

@@ -268,14 +268,64 @@ reason PART 1 of `code.js` is kept free of the `figma` global.
 Then re-run **Tools → Sync Design Tokens** in Unreal. A second import of
 identical content should report `0 added, 0 updated, 25 unchanged`.
 
+### 3.5 Publish, then pull (no file sent)
+
+This is the everyday path; §3.4's download stays as a fallback. The designer
+publishes into the Figma file itself, and Unreal fetches it.
+
+**Re-import the plugin first** (§3.1): the manifest gained a menu and a
+properties-panel button.
+
+**In Figma:** **Publish to Unreal** on the link card. The card should then read
+`published just now by <you> · 10 tokens`. After the first link exists, the same
+thing is one click with the plugin closed:
+
+- **Plugins → Development → Figma Token Bridge → Publish all links to Unreal**, or
+- the **Publish tokens to Unreal** button in the right-hand panel when nothing is
+  selected.
+
+Either way, a toast confirms it and no window opens.
+
+**In Unreal, once per developer:** create a Figma personal access token (Figma →
+Settings → Security → *Personal access tokens*, scope *File content: read*) and
+paste it into **Editor Preferences → Plugins → Figma Token Bridge → Figma Access
+Token**. It is saved under `Saved/`, never in `DefaultGame.ini`, so it is never
+committed. `FIGMA_ACCESS_TOKEN` in the environment works too.
+
+**Tools → Sync Design Tokens.** Expected: a *Fetching the latest publish from
+Figma…* toast, then the usual summary with *From Figma, published <time> by
+<you>.* underneath. `tokens/FigmaBridgeTest.tokens.json` is rewritten with what
+was fetched, in the same 2-space layout the download uses, so it diffs cleanly and
+can still be reviewed and committed.
+
+**First live run — check this specifically.** The automation test builds Figma's
+response by hand. What it cannot prove is that Figma really returns shared plugin
+data stored on the *document* node from
+`GET /v1/files/:key?depth=1&plugin_data=shared`. If the first sync says *Nothing
+has been published* straight after a publish, that assumption is the cause; tell
+whoever maintains the plugin.
+
+Without a token, Sync still works: it imports the local `tokens.json` and warns
+that it did not fetch from Figma. Turn off **Pull from Figma** in project settings
+to always use the local file.
+
+**Seat type matters.** Figma allows a Dev or Full seat about 20 file reads a
+minute, but a **View or Collab seat only 20 a month**. Sync costs one read. The
+opt-in *Check For Published Tokens On Startup* costs one read per editor launch,
+so leave it off on a View seat. If you hit the limit, the error says so and names
+the seat type.
+
 ---
 
 ## 4. The loop you'll actually live in
 
 1. Designer changes a colour in Figma
-2. Designer exports `tokens.json` and commits it — **that diff is the review gate**
-3. Developer pulls, runs **Tools → Sync Design Tokens**
-4. Every widget referencing the token follows; nothing is regenerated
+2. Designer clicks **Publish tokens to Unreal**, with nothing to download or send
+3. One developer runs **Tools → Sync Design Tokens** and commits the rewritten
+   `tokens.json` and the generated asset. **The `tokens.json` diff is the review
+   gate.**
+4. Everyone else gets it from source control; no Figma account needed
+5. Every widget referencing the token follows; nothing is regenerated
 
 ---
 
@@ -289,7 +339,8 @@ Each of these protects against a failure that would otherwise be silent.
 node tools/build-tokens.cjs --fixture tools/fixtures/tokenbridgetest.raw.json
 ```
 
-44 assertions, well under a second, no Figma access. The headline one: `#00d86c`
+60 assertions, well under a second, no Figma access. The last 16 cover publishing:
+chunking, the round trip, and refusing a missing or corrupted chunk. The headline one: `#00d86c`
 must arrive as `(0.000000, 0.686685, 0.149960)`. Copying the bytes across instead
 gives `(0, 0.847059, 0.423529)` — 19% out in green and 2.8× in blue. That is
 wrong in a way that looks like a design decision, which is why it survives review
@@ -337,6 +388,12 @@ Rename a Component token in Figma, re-export, re-sync. The summary should say
 | Plugin missing from Figma's menu | development plugins only load in the **desktop** app, not the browser |
 | `"currentuser" permission not specified` | the manifest changed since you imported it — re-import the plugin (§3.1) |
 | Import refused over the file key | the export carried no key. Fill in *Figma file key* on the link, or clear *Figma File Key* in project settings to downgrade the check to a warning |
+| Sync warns *Imported the local tokens.json, not Figma's latest publish* | no access token for this user, no file key in project settings, or *Pull from Figma* is off. The warning says which |
+| *Nothing has been published to Unreal from Figma file…* | nobody has clicked Publish in this file yet. If they have, see the first-live-run note in §3.5 |
+| *…has publishes for …, but none for this project* | a link exists, but its project id is not this project's. Fix the id on the link and publish again |
+| *The publish … is incomplete* or *failed its checksum* | two designers probably published at the same moment. Publish once more |
+| Figma 403 on sync | the token is wrong, expired, or lacks *File content: read* |
+| Figma 429 on sync | rate limit. On a View or Collab seat that is 20 reads a month, so use a Dev/Full seat's token or the committed file |
 | Scan finds 0 variables | you are in a file that neither owns nor binds any — open the library file |
 | `No tests ran` | the `FigmaTokenBridgeEditor` module did not load; check the Output Log for `LogFigmaTokens` |
 | `Incompatible or missing module` | a previous build failed partway. Rebuild; `build-unreal.ps1` now prints the compiler errors |

@@ -8,8 +8,16 @@
   "documentAccess": "dynamic-page",
   "permissions": ["currentuser"],
   "enablePrivatePluginApi": true,
+  "menu": [
+    { "name": "Open Token Bridge", "command": "open" },
+    { "name": "Publish all links to Unreal", "command": "publish-all" }
+  ],
+  "relaunchButtons": [
+    { "command": "publish-all", "name": "Publish tokens to Unreal" },
+    { "command": "open", "name": "Open Token Bridge" }
+  ],
   "networkAccess": {
     "allowedDomains": ["none"],
-    "reasoning": "The plugin never sends data anywhere. Tokens are written to a file the designer saves locally, then committed to source control by a person."
+    "reasoning": "The plugin never sends data anywhere. Publishing stores tokens inside this Figma file's shared plugin data, and Unreal reads them with Figma's own REST API."
   }
 }

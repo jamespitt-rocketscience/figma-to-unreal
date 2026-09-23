@@ -27,16 +27,16 @@ The two existing open-source Figma-to-Unreal tools both generate widgets with co
 | Step | Where | What happens | Result |
 |---|---|---|---|
 | 1 | Figma | Designer scans the design system file | Every colour variable, listed by tier and group |
-| 2 | Figma | Designer picks a link and exports | `tokens.json` downloaded |
-| 3 | Git | The export is committed | A reviewable diff — **this is the review gate** |
-| 4 | Unreal | **Tools → Sync Design Tokens** | `DA_DesignTokens` regenerated in place |
+| 2 | Figma | Designer clicks **Publish tokens to Unreal** | The export is stored inside the Figma file. Nothing is downloaded or sent |
+| 3 | Unreal | **Tools → Sync Design Tokens** | The publish is fetched, `tokens.json` rewritten, `DA_DesignTokens` regenerated in place |
+| 4 | Git | The rewritten `tokens.json` is committed | A reviewable diff — **this is the review gate** |
 | 5 | Unreal | Nothing — widgets already reference the asset | Every widget using those tokens follows |
 
-Data flows one way only: Figma to Git to Unreal. Nothing is ever written back.
+Data flows one way only: Figma to Unreal to Git. Nothing is ever written back to Figma.
 
 Three deliberate choices sit behind that flow.
 
-**The exchange format is a committed JSON file, not a live API call.** Figma's Variables REST API is Enterprise-only and we are on the Organization tier, so a direct read is not available to us. More importantly, a committed `tokens.json` means every change to the design system arrives as a reviewable diff rather than appearing in someone's editor unannounced. **That diff is the review gate.**
+**The designer publishes; Unreal pulls; Git still reviews.** Figma's Variables REST API is Enterprise-only and we are on the Organization tier, so Unreal cannot read variables directly. Instead the plugin, which can, stores the finished export in the Figma file's shared plugin data. Unreal reads that back with Figma's ordinary file endpoint, which works on any plan. So the designer never has to send a file. The fetched export is still written to `tokens.json` and committed, so every change to the design system arrives as a reviewable diff rather than appearing in someone's editor unannounced. **That diff is the review gate.**
 
 **Generated assets are machine-owned.** Everything lands under `/Game/DesignSystem/Generated/`, which nobody edits by hand. Hand-authored widgets live elsewhere and only *reference* what is generated. This is what makes re-syncing non-destructive by construction, rather than by a merge algorithm that is only ever mostly right.
 
@@ -152,13 +152,24 @@ A new link defaults to the `Component` tier, matching the board's own instructio
 
 > **Why you have to type the file key.** `figma.fileKey` is readable only by plugins published privately to the organisation. While the plugin is loaded from a manifest for development, it cannot read it, so you confirm it from your address bar. Once the plugin is published to the org this field fills itself in.
 
-### Export
+### Publish
 
-Click **Export tokens.json** on the link card. The report shows how many tokens are published, how many are exported in total, and any warnings — naming inconsistencies, unusually deep alias chains, genuinely duplicated primitives.
+Click **Publish to Unreal** on the link card. The report shows how many tokens are published, how many are stored in total, and any warnings — naming inconsistencies, unusually deep alias chains, genuinely duplicated primitives. The card then shows when it was last published and by whom, so the whole team can see whether Unreal has something current.
 
-The published count being lower than the exported count is expected, not a bug. See **Publishing gates the picker, not the import**, above.
+The published count being lower than the stored count is expected, not a bug. See **Publishing gates the picker, not the import**, above.
 
-Then **Download tokens.json**, put it in the repository, and commit it. **That commit is how the change reaches developers, and the diff is what gets reviewed.**
+**That is all.** There is nothing to download, send or commit. Developers fetch it with **Sync Design Tokens**.
+
+After the first link exists you do not need to open the plugin at all:
+
+- **Plugins → Figma Token Bridge → Publish all links to Unreal**, or
+- the **Publish tokens to Unreal** button in the right-hand panel when nothing is selected.
+
+Both publish every link in the file and confirm with a toast.
+
+If there are errors, nothing is published, and Unreal keeps the previous publish until you fix them. Unreal pulls whatever is published without anyone checking it first, so a broken export is never stored.
+
+> **Export file** is still on the card, for reviewing an export outside Figma or feeding a project that is not pulling yet. Publishing does not need it.
 
 ---
 
@@ -179,7 +190,8 @@ The plugin has two modules: a runtime module carrying the asset, settings and Bl
 | Setting | What to set |
 |---|---|
 | **Figma File Key** | The key of the design system file. Leave empty to accept any file — not recommended |
-| **Tokens File** | Path to `tokens.json`, relative to the project directory |
+| **Pull From Figma** | On by default. Sync fetches the latest publish instead of reading a file someone sent |
+| **Tokens File** | Path to `tokens.json`, relative to the project directory. Pulling rewrites it on every sync |
 | **Generated Package Path** | Defaults to `/Game/DesignSystem/Generated`. Machine-owned |
 | **Tokens Asset Name** | Defaults to `DA_DesignTokens` |
 | **Active Tokens** | Set automatically on first import |
@@ -190,9 +202,21 @@ The plugin has two modules: a runtime module carrying the asset, settings and Bl
 
 The id is generated on first editor run and written to `Config/DefaultGame.ini`, so it is committed with the project and is the same for everyone. Do not change it — every existing Figma link points at it.
 
+### Add your Figma access token (the developer who syncs)
+
+**Editor Preferences → Plugins → Figma Token Bridge → Figma Access Token.** Create the token in Figma under **Settings → Security → Personal access tokens**, with the *File content: read* scope.
+
+It is saved under `Saved/`, not `DefaultGame.ini`, so it is never committed. Build machines can set `FIGMA_ACCESS_TOKEN` instead.
+
+> **Seat type matters.** Figma allows Dev and Full seats about 20 file reads a minute, but **View and Collab seats only 20 a month**. Each sync is one read. Usually one person with a Dev or Full seat syncs and commits, and everyone else gets the result from source control with no Figma account at all.
+
+*Check For Published Tokens On Startup* in the same place makes the editor ask Figma once per launch and offer **Sync now** if a designer has published since your last import. It is off by default because it spends a read on every launch.
+
 ### Sync
 
 **Tools → Sync Design Tokens.**
+
+With a token, this fetches the designer's latest publish from Figma, rewrites `tokens.json`, and imports it. `tokens.json` is only rewritten if the publish passes both interlocks. Without a token, it imports the local `tokens.json` and warns that it did not fetch from Figma.
 
 You get a summary like `171 tokens (4 added, 2 updated, 165 unchanged, 1 renamed, 0 deprecated), 2 warning(s)`. Detail goes to the Output Log under `LogFigmaTokens`.
 
@@ -268,9 +292,10 @@ A typo or a removed token returns **magenta**, and logs a warning once per token
 ## The everyday loop
 
 1. Designer changes a colour in Figma.
-2. Designer exports `tokens.json` and commits it. **The diff is the review.**
-3. Developer pulls and runs **Tools → Sync Design Tokens**.
-4. Every widget referencing those tokens follows. Nothing is regenerated.
+2. Designer clicks **Publish tokens to Unreal**. Nothing is downloaded or sent.
+3. A developer runs **Tools → Sync Design Tokens** and commits the rewritten `tokens.json` and the generated asset. **The `tokens.json` diff is the review.**
+4. Everyone else gets it from source control.
+5. Every widget referencing those tokens follows. Nothing is regenerated.
 
 ---
 
@@ -290,7 +315,7 @@ A typo or a removed token returns **magenta**, and logs a warning once per token
 
 | What | Where | Why |
 |---|---|---|
-| `tokens.json` | **Git** | The diff is the review gate, and JSON review is what Git is good at |
+| `tokens.json` | **Git** | Rewritten by each sync from Figma. The diff is the review gate, and JSON review is what Git is good at |
 | Figma plugin source | **Git** | Plain JS, no build step |
 | Unreal plugin source | **Git** | |
 | Generated `.uasset` | **Perforce** | Binary assets belong with the rest of the project's content |
@@ -309,6 +334,12 @@ A typo or a removed token returns **magenta**, and logs a warning once per token
 | Export refuses: nothing published | Tick at least one tier or group in the link |
 | Import refused, names two project ids | The export was authored for a different Unreal project. Export from the right link |
 | Import refused, names two file keys | The `tokens.json` came from a different Figma file than this project is paired with |
+| Sync warns it imported the local `tokens.json` | No access token for you, no *Figma File Key*, or *Pull From Figma* is off. The warning says which |
+| *Nothing has been published to Unreal* | Nobody has clicked Publish in that Figma file yet |
+| *Has publishes for …, but none for this project* | A link exists but carries a different project id. Fix the id on the link and publish again |
+| *Incomplete* or *failed its checksum* | Two designers probably published at once. Publish again |
+| Figma 403 on sync | The token is wrong, expired, or lacks *File content: read* |
+| Figma 429 on sync | Rate limit. A View or Collab seat gets 20 reads a month; use a Dev or Full seat's token |
 | Import refused: no target project | The export predates links, or has no project id. Re-export from a link |
 | Blueprint dropdown is empty | No import has run yet, or *Active Tokens* is unset in project settings |
 | Everything is magenta | The fallback. Either no token asset is set, or the token name is unknown — check `LogFigmaTokens` |
@@ -334,7 +365,7 @@ Widget and layout generation is **not** planned. Two open-source tools already d
 |---|---|
 | `figma-plugin/` | The Figma plugin — plain JS, no build step |
 | `tokens/` | Committed `tokens.json` exports |
-| `tools/build-tokens.cjs` | Replays the exporter's logic over a captured fixture; 44 assertions, no Figma access needed |
+| `tools/build-tokens.cjs` | Replays the exporter's logic over a captured fixture; 60 assertions, no Figma access needed |
 | `tools/setup-test-project.ps1` | Links the plugin into the test project |
 | `tools/build-unreal.ps1` | Builds the plugin and runs the automation tests |
 | `tools/md-to-confluence.cjs` | Regenerates the Confluence version of this page from its Markdown source |

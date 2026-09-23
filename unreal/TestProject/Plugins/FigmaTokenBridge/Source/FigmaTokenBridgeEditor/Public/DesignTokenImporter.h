@@ -74,6 +74,14 @@ public:
 	static FDesignTokenImportResult ImportFromSettings();
 
 	/**
+	 * Import a tokens.json fetched from Figma, then write it to SaveToPath so it
+	 * can be reviewed and committed. The file is written only after the document
+	 * passes both handshake checks, so a publish aimed at another project never
+	 * replaces this project's tokens.json. An empty SaveToPath skips the write.
+	 */
+	static FDesignTokenImportResult ImportFromText(const FString& JsonText, const FString& SaveToPath);
+
+	/**
 	 * Create or update the generated asset from an already-parsed document.
 	 * Diffs against what is already there so an unchanged sync is a no-op, which
 	 * matters once this runs against Perforce.

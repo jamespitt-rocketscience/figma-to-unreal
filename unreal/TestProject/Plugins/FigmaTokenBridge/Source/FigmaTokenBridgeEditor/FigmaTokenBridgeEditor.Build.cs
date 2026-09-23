@@ -27,6 +27,7 @@ public class FigmaTokenBridgeEditor : ModuleRules
 			"AssetTools",
 			"Projects",
 			"PropertyEditor",
+			"HTTP",
 			"Json",
 			"JsonUtilities",
 			"DeveloperSettings",

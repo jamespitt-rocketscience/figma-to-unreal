@@ -288,6 +288,73 @@ check('isPublished default excludes Global', bridge.isPublished('Global', '', []
     nothing.errors.some((e) => e.indexOf('Nothing is published') !== -1), true);
 }
 
+// ---------------------------------------------------------------- publish
+
+/*
+ * Publishing stores the export in the Figma file for Unreal to pull. Unreal
+ * reassembles it with its own C++ code, so the checksum vectors below are
+ * repeated in DesignTokenTests.cpp; if the two ever disagree, every sync fails.
+ */
+check('fnv1a32 of the empty string', bridge.fnv1a32(''), '811c9dc5');
+check('fnv1a32 of "a"', bridge.fnv1a32('a'), 'e40c292c');
+check('fnv1a32 of "foobar"', bridge.fnv1a32('foobar'), 'bf9cf968');
+
+check('asciiJson escapes non-ASCII', bridge.asciiJson({ n: 'Blades — café' }),
+  '{"n":"Blades \\u2014 caf\\u00e9"}');
+
+{
+  const info = {
+    linkId: 'link-1', publishId: '1000', publishedAt: '2026-09-23T00:00:00.000Z',
+    publishedBy: 'fixture', publishedCount: built.publishedCount
+  };
+  const plan = bridge.planPublication(built.doc, info);
+  const entries = {};
+  plan.chunks.forEach((c) => { entries[c.key] = c.value; });
+  entries[plan.manifest.key] = plan.manifest.value;
+
+  // Figma's cap is 100 kB per entry, counting the namespace and key too. It does
+  // not say which byte encoding it counts, so hold even UTF-16 under the cap.
+  const worst = Math.max(...plan.chunks.map((c) =>
+    2 * (bridge.PUBLISH_NAMESPACE.length + c.key.length + c.value.length)));
+  check('every chunk fits the 100 kB entry cap, even as UTF-16', worst < 100 * 1024, true);
+  check('chunks are pure ASCII', plan.chunks.every((c) => /^[\x00-\x7e]*$/.test(c.value)), true);
+
+  const back = bridge.readPublication(entries, 'link-1');
+  check('a publication reads back', back.error, undefined);
+  check('a publication round-trips the export exactly', JSON.stringify(back.doc), JSON.stringify(built.doc));
+  check('the manifest names the target project', back.manifest.projectId, FIXTURE_LINK.projectId);
+  check('the manifest carries exportedAt for change detection', back.manifest.exportedAt, built.doc.source.exportedAt);
+
+  // Small chunks force the multi-chunk path whatever the fixture's size.
+  const small = bridge.planPublication(built.doc, Object.assign({}, info, { chunkChars: 1000 }));
+  const smallEntries = {};
+  small.chunks.forEach((c) => { smallEntries[c.key] = c.value; });
+  smallEntries[small.manifest.key] = small.manifest.value;
+  check('a large export splits into many chunks', small.chunks.length > 1, true);
+  check('many chunks reassemble exactly',
+    JSON.stringify(bridge.readPublication(smallEntries, 'link-1').doc), JSON.stringify(built.doc));
+
+  const missing = Object.assign({}, smallEntries);
+  delete missing[small.chunks[1].key];
+  check('a missing chunk is refused',
+    /missing chunk/.test(bridge.readPublication(missing, 'link-1').error || ''), true);
+
+  const tampered = Object.assign({}, smallEntries);
+  const k = small.chunks[0].key;
+  tampered[k] = tampered[k].replace(/#[0-9a-f]{6}/, '#000000');
+  check('a changed chunk fails the checksum',
+    bridge.readPublication(tampered, 'link-1').error, 'checksum mismatch');
+
+  check('nothing published is reported, not thrown',
+    /nothing published/.test(bridge.readPublication(entries, 'link-2').error), true);
+
+  const keys = Object.keys(smallEntries).concat(['chunk/link-1/999/0', 'chunk/link-2/5/0', 'links']);
+  check('clean-up removes only this link’s old chunks',
+    bridge.staleChunkKeys(keys, 'link-1', small.chunks.map((c) => c.key)), ['chunk/link-1/999/0']);
+  check('clean-up does not confuse link-1 with link-10',
+    bridge.staleChunkKeys(['chunk/link-10/1/0'], 'link-1', []), []);
+}
+
 // ---------------------------------------------------------------- write
 
 /*

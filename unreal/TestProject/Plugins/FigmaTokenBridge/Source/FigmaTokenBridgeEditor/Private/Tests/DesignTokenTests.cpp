@@ -7,10 +7,15 @@
 #include "DesignTokenTypes.h"
 #include "DesignTokenLibrary.h"
 #include "DesignTokens.h"
+#include "FigmaPublication.h"
 
+#include "Dom/JsonObject.h"
 #include "HAL/FileManager.h"
 #include "Misc/PackageName.h"
 #include "Misc/ScopeExit.h"
+#include "Policies/CondensedJsonPrintPolicy.h"
+#include "Serialization/JsonSerializer.h"
+#include "Serialization/JsonWriter.h"
 #include "UObject/Package.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
@@ -618,6 +623,201 @@ bool FDesignTokenWriteAssetTest::RunTest(const FString& Parameters)
 		TestEqual(TEXT("asset name restored"), Reloaded->TokensAssetName, OldName);
 		TestEqual(TEXT("active tokens restored"), Reloaded->ActiveTokens.ToString(), OldActive.ToString());
 	}
+
+	return true;
+}
+
+// ---------------------------------------------------------------------------
+// Pulling a publish out of the Figma file.
+//
+// The plugin splits the export into chunks and checksums it (planPublication in
+// figma-plugin/code.js); this reverses it. The two are written in different
+// languages, so the checksum vectors below are the same ones tools/
+// build-tokens.cjs asserts. If either side drifts, both suites fail.
+//
+// The REST response is built here rather than captured, so the test needs no
+// network and no Figma account.
+// ---------------------------------------------------------------------------
+
+namespace
+{
+	FString Condensed(const TSharedRef<FJsonObject>& Obj)
+	{
+		FString Out;
+		const TSharedRef<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> Writer =
+			TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&Out);
+		FJsonSerializer::Serialize(Obj, Writer);
+		return Out;
+	}
+
+	/** A manifest as the plugin writes it, for a document split into ChunkKeys. */
+	FString MakeManifest(const FString& LinkId, const FString& ProjectId, const FString& PublishedAt,
+		const TArray<FString>& ChunkKeys, const FString& FullText)
+	{
+		const TSharedRef<FJsonObject> M = MakeShared<FJsonObject>();
+		M->SetStringField(TEXT("schema"), FFigmaPublicationReader::Schema);
+		M->SetStringField(TEXT("linkId"), LinkId);
+		M->SetStringField(TEXT("linkName"), LinkId + TEXT(" name"));
+		M->SetStringField(TEXT("projectId"), ProjectId);
+		M->SetStringField(TEXT("projectName"), TEXT("TestProject"));
+		M->SetStringField(TEXT("publishId"), TEXT("1000"));
+		M->SetStringField(TEXT("publishedAt"), PublishedAt);
+		M->SetStringField(TEXT("publishedBy"), TEXT("automation"));
+		M->SetStringField(TEXT("exportedAt"), TEXT("2026-08-19T00:00:00.000Z"));
+
+		TArray<TSharedPtr<FJsonValue>> Keys;
+		for (const FString& K : ChunkKeys)
+		{
+			Keys.Add(MakeShared<FJsonValueString>(K));
+		}
+		M->SetArrayField(TEXT("chunks"), Keys);
+		M->SetNumberField(TEXT("length"), FullText.Len());
+		M->SetStringField(TEXT("checksum"), FFigmaPublicationReader::Fnv1a32(FullText));
+		return Condensed(M);
+	}
+
+	/** GET /v1/files/:key?plugin_data=shared, reduced to the part we read. */
+	FString MakeFileResponse(const TMap<FString, FString>& Entries)
+	{
+		const TSharedRef<FJsonObject> Ns = MakeShared<FJsonObject>();
+		for (const TPair<FString, FString>& E : Entries)
+		{
+			Ns->SetStringField(E.Key, E.Value);
+		}
+		const TSharedRef<FJsonObject> Shared = MakeShared<FJsonObject>();
+		Shared->SetObjectField(FFigmaPublicationReader::Namespace, Ns);
+
+		const TSharedRef<FJsonObject> Document = MakeShared<FJsonObject>();
+		Document->SetStringField(TEXT("type"), TEXT("DOCUMENT"));
+		Document->SetObjectField(TEXT("sharedPluginData"), Shared);
+
+		const TSharedRef<FJsonObject> Root = MakeShared<FJsonObject>();
+		Root->SetStringField(TEXT("name"), TEXT("Test file"));
+		Root->SetObjectField(TEXT("document"), Document);
+		return Condensed(Root);
+	}
+
+	/** Split Text into three chunks for LinkId and add them, plus a manifest. */
+	void AddPublication(TMap<FString, FString>& Entries, const FString& LinkId, const FString& ProjectId,
+		const FString& PublishedAt, const FString& Text)
+	{
+		const int32 Third = Text.Len() / 3;
+		const TArray<FString> Parts = { Text.Left(Third), Text.Mid(Third, Third), Text.Mid(2 * Third) };
+		TArray<FString> Keys;
+		for (int32 i = 0; i < Parts.Num(); ++i)
+		{
+			const FString Key = FString::Printf(TEXT("chunk/%s/1000/%d"), *LinkId, i);
+			Entries.Add(Key, Parts[i]);
+			Keys.Add(Key);
+		}
+		Entries.Add(TEXT("manifest/") + LinkId, MakeManifest(LinkId, ProjectId, PublishedAt, Keys, Text));
+	}
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDesignTokenPublicationTest,
+	"FigmaTokenBridge.Publication.PullFromFigma",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FDesignTokenPublicationTest::RunTest(const FString& Parameters)
+{
+	// Same vectors as tools/build-tokens.cjs.
+	TestEqual(TEXT("fnv1a32 of the empty string"), FFigmaPublicationReader::Fnv1a32(TEXT("")), TEXT("811c9dc5"));
+	TestEqual(TEXT("fnv1a32 of \"a\""), FFigmaPublicationReader::Fnv1a32(TEXT("a")), TEXT("e40c292c"));
+	TestEqual(TEXT("fnv1a32 of \"foobar\""), FFigmaPublicationReader::Fnv1a32(TEXT("foobar")), TEXT("bf9cf968"));
+
+	const FString MyId = UDesignTokenSettings::GetOrCreateProjectId();
+	const FString OtherId = TEXT("FFFFFFFF-FFFF-4FFF-8FFF-FFFFFFFFFFFF");
+	const FString DocText = MakeDoc(MyId, GoalsChain);
+
+	// The round trip, ending in the importer so the pulled text is proven usable.
+	{
+		TMap<FString, FString> Entries;
+		AddPublication(Entries, TEXT("link-1"), MyId, TEXT("2026-09-23T10:00:00.000Z"), DocText);
+		Entries.Add(TEXT("links"), TEXT("{\"version\":1,\"links\":[]}"));  // the plugin's own config, ignored
+
+		FFigmaPublication P;
+		TArray<FString> Errors, Warnings;
+		TestTrue(TEXT("reads this project's publish"),
+			FFigmaPublicationReader::ReadFromFileResponse(MakeFileResponse(Entries), MyId, P, Errors, Warnings));
+		TestEqual(TEXT("reassembles the export exactly"), P.DocumentJson, DocText);
+		TestEqual(TEXT("carries who published"), P.PublishedBy, FString(TEXT("automation")));
+		TestEqual(TEXT("carries exportedAt for change detection"), P.ExportedAt, FString(TEXT("2026-08-19T00:00:00.000Z")));
+
+		FDesignTokenDocument Doc;
+		FDesignTokenImportResult Result;
+		TestTrue(TEXT("the pulled export passes the importer"), FDesignTokenImporter::ParseDocument(P.DocumentJson, Doc, Result));
+	}
+
+	// A missing chunk is refused, never imported short.
+	{
+		TMap<FString, FString> Entries;
+		AddPublication(Entries, TEXT("link-1"), MyId, TEXT("2026-09-23T10:00:00.000Z"), DocText);
+		Entries.Remove(TEXT("chunk/link-1/1000/1"));
+
+		FFigmaPublication P;
+		TArray<FString> Errors, Warnings;
+		TestFalse(TEXT("refuses a publish with a missing chunk"),
+			FFigmaPublicationReader::ReadFromFileResponse(MakeFileResponse(Entries), MyId, P, Errors, Warnings));
+		TestTrue(TEXT("and says it is incomplete"), Errors.Num() > 0 && Errors[0].Contains(TEXT("incomplete")));
+	}
+
+	// A changed chunk fails the checksum.
+	{
+		TMap<FString, FString> Entries;
+		AddPublication(Entries, TEXT("link-1"), MyId, TEXT("2026-09-23T10:00:00.000Z"), DocText);
+		FString& First = Entries.FindChecked(TEXT("chunk/link-1/1000/0"));
+		First[First.Len() - 1] = First[First.Len() - 1] == TEXT('x') ? TEXT('y') : TEXT('x');
+
+		FFigmaPublication P;
+		TArray<FString> Errors, Warnings;
+		TestFalse(TEXT("refuses a corrupted publish"),
+			FFigmaPublicationReader::ReadFromFileResponse(MakeFileResponse(Entries), MyId, P, Errors, Warnings));
+		TestTrue(TEXT("and says why"), Errors.Num() > 0 && Errors[0].Contains(TEXT("checksum")));
+	}
+
+	// Published for someone else only: the error names what IS there.
+	{
+		TMap<FString, FString> Entries;
+		AddPublication(Entries, TEXT("link-other"), OtherId, TEXT("2026-09-23T10:00:00.000Z"), DocText);
+
+		FFigmaPublication P;
+		TArray<FString> Errors, Warnings;
+		TestFalse(TEXT("finds nothing for this project"),
+			FFigmaPublicationReader::ReadFromFileResponse(MakeFileResponse(Entries), MyId, P, Errors, Warnings));
+		TestTrue(TEXT("and names both project ids"),
+			Errors.Num() > 0 && Errors[0].Contains(OtherId) && Errors[0].Contains(MyId));
+	}
+
+	// Nothing published at all.
+	{
+		FFigmaPublication P;
+		TArray<FString> Errors, Warnings;
+		TestFalse(TEXT("reports an unpublished file"),
+			FFigmaPublicationReader::ReadFromFileResponse(TEXT("{\"name\":\"Test file\",\"document\":{\"type\":\"DOCUMENT\"}}"),
+				MyId, P, Errors, Warnings));
+		TestTrue(TEXT("and tells the reader to publish"),
+			Errors.Num() > 0 && Errors[0].Contains(TEXT("Publish to Unreal")));
+	}
+
+	// Two links aimed here: the newest wins, and the ambiguity is reported.
+	{
+		TMap<FString, FString> Entries;
+		AddPublication(Entries, TEXT("link-old"), MyId, TEXT("2026-09-20T10:00:00.000Z"), DocText);
+		AddPublication(Entries, TEXT("link-new"), MyId, TEXT("2026-09-23T10:00:00.000Z"), DocText);
+
+		FFigmaPublication P;
+		TArray<FString> Errors, Warnings;
+		TestTrue(TEXT("reads one of two publishes"),
+			FFigmaPublicationReader::ReadFromFileResponse(MakeFileResponse(Entries), MyId, P, Errors, Warnings));
+		TestEqual(TEXT("picks the most recent"), P.LinkId, FString(TEXT("link-new")));
+		TestTrue(TEXT("warns about the duplicate link"), Warnings.Num() > 0);
+	}
+
+	// The pulled file must diff cleanly against a downloaded one, which is
+	// JSON.stringify(doc, null, 2). Expected output generated by Node.
+	TestEqual(TEXT("pretty-prints like JSON.stringify(..., null, 2)"),
+		FFigmaPublicationReader::PrettyPrint(TEXT("{\"a\":1,\"b\":[0.8,\"x,y:{\"],\"c\":{},\"d\":[],\"e\":{\"f\":\"q\\\"}\"}}")),
+		FString(TEXT("{\n  \"a\": 1,\n  \"b\": [\n    0.8,\n    \"x,y:{\"\n  ],\n  \"c\": {},\n  \"d\": [],\n  \"e\": {\n    \"f\": \"q\\\"}\"\n  }\n}\n")));
 
 	return true;
 }
