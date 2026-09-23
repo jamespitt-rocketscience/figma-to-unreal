@@ -1,0 +1,15 @@
+{
+  "name": "Figma Token Bridge",
+  "id": "figma-token-bridge-rocketscience",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "permissions": ["currentuser"],
+  "enablePrivatePluginApi": true,
+  "networkAccess": {
+    "allowedDomains": ["none"],
+    "reasoning": "The plugin never sends data anywhere. Tokens are written to a file the designer saves locally, then committed to source control by a person."
+  }
+}

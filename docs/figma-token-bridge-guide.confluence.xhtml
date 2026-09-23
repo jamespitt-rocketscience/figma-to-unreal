@@ -1,0 +1,160 @@
+<ac:structured-macro ac:name="toc" ac:schema-version="1">
+  <ac:parameter ac:name="maxLevel">2</ac:parameter>
+  <ac:parameter ac:name="minLevel">2</ac:parameter>
+</ac:structured-macro>
+<p>A designer changes a colour in Figma. Every widget in Unreal that uses it follows, without anyone regenerating or re-importing a single widget.</p>
+<p>That is the whole product. This page explains how it works on both sides, then walks through installing and using it.</p>
+<p><strong>Status:</strong> Phase 0 — colour only. Typography, icons and layout are deliberately out of scope for now; see <strong>Not in scope yet</strong>, below.</p>
+<p><strong>Engine:</strong> Unreal Engine 5.8.</p>
+<hr />
+<h2>The problem it solves</h2>
+<p>Before this, getting a colour from Figma into Unreal meant reading a hex value and typing it into a widget. That copy has three problems:</p>
+<ul><li><p><strong>It forgets where it came from.</strong> Nothing in the project records that <code>#00d86c</code> was the Goals accent rather than an arbitrary green.</p></li><li><p><strong>It does not update.</strong> Rebrand a colour and someone has to find every widget that used it. Anything missed is wrong, quietly.</p></li><li><p><strong>It is easy to get subtly wrong.</strong> Figma gives you sRGB; Unreal's <code>FLinearColor</code> is linear. Copying the bytes across turns <code>#00d86c</code> into a colour 19% out in green and nearly 3× out in blue — wrong in a way that looks like a design decision, so it survives review.</p></li></ul>
+<p>The two existing open-source Figma-to-Unreal tools both generate widgets with colours baked in, so a recolour means regenerating widgets. This bridge does the opposite: it generates <strong>one referenced asset</strong>, and widgets point at it.</p>
+<hr />
+<h2>How it works</h2>
+<table><tbody><tr><th>Step</th><th>Where</th><th>What happens</th><th>Result</th></tr><tr><td>1</td><td>Figma</td><td>Designer scans the design system file</td><td>Every colour variable, listed by tier and group</td></tr><tr><td>2</td><td>Figma</td><td>Designer picks a link and exports</td><td><code>tokens.json</code> downloaded</td></tr><tr><td>3</td><td>Git</td><td>The export is committed</td><td>A reviewable diff — <strong>this is the review gate</strong></td></tr><tr><td>4</td><td>Unreal</td><td><strong>Tools → Sync Design Tokens</strong></td><td><code>DA_DesignTokens</code> regenerated in place</td></tr><tr><td>5</td><td>Unreal</td><td>Nothing — widgets already reference the asset</td><td>Every widget using those tokens follows</td></tr></tbody></table>
+<p>Data flows one way only: Figma to Git to Unreal. Nothing is ever written back.</p>
+<p>Three deliberate choices sit behind that flow.</p>
+<p><strong>The exchange format is a committed JSON file, not a live API call.</strong> Figma's Variables REST API is Enterprise-only and we are on the Organization tier, so a direct read is not available to us. More importantly, a committed <code>tokens.json</code> means every change to the design system arrives as a reviewable diff rather than appearing in someone's editor unannounced. <strong>That diff is the review gate.</strong></p>
+<p><strong>Generated assets are machine-owned.</strong> Everything lands under <code>/Game/DesignSystem/Generated/</code>, which nobody edits by hand. Hand-authored widgets live elsewhere and only <em>reference</em> what is generated. This is what makes re-syncing non-destructive by construction, rather than by a merge algorithm that is only ever mostly right.</p>
+<p><strong>Identity is Figma's variable key, not the name.</strong> Keys survive renames and survive the design system moving between files. That is how the importer can tell a rename from a delete-plus-add.</p>
+<hr />
+<h2>Concepts you need</h2>
+<h3>The three tiers</h3>
+<p>Our design system is an alias graph in three tiers. Only the first holds real values.</p>
+<table><tbody><tr><th>Tier</th><th>Holds</th><th>Example</th></tr><tr><td><code>Global/</code></td><td>The only literal values</td><td><code>Global/green-400</code> = <code>#00d86c</code></td></tr><tr><td><code>Semantic/</code></td><td>Aliases naming an <em>intent</em></td><td><code>Semantic/accent-green</code> → <code>Global/green-400</code></td></tr><tr><td><code>Component/</code></td><td>Aliases naming a <em>usage</em></td><td><code>Component/Blades/accent-goals</code> → <code>Semantic/accent-green</code></td></tr></tbody></table>
+<p><strong>UI work should only ever reference <code>Component/</code> tokens.</strong> That is why the source board in Figma is titled <em>"Only choose color variables from here"</em>, and the Unreal side enforces it: the token dropdown offers Component tokens and nothing else.</p>
+<p>A useful consequence: two Component tokens can share a colour without being duplicates. <code>accent-goals</code> and <code>vital-heart-rate</code> are both green because both alias <code>Semantic/accent-green</code>. Change that one Semantic alias and both follow — which is correct, because they mean related things.</p>
+<h3>Token names</h3>
+<p>Figma names are normalised into something Unreal can use as an <code>FName</code>:</p>
+<ac:structured-macro ac:name="code" ac:schema-version="1">
+  <ac:plain-text-body><![CDATA[Component/Icons - Secondary/vital-heart-rate
+        ↓
+component.icons_secondary.vital_heart_rate]]></ac:plain-text-body>
+</ac:structured-macro>
+<p>Lower-cased, non-alphanumerics collapsed to underscores, path separators become dots. The conversion is automatic and there are no per-token overrides.</p>
+<h3>Links</h3>
+<p>A <strong>link</strong> says: <em>this part of the design system feeds that Unreal project</em>.</p>
+<p>The designer authors links in the Figma plugin. Each one carries:</p>
+<ul><li><p>a name, for humans</p></li><li><p>the target <strong>Unreal project id</strong></p></li><li><p>the <strong>Figma file key</strong></p></li><li><p>which tiers and groups are <strong>published</strong> to that project</p></li></ul>
+<p>Links are stored on the Figma document itself, so the whole design team sees the same set rather than one person's local config. One Figma file can hold as many links as there are Unreal projects consuming it.</p>
+<h3>Publishing gates the picker, not the import</h3>
+<p>This is the one thing most likely to be misread, so to be precise:</p>
+<p><strong>An unpublished token is still exported and still imported.</strong> It has to be — the alias graph needs <code>Semantic</code> and <code>Global</code> present to resolve a <code>Component</code> token down to a literal value. Drop them and nothing resolves.</p>
+<p>What publishing changes is what Unreal <strong>offers</strong>. The Blueprint and UMG token dropdowns list published tokens only. So a developer sees exactly the surface the designer intended, and cannot reach for something out of scope by accident.</p>
+<h3>The two interlocks</h3>
+<p>Neither side can be silently wrong about where tokens are going.</p>
+<table><tbody><tr><th>Direction</th><th>Mechanism</th><th>Failure</th></tr><tr><td><strong>Figma → Unreal</strong></td><td>The export names the Unreal project id it was authored for</td><td>The importer refuses an export aimed elsewhere, and names both ids</td></tr><tr><td><strong>Unreal → Figma</strong></td><td>Project settings name the Figma file this project is paired with</td><td>The importer refuses a <code>tokens.json</code> from any other file</td></tr></tbody></table>
+<p>Both are on by default. Both have an off switch — <code>bRequireProjectIdMatch</code> and <code>bRequireFileKeyMatch</code> — for a deliberate re-link.</p>
+<p>The project id is a <strong>GUID</strong>, not the project name. Names get renamed and reused, and a link silently pointing at the wrong project is worse than one that visibly breaks.</p>
+<h3>Read modes</h3>
+<p>When the plugin scans a file it reports which of two modes applied:</p>
+<ul><li><p><strong>Library file</strong> — this file <em>owns</em> the variables. Authoritative: every variable is returned whether anything uses it or not.</p></li><li><p><strong>Consuming file</strong> — this file <em>subscribes</em> to a published library. The scan can only find variables bound to something on the current page.</p></li></ul>
+<p>Consuming mode is fine for a complete token board, but both the plugin and the Unreal importer flag it, so nobody mistakes a partial export for a full one. <strong>Run the plugin in the library file whenever you can.</strong></p>
+<hr />
+<h2>Part 1 — For designers (Figma)</h2>
+<h3>Install the plugin</h3>
+<p>Development plugins only load in the <strong>Figma desktop app</strong>, not the browser.</p>
+<ol><li><p><strong>Plugins → Development → Import plugin from manifest…</strong></p></li><li><p>Choose <code>figma-plugin/manifest.json</code> from the repository.</p></li></ol>
+<p>There is no build step. If <code>manifest.json</code> itself changes, remove the plugin and re-import it — Figma reads the manifest once, at import.</p>
+<h3>Scan the file</h3>
+<p>Open the design system file, then <strong>Plugins → Development → Figma Token Bridge → Scan this file</strong>.</p>
+<p>The report tells you the read mode, how many variables were found, and lists the tiers and groups. Check the read mode says <strong>library file</strong> before going further.</p>
+<p>If it reports <strong>0 variables</strong>, you are in a file that neither owns nor binds any — open the library file instead.</p>
+<h3>Create a link</h3>
+<p>Click <strong>New link…</strong> and fill in:</p>
+<table><tbody><tr><th>Field</th><th>Where it comes from</th></tr><tr><td>Link name</td><td>Whatever helps humans, e.g. <em>Clinical Sim — main UI</em></td></tr><tr><td>Unreal project id</td><td>The developer sends it: <strong>Tools → Copy Project Id for Figma</strong> in Unreal</td></tr><tr><td>Unreal project name</td><td>Optional, for readability</td></tr><tr><td>Figma file key</td><td>The part of this file's URL after <code>/design/</code></td></tr><tr><td>Publish to Unreal</td><td>Tick the tiers and groups this project may use</td></tr></tbody></table>
+<p>A new link defaults to the <code>Component</code> tier, matching the board's own instruction.</p>
+<ac:structured-macro ac:name="info" ac:schema-version="1">
+  <ac:rich-text-body><p><strong>Why you have to type the file key.</strong> <code>figma.fileKey</code> is readable only by plugins published privately to the organisation. While the plugin is loaded from a manifest for development, it cannot read it, so you confirm it from your address bar. Once the plugin is published to the org this field fills itself in.</p></ac:rich-text-body>
+</ac:structured-macro>
+<h3>Export</h3>
+<p>Click <strong>Export tokens.json</strong> on the link card. The report shows how many tokens are published, how many are exported in total, and any warnings — naming inconsistencies, unusually deep alias chains, genuinely duplicated primitives.</p>
+<p>The published count being lower than the exported count is expected, not a bug. See <strong>Publishing gates the picker, not the import</strong>, above.</p>
+<p>Then <strong>Download tokens.json</strong>, put it in the repository, and commit it. <strong>That commit is how the change reaches developers, and the diff is what gets reviewed.</strong></p>
+<hr />
+<h2>Part 2 — For developers (Unreal)</h2>
+<h3>Install the plugin into a project</h3>
+<ol><li><p>Copy <code>unreal/Plugins/FigmaTokenBridge</code> into your project's <code>Plugins/</code> folder.</p></li><li><p>Regenerate project files and build.</p></li><li><p>Enable the plugin if it is not already.</p></li></ol>
+<p>The plugin has two modules: a runtime module carrying the asset, settings and Blueprint API, and an editor module carrying the importer, menus and tests.</p>
+<h3>Pair the project with a Figma file</h3>
+<p><strong>Project Settings → Plugins → Figma Token Bridge</strong></p>
+<table><tbody><tr><th>Setting</th><th>What to set</th></tr><tr><td><strong>Figma File Key</strong></td><td>The key of the design system file. Leave empty to accept any file — not recommended</td></tr><tr><td><strong>Tokens File</strong></td><td>Path to <code>tokens.json</code>, relative to the project directory</td></tr><tr><td><strong>Generated Package Path</strong></td><td>Defaults to <code>/Game/DesignSystem/Generated</code>. Machine-owned</td></tr><tr><td><strong>Tokens Asset Name</strong></td><td>Defaults to <code>DA_DesignTokens</code></td></tr><tr><td><strong>Active Tokens</strong></td><td>Set automatically on first import</td></tr></tbody></table>
+<h3>Send your project id to the designer</h3>
+<p><strong>Tools → Copy Project Id for Figma</strong> puts it on the clipboard.</p>
+<p>The id is generated on first editor run and written to <code>Config/DefaultGame.ini</code>, so it is committed with the project and is the same for everyone. Do not change it — every existing Figma link points at it.</p>
+<h3>Sync</h3>
+<p><strong>Tools → Sync Design Tokens.</strong></p>
+<p>You get a summary like <code>171 tokens (4 added, 2 updated, 165 unchanged, 1 renamed, 0 deprecated), 2 warning(s)</code>. Detail goes to the Output Log under <code>LogFigmaTokens</code>.</p>
+<p>If the import is refused, the error says exactly which interlock failed and names both values. That is working as designed — read the message before changing settings.</p>
+<hr />
+<h2>Using tokens</h2>
+<h3>In UMG — the token-aware widgets</h3>
+<p>This is the preferred way inside widgets. In the UMG palette, under <strong>Design System</strong>:</p>
+<table><tbody><tr><th>Widget</th><th>Token properties</th><th>What they drive</th></tr><tr><td><strong>Token Border</strong></td><td>Brush Colour Token, Content Colour Token</td><td><code>BrushColor</code>, <code>ContentColorAndOpacity</code></td></tr><tr><td><strong>Token Image</strong></td><td>Colour Token</td><td><code>ColorAndOpacity</code></td></tr><tr><td><strong>Token Text Block</strong></td><td>Colour Token</td><td><code>ColorAndOpacity</code></td></tr></tbody></table>
+<p>Set a token and the Details panel shows a swatch, the resolved value, and the alias chain in Figma names:</p>
+<ac:structured-macro ac:name="code" ac:schema-version="1">
+  <ac:plain-text-body><![CDATA[Brush Colour Token  [swatch] [component.chat.bg_bubble ▾]
+  Resolves to       #1c1b1a · alpha 1.00 · Component tier
+                    Component/Chat/bg-bubble → Semantic/bg-primary → Global/gray-900]]></ac:plain-text-body>
+</ac:structured-macro>
+<p>That last row is what answers <em>"why is this colour this colour"</em> without opening Figma.</p>
+<p>The widget stores the token <strong>name</strong>, never the colour, and resolves it whenever the widget synchronises — which happens both in the Designer and at runtime. So the Designer shows the real colour while you author, and a re-sync reaches every placed instance with nothing regenerated.</p>
+<p>Two things to know:</p>
+<ul><li><p><strong>Leaving a token as <code>None</code> makes the widget behave exactly like the stock one it derives from.</strong> Reparenting an existing <code>Border</code> to a <code>Token Border</code> is therefore safe and reversible.</p></li><li><p><strong>Once a token is set, that colour property is machine-owned.</strong> Editing <em>Brush Color</em> by hand will appear to work and then be overwritten on the next synchronise. Clear the token if you want manual control back.</p></li></ul>
+<h3>In Blueprint</h3>
+<p>Works anywhere, not just in widgets.</p>
+<table><tbody><tr><th>Node</th><th>Returns</th><th>Notes</th></tr><tr><td><strong>Get Design Colour</strong></td><td><code>FLinearColor</code></td><td>Token pin is a dropdown of published tokens</td></tr><tr><td><strong>Get Design Slate Colour</strong></td><td><code>FSlateColor</code></td><td>For Slate-typed properties such as <code>UTextBlock::ColorAndOpacity</code></td></tr><tr><td><strong>Get Design Colour Any Tier</strong></td><td><code>FLinearColor</code></td><td>Dropdown offers every tier. For the rare genuine exception</td></tr><tr><td><strong>Has Design Token</strong></td><td><code>bool</code></td><td></td></tr><tr><td><strong>Get Design Token Info</strong></td><td><code>FDesignColourToken</code></td><td>Full record: hex, tier, group, Figma name and key, alias chain, flags</td></tr><tr><td><strong>Get Design Tokens</strong></td><td><code>UDesignTokens</code></td><td>The asset itself, for building palette or debug screens</td></tr><tr><td><strong>Invalidate Design Token Cache</strong></td><td>—</td><td>Rarely needed; the importer calls it for you</td></tr></tbody></table>
+<p>If you are setting a colour on a stock widget from a graph, do it in <strong>Event PreConstruct</strong>. It runs in the Designer preview as well as at runtime, so you see the real colour while authoring. Avoid a property <strong>Binding</strong> — bindings re-evaluate every frame, and a token only ever changes at editor time.</p>
+<h3>From C++</h3>
+<p>Add <code>"FigmaTokenBridge"</code> to your module's <code>Build.cs</code>, then:</p>
+<ac:structured-macro ac:name="code" ac:schema-version="1">
+  <ac:parameter ac:name="language">cpp</ac:parameter>
+  <ac:plain-text-body><![CDATA[#include "DesignTokenLibrary.h"
+
+const FLinearColor Accent =
+    UDesignTokenLibrary::GetDesignColour(TEXT("component.blades.accent_goals"));
+
+MyTextBlock->SetColorAndOpacity(
+    UDesignTokenLibrary::GetDesignSlateColour(TEXT("component.chat.fg_message")));]]></ac:plain-text-body>
+</ac:structured-macro>
+<h3>What a mistake looks like</h3>
+<p>A typo or a removed token returns <strong>magenta</strong>, and logs a warning once per token per session under <code>LogFigmaTokens</code>. Magenta is deliberate: a silent black or white reads as a design choice and ships, whereas magenta gets noticed and fixed.</p>
+<hr />
+<h2>The everyday loop</h2>
+<ol><li><p>Designer changes a colour in Figma.</p></li><li><p>Designer exports <code>tokens.json</code> and commits it. <strong>The diff is the review.</strong></p></li><li><p>Developer pulls and runs <strong>Tools → Sync Design Tokens</strong>.</p></li><li><p>Every widget referencing those tokens follows. Nothing is regenerated.</p></li></ol>
+<hr />
+<h2>What happens when the design system changes</h2>
+<p><strong>A token is renamed.</strong> Matched by its Figma key, so the import reports <code>1 renamed</code> rather than an add plus a delete. The log names the old and new names so references can be updated.</p>
+<p><strong>A token is deleted.</strong> It is <em>not</em> removed from the asset. It is marked deprecated, keeps resolving to its last known value, and warns. Removing it is a separate, deliberate act. Otherwise a tidy-up in Figma turns shipped UI magenta in a build nobody looked at.</p>
+<p><strong>A colour changes.</strong> Nothing to do beyond re-syncing. This is the case the whole system exists for.</p>
+<p><strong>Publishing changes.</strong> A token moving in or out of the published set counts as a real change, because it moves in or out of the developer-facing dropdown.</p>
+<hr />
+<h2>Version control</h2>
+<table><tbody><tr><th>What</th><th>Where</th><th>Why</th></tr><tr><td><code>tokens.json</code></td><td><strong>Git</strong></td><td>The diff is the review gate, and JSON review is what Git is good at</td></tr><tr><td>Figma plugin source</td><td><strong>Git</strong></td><td>Plain JS, no build step</td></tr><tr><td>Unreal plugin source</td><td><strong>Git</strong></td><td></td></tr><tr><td>Generated <code>.uasset</code></td><td><strong>Perforce</strong></td><td>Binary assets belong with the rest of the project's content</td></tr></tbody></table>
+<hr />
+<h2>Troubleshooting</h2>
+<table><tbody><tr><th>Symptom</th><th>Cause</th></tr><tr><td>Plugin missing from Figma's menu</td><td>Development plugins only load in the Figma <strong>desktop</strong> app</td></tr><tr><td><code>"currentuser" permission not specified</code></td><td>The manifest changed since you imported it — remove and re-import the plugin</td></tr><tr><td>Scan finds 0 variables</td><td>You are in a file that neither owns nor binds any — open the library file</td></tr><tr><td>Scan says <em>consuming file</em></td><td>You are in a subscriber. Only canvas-bound variables were found; run it in the library file</td></tr><tr><td>Export refuses: no project link</td><td>Create a link and paste the Unreal project id into it</td></tr><tr><td>Export refuses: nothing published</td><td>Tick at least one tier or group in the link</td></tr><tr><td>Import refused, names two project ids</td><td>The export was authored for a different Unreal project. Export from the right link</td></tr><tr><td>Import refused, names two file keys</td><td>The <code>tokens.json</code> came from a different Figma file than this project is paired with</td></tr><tr><td>Import refused: no target project</td><td>The export predates links, or has no project id. Re-export from a link</td></tr><tr><td>Blueprint dropdown is empty</td><td>No import has run yet, or <em>Active Tokens</em> is unset in project settings</td></tr><tr><td>Everything is magenta</td><td>The fallback. Either no token asset is set, or the token name is unknown — check <code>LogFigmaTokens</code></td></tr><tr><td>Colours will not change after a re-sync</td><td><em>Active Tokens</em> may point at an old asset. Re-check project settings</td></tr></tbody></table>
+<hr />
+<h2>Not in scope yet</h2>
+<p>Phase 0 is colour only. In rough order:</p>
+<ul><li><p><strong>Phase 1</strong> — Perforce checkout and revert-if-unchanged, reimport factories, a commandlet so CI can sync headlessly.</p></li><li><p><strong>Phase 2</strong> — icons as multi-scale PNG to <code>Texture2D</code> and <code>FSlateBrush</code>; typography as a composite <code>UFont</code>; Common UI style Blueprints.</p></li><li><p><strong>Phase 3</strong> — gradient paint styles as material instances, Figma modes for theming, and <code>LIBRARY_PUBLISH</code> webhook automation so a publish in Figma can trigger a sync.</p></li></ul>
+<p>Widget and layout generation is <strong>not</strong> planned. Two open-source tools already do that, and neither solves the token problem this bridge exists for.</p>
+<hr />
+<h2>Where things live</h2>
+<table><tbody><tr><th>Path</th><th>What</th></tr><tr><td><code>figma-plugin/</code></td><td>The Figma plugin — plain JS, no build step</td></tr><tr><td><code>tokens/</code></td><td>Committed <code>tokens.json</code> exports</td></tr><tr><td><code>tools/build-tokens.cjs</code></td><td>Replays the exporter's logic over a captured fixture; 44 assertions, no Figma access needed</td></tr><tr><td><code>tools/setup-test-project.ps1</code></td><td>Links the plugin into the test project</td></tr><tr><td><code>tools/build-unreal.ps1</code></td><td>Builds the plugin and runs the automation tests</td></tr><tr><td><code>tools/md-to-confluence.cjs</code></td><td>Regenerates the Confluence version of this page from its Markdown source</td></tr><tr><td><code>unreal/Plugins/FigmaTokenBridge/</code></td><td>The Unreal plugin — this is the folder you copy into a project</td></tr><tr><td><code>unreal/TestProject/</code></td><td>A throwaway host project for testing the plugin</td></tr><tr><td><code>TESTING.md</code></td><td>End-to-end test runbook</td></tr></tbody></table>
+<h3>Running the tests</h3>
+<ac:structured-macro ac:name="code" ac:schema-version="1">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[node tools/build-tokens.cjs                  # exporter logic, under a second, no Figma needed
+powershell -File tools\build-unreal.ps1      # builds the plugin, runs UE automation tests]]></ac:plain-text-body>
+</ac:structured-macro>
+<p>The Unreal tests also run from <strong>Tools → Test Automation → <code>FigmaTokenBridge</code></strong> in the editor.</p>
+<h3>Updating this page</h3>
+<p>The Markdown at <code>docs/figma-token-bridge-guide.md</code> is the source of truth. After editing it:</p>
+<ac:structured-macro ac:name="code" ac:schema-version="1">
+  <ac:parameter ac:name="language">bash</ac:parameter>
+  <ac:plain-text-body><![CDATA[node tools/md-to-confluence.cjs docs/figma-token-bridge-guide.md]]></ac:plain-text-body>
+</ac:structured-macro>
+<p>Then paste the regenerated <code>.confluence.xhtml</code> over the page body via <strong>Insert → Markup → Confluence storage format</strong>. Editing the Confluence page directly is fine for a typo, but the change will be lost the next time the page is regenerated.</p>

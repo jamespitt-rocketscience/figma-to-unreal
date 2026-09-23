@@ -1,0 +1,9 @@
+node_modules/
+*.log
+Binaries/
+Intermediate/
+Saved/
+DerivedDataCache/
+.vs/
+*.sln
+dist/

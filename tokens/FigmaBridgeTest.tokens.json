@@ -1,0 +1,495 @@
+{
+  "schema": "figma-token-bridge/1",
+  "source": {
+    "fileKey": "FruupulmvbUZbkUlTQ0kIm",
+    "fileName": "Figma Token Bridge — Test Design System",
+    "readMode": "local",
+    "collectionId": "VariableCollectionId:2:2",
+    "defaultModeId": "2:0",
+    "modes": [
+      {
+        "id": "2:0",
+        "name": "Value"
+      }
+    ],
+    "exportedAt": "2026-08-19T00:00:00.000Z",
+    "exportedBy": "tools/build-tokens.cjs"
+  },
+  "target": {
+    "projectId": "6F30C3F5-4C69-CDC4-3E57-28BCFECECADF",
+    "projectName": "FigmaBridgeTest",
+    "linkName": "FigmaBridgeTest — smoke test",
+    "published": [
+      "Component"
+    ],
+    "linkedBy": "tools/build-tokens.cjs",
+    "linkedAt": "2026-08-19T00:00:00.000Z"
+  },
+  "colours": [
+    {
+      "key": "a865b784a3274d84b4edda35f629ce4ea8a86fc1",
+      "name": "component.blades.accent_goals",
+      "figmaName": "Component/Blades/accent-goals",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "be32147aeba469c1a41ba753d94394ba4f479f21",
+      "resolvesTo": "7bb1b0ba19e8d48287f847d8b8103032c5a7e2ff",
+      "values": {
+        "2:0": {
+          "srgbHex": "#00d86c",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "218b58ac2d4ad762ee7941ff0deb45549ced641e",
+      "name": "component.blades.bg_abnormal",
+      "figmaName": "Component/Blades/bg-abnormal",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "c80bdc52834ff29f5a4d017e67fe7ae388b40275",
+      "resolvesTo": "2d641c67b30764cc0f61a5b9ce5178dde1146cd6",
+      "values": {
+        "2:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 0.4
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "7866b9550ccd0bae57460397ac0004a4065aa189",
+      "name": "component.blades.bg_blade",
+      "figmaName": "Component/Blades/bg-blade",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "f39a1931a50afb1a9c9551fdcfe683a25f519a40",
+      "resolvesTo": "be43cd18e4c70c065399f17db0780df05b5f33f9",
+      "values": {
+        "2:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 0.8
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "368da363acf066dfc049585007adbe8bad164b6c",
+      "name": "component.blades.fg_blade",
+      "figmaName": "Component/Blades/fg-blade",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "c7d1a086eafd42f5afb27d705269550fbdc184b0",
+      "resolvesTo": "7a85a4ee964dbd14cc8fcbadfea6170069d76482",
+      "values": {
+        "2:0": {
+          "srgbHex": "#ffffff",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "2dd6dd078967ec3b4391d0e105324af420744138",
+      "name": "component.chat.accent_link",
+      "figmaName": "Component/Chat/accent-link",
+      "tier": "Component",
+      "group": "Chat",
+      "published": true,
+      "aliasOf": "f75e9f821462a730cf369ec58df9477c3c02d961",
+      "resolvesTo": "022f92ac1ecb64b55fb37dcd3ac2f0a67b05e315",
+      "values": {
+        "2:0": {
+          "srgbHex": "#0d99ff",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "6a352c4b7ecb846b9147bc52d3d70e8f53d717dd",
+      "name": "component.chat.bg_bubble",
+      "figmaName": "Component/Chat/bg-bubble",
+      "tier": "Component",
+      "group": "Chat",
+      "published": true,
+      "aliasOf": "847efb453bc0b0141468c26432841b04c9cd9e5c",
+      "resolvesTo": "c542e32507e4a6fe2a2060f35b3db5af75aa1b7b",
+      "values": {
+        "2:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "a06695afc767b9fff747be7067d412a9500257f5",
+      "name": "component.chat.fg_message",
+      "figmaName": "Component/Chat/fg-message",
+      "tier": "Component",
+      "group": "Chat",
+      "published": true,
+      "aliasOf": "c7d1a086eafd42f5afb27d705269550fbdc184b0",
+      "resolvesTo": "7a85a4ee964dbd14cc8fcbadfea6170069d76482",
+      "values": {
+        "2:0": {
+          "srgbHex": "#ffffff",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "96916c9e13950088accc67095b078809beda02a0",
+      "name": "component.icons_secondary.icon_alert",
+      "figmaName": "Component/Icons - Secondary/icon-alert",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "6ea2a7d7b4907c67c71fc76999ccda5b6c307e84",
+      "resolvesTo": "f92b35bab2250dd11ec77bee46b8545d7bc29e5c",
+      "values": {
+        "2:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "1bb9d915fd57d80c0e06627588e50dc16087c15c",
+      "name": "component.icons_secondary.icon_secondary_inactive",
+      "figmaName": "Component/Icons - Secondary/icon-secondary-Inactive",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "c7d1a086eafd42f5afb27d705269550fbdc184b0",
+      "resolvesTo": "7a85a4ee964dbd14cc8fcbadfea6170069d76482",
+      "values": {
+        "2:0": {
+          "srgbHex": "#ffffff",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "ff3c3de83b0bca74dc6ae865deee2350b1db84dd",
+      "name": "component.icons_secondary.vital_heart_rate",
+      "figmaName": "Component/Icons - Secondary/vital-heart-rate",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "be32147aeba469c1a41ba753d94394ba4f479f21",
+      "resolvesTo": "7bb1b0ba19e8d48287f847d8b8103032c5a7e2ff",
+      "values": {
+        "2:0": {
+          "srgbHex": "#00d86c",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "30997b569336777f04b8a2b0d98a3e0af3246768",
+      "name": "global.black",
+      "figmaName": "Global/black",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "30997b569336777f04b8a2b0d98a3e0af3246768",
+      "values": {
+        "2:0": {
+          "srgbHex": "#000000",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "2:0": {
+          "srgbHex": "#000000",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "022f92ac1ecb64b55fb37dcd3ac2f0a67b05e315",
+      "name": "global.blue_400",
+      "figmaName": "Global/blue-400",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "022f92ac1ecb64b55fb37dcd3ac2f0a67b05e315",
+      "values": {
+        "2:0": {
+          "srgbHex": "#0d99ff",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "2:0": {
+          "srgbHex": "#0d99ff",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "c542e32507e4a6fe2a2060f35b3db5af75aa1b7b",
+      "name": "global.gray_900",
+      "figmaName": "Global/gray-900",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "c542e32507e4a6fe2a2060f35b3db5af75aa1b7b",
+      "values": {
+        "2:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "2:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "be43cd18e4c70c065399f17db0780df05b5f33f9",
+      "name": "global.gray_900_80",
+      "figmaName": "Global/gray-900-80",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "be43cd18e4c70c065399f17db0780df05b5f33f9",
+      "values": {
+        "2:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 0.8
+        }
+      },
+      "own": {
+        "2:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 0.8
+        }
+      }
+    },
+    {
+      "key": "7bb1b0ba19e8d48287f847d8b8103032c5a7e2ff",
+      "name": "global.green_400",
+      "figmaName": "Global/green-400",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "7bb1b0ba19e8d48287f847d8b8103032c5a7e2ff",
+      "values": {
+        "2:0": {
+          "srgbHex": "#00d86c",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "2:0": {
+          "srgbHex": "#00d86c",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "f92b35bab2250dd11ec77bee46b8545d7bc29e5c",
+      "name": "global.red_500",
+      "figmaName": "Global/red-500",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "f92b35bab2250dd11ec77bee46b8545d7bc29e5c",
+      "values": {
+        "2:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "2:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "2d641c67b30764cc0f61a5b9ce5178dde1146cd6",
+      "name": "global.red_500_40",
+      "figmaName": "Global/red-500-40",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "2d641c67b30764cc0f61a5b9ce5178dde1146cd6",
+      "values": {
+        "2:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 0.4
+        }
+      },
+      "own": {
+        "2:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 0.4
+        }
+      }
+    },
+    {
+      "key": "7a85a4ee964dbd14cc8fcbadfea6170069d76482",
+      "name": "global.white",
+      "figmaName": "Global/white",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "7a85a4ee964dbd14cc8fcbadfea6170069d76482",
+      "values": {
+        "2:0": {
+          "srgbHex": "#ffffff",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "2:0": {
+          "srgbHex": "#ffffff",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "f75e9f821462a730cf369ec58df9477c3c02d961",
+      "name": "semantic.accent_blue",
+      "figmaName": "Semantic/accent-blue",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "022f92ac1ecb64b55fb37dcd3ac2f0a67b05e315",
+      "resolvesTo": "022f92ac1ecb64b55fb37dcd3ac2f0a67b05e315",
+      "values": {
+        "2:0": {
+          "srgbHex": "#0d99ff",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "be32147aeba469c1a41ba753d94394ba4f479f21",
+      "name": "semantic.accent_green",
+      "figmaName": "Semantic/accent-green",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "7bb1b0ba19e8d48287f847d8b8103032c5a7e2ff",
+      "resolvesTo": "7bb1b0ba19e8d48287f847d8b8103032c5a7e2ff",
+      "values": {
+        "2:0": {
+          "srgbHex": "#00d86c",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "6ea2a7d7b4907c67c71fc76999ccda5b6c307e84",
+      "name": "semantic.alert_bad",
+      "figmaName": "Semantic/alert-bad",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "f92b35bab2250dd11ec77bee46b8545d7bc29e5c",
+      "resolvesTo": "f92b35bab2250dd11ec77bee46b8545d7bc29e5c",
+      "values": {
+        "2:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "c80bdc52834ff29f5a4d017e67fe7ae388b40275",
+      "name": "semantic.alert_bad_40",
+      "figmaName": "Semantic/alert-bad-40",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "2d641c67b30764cc0f61a5b9ce5178dde1146cd6",
+      "resolvesTo": "2d641c67b30764cc0f61a5b9ce5178dde1146cd6",
+      "values": {
+        "2:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 0.4
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "847efb453bc0b0141468c26432841b04c9cd9e5c",
+      "name": "semantic.bg_primary",
+      "figmaName": "Semantic/bg-primary",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "c542e32507e4a6fe2a2060f35b3db5af75aa1b7b",
+      "resolvesTo": "c542e32507e4a6fe2a2060f35b3db5af75aa1b7b",
+      "values": {
+        "2:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "f39a1931a50afb1a9c9551fdcfe683a25f519a40",
+      "name": "semantic.bg_primary_80",
+      "figmaName": "Semantic/bg-primary-80",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "be43cd18e4c70c065399f17db0780df05b5f33f9",
+      "resolvesTo": "be43cd18e4c70c065399f17db0780df05b5f33f9",
+      "values": {
+        "2:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 0.8
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "c7d1a086eafd42f5afb27d705269550fbdc184b0",
+      "name": "semantic.fg_primary",
+      "figmaName": "Semantic/fg-primary",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "7a85a4ee964dbd14cc8fcbadfea6170069d76482",
+      "resolvesTo": "7a85a4ee964dbd14cc8fcbadfea6170069d76482",
+      "values": {
+        "2:0": {
+          "srgbHex": "#ffffff",
+          "alpha": 1
+        }
+      },
+      "own": null
+    }
+  ]
+}

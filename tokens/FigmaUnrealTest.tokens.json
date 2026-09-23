@@ -1,0 +1,3092 @@
+{
+  "schema": "figma-token-bridge/1",
+  "source": {
+    "fileKey": "f7tYGbrdTli91GaFdgioLi",
+    "fileName": "FigmaUnrealTest",
+    "readMode": "consumer",
+    "collectionId": "VariableCollectionId:6bd7e8f9fce3a4db5299fac939f6fcd617d1ec25/4000:390",
+    "defaultModeId": "3680:0",
+    "modes": [
+      {
+        "id": "3680:0",
+        "name": "Value"
+      }
+    ],
+    "exportedAt": "2026-08-19T00:00:00.000Z",
+    "exportedBy": "tools/build-tokens.cjs"
+  },
+  "target": {
+    "projectId": "00000000-0000-4000-8000-000000000001",
+    "projectName": "FigmaUnrealTestProject",
+    "linkName": "Fixture — dev sandbox",
+    "published": [
+      "Component"
+    ],
+    "linkedBy": "tools/build-tokens.cjs",
+    "linkedAt": "2026-08-19T00:00:00.000Z"
+  },
+  "colours": [
+    {
+      "key": "5274de63adf74279ef2f9798292f1d251f387182",
+      "name": "component.blades.accent_goals",
+      "figmaName": "Component/Blades/accent-goals",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "bb230bafa611a4d29d3a116b29cd981a356576a4",
+      "resolvesTo": "2ca6d44b525b0c9e4aa7885be53c5f3c6c3f3259",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#00d86c",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "3263af8607cfcc949076cee197538e89ebbe1589",
+      "name": "component.blades.accent_goals_hover",
+      "figmaName": "Component/Blades/accent-goals-hover",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "4f21bb1e6dea8e21765c9d45d69baa9b2c03e81a",
+      "resolvesTo": "7c80570b941f448e7b2dee41958ddd1ca37790c6",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#24e786",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "67fc341fb831821ca42143819d8adc5970bccd5c",
+      "name": "component.blades.accent_library",
+      "figmaName": "Component/Blades/accent-library",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "58be65059f4b133c4c16c6b6b78609e3da4d0bbe",
+      "resolvesTo": "6ad4cf5fbb6186857cf53ff0af9ebe5259098731",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#fe7014",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "e1ba195de76e6497c538dedf6cedb63220151a21",
+      "name": "component.blades.accent_library_hover",
+      "figmaName": "Component/Blades/accent-library-hover",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "7f76f12ed50305cee3c4f8d6a22ffd32a2f3d64a",
+      "resolvesTo": "c3a09968f2434edd2ff1943e52a6746f289d9d4c",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ff934d",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "2c7f61cb79cc9ad7a64c88891c2028413eb471c7",
+      "name": "component.blades.accent_my_class",
+      "figmaName": "Component/Blades/accent-my-class",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "5e0d6e4a8cf3dedfb8a3966ce18aa9b177e085e9",
+      "resolvesTo": "2dbb5fd401155de4bb5cb7e6c14c05c0a1d233c5",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#0081d4",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "d52ebb93fe59776c60d802496d283533c4354aa1",
+      "name": "component.blades.accent_my_class_hover",
+      "figmaName": "Component/Blades/accent-my-class-hover",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "fb38743e693b1121db4f55aa461bbc83e5b496e9",
+      "resolvesTo": "656cc54e8d3f54c1181d4b4c041c3c39fc2af574",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#3fb4ff",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "b3ca6a4363e2a1bcfabf5867f359b42117c9289c",
+      "name": "component.blades.accent_notebook",
+      "figmaName": "Component/Blades/accent-notebook",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "4f83d53d326a57c1ccedbacaa30ff24e8deac0b9",
+      "resolvesTo": "4837a6c8e8398dd3b117146c1776e22fe06c8e73",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#aa24a1",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "069fd6da48d4fa58607fa4da39cf753a616f7238",
+      "name": "component.blades.accent_notebook_hover",
+      "figmaName": "Component/Blades/accent-notebook-hover",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "7df8c27ebf0c4cc69c1a9f58defa38a31184bc51",
+      "resolvesTo": "964d6a370112b4d97a9fef9ea1d45a82304337c9",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#f365e9",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "1093ba37b936c8d8a8ccd29bd650f60318de8fdd",
+      "name": "component.blades.accent_sim_1",
+      "figmaName": "Component/Blades/accent-sim-1",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "70322f60c0947cdb9ad7a61b2f8e448e8b3b29df",
+      "resolvesTo": "352ee44fbfbe5f00b7296da678a89e2ddd156a3b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e11837",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "d11501104e3b04cbbf83f4b55d0522e9f70c96ec",
+      "name": "component.blades.accent_sim_1_hover",
+      "figmaName": "Component/Blades/accent-sim-1-hover",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "46710e265428cd6ff7fd48e641c7c69fa01af4ec",
+      "resolvesTo": "9bc920ce543d75dd2ceede6195273921d1813c9b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ff537b",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "8d534600a50cb69ca23182acd1356fedf3ef7027",
+      "name": "component.blades.accent_sim_2",
+      "figmaName": "Component/Blades/accent-sim-2",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "1ca7c7ab52c1cfa260fd119db9a24d460675891b",
+      "resolvesTo": "d1ea49cdfaae69c6a978d2319f6256ffe868bbad",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#d98a00",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "b2e38c23c393041743d4b56b3a68d8b1f347346f",
+      "name": "component.blades.accent_sim_2_hover",
+      "figmaName": "Component/Blades/accent-sim-2-hover",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "56e83a669fc73cd6ace1ae8b66430af10caf2920",
+      "resolvesTo": "65f6204ef7c79fac4ec9e3c28dba9a832fc99987",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ffb332",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "01b83e107c719a77609f1d48999d93a68cf1ccaf",
+      "name": "component.blades.bg_abnormal",
+      "figmaName": "Component/Blades/bg-abnormal",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "ae2c806fa8e555fbf28dd627350a3e1bc0827106",
+      "resolvesTo": "b54d354dfc887f6c94239262adc6337c28911d75",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 0.4
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "5dda8aa23cd0105fb8f8ff9c415a4d9ca2eb64f2",
+      "name": "component.blades.bg_blade",
+      "figmaName": "Component/Blades/bg-blade",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "4a3f4a37b6a84f09854669a1518867b5f23df0d0",
+      "resolvesTo": "42db26238db1bc8d494c9799324b01fbda2f5e6f",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 0.8
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "f45d3db0424f6423b5d48c2a5dee13316824803b",
+      "name": "component.blades.bg_blade_content",
+      "figmaName": "Component/Blades/bg-blade-content",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "4ef7765886c69f48b0cf72952aeb8e5de47a2205",
+      "resolvesTo": "af6ed37b37af649b2f3ec74c4095fcfc036655db",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "72be3f7c6c9b19d9e2126b30e439dd95ab77dda5",
+      "name": "component.blades.bg_blade_primary",
+      "figmaName": "Component/Blades/bg-blade-primary",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "f48646de32ce5bcba5048f27d3fe813378ef73cd",
+      "resolvesTo": "46dbfc963a87e5fd8d0fe52781e2a6784179aac2",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "e649a2fd8b310dae2a651ed29ba10c0548dea23d",
+      "name": "component.blades.bg_field",
+      "figmaName": "Component/Blades/bg-field",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "28fc941bb5eab850d662f1da947aada48e7a4ab9",
+      "resolvesTo": "cbbcd26a9002475ade47e1c6af59488c615449ba",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#474543",
+          "alpha": 0.5
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "a1214bb0d2ee69b0b065904808ffb4067c38f9ba",
+      "name": "component.blades.bg_normal",
+      "figmaName": "Component/Blades/bg-normal",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "87b651418b249a6d2f9b858e90cb6ef3d90097a5",
+      "resolvesTo": "87f6f6454bef38980909cb1ca5606b6a848df839",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#079f36",
+          "alpha": 0.4
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "fd34574d701c52bd4018a77d95b86b83d15e8b7c",
+      "name": "component.blades.text_abnormal",
+      "figmaName": "Component/Blades/text-abnormal",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "70322f60c0947cdb9ad7a61b2f8e448e8b3b29df",
+      "resolvesTo": "352ee44fbfbe5f00b7296da678a89e2ddd156a3b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e11837",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "ea41641200256a435414e8b3d3559c7c3f17d22e",
+      "name": "component.blades.text_body",
+      "figmaName": "Component/Blades/text-body",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "e64925a604672530bf753f2395b4d30e48cb22b0",
+      "resolvesTo": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "3759522c4c43351d60a53185312625e2e4484a13",
+      "name": "component.blades.text_detail",
+      "figmaName": "Component/Blades/text-detail",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "ca94b665f2065800655c9f58fc3599c7f36afcc8",
+      "resolvesTo": "c4378991aed998af7c6417f72626e2ca180c5a50",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#949084",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "2338192c58818234d9b046090e9ef3d13f458682",
+      "name": "component.blades.text_heading",
+      "figmaName": "Component/Blades/text-heading",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "e64925a604672530bf753f2395b4d30e48cb22b0",
+      "resolvesTo": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "b63982e7dbbc59a00ba325b254e13507727ae462",
+      "name": "component.blades.text_inactive",
+      "figmaName": "Component/Blades/text-inactive",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "9ccf7d81c56bb1e69c6b396f21d54ce73e98ec92",
+      "resolvesTo": "3bd96648eb53cdbbb33c3d521acaa53979adb48a",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#474543",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "94ddd129ba1b5e62a66b56404c66018f842bd00e",
+      "name": "component.blades.text_placeholder",
+      "figmaName": "Component/Blades/text-placeholder",
+      "tier": "Component",
+      "group": "Blades",
+      "published": true,
+      "aliasOf": "ca94b665f2065800655c9f58fc3599c7f36afcc8",
+      "resolvesTo": "c4378991aed998af7c6417f72626e2ca180c5a50",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#949084",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "f1a0f33e98bf2a7d5690d74eba16ee8d77c0a0e1",
+      "name": "component.buttons.accent_button_goals",
+      "figmaName": "Component/Buttons/accent-button-goals",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "bb230bafa611a4d29d3a116b29cd981a356576a4",
+      "resolvesTo": "2ca6d44b525b0c9e4aa7885be53c5f3c6c3f3259",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#00d86c",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "ecb3d4e76be51fd43ee7028076a00c662c578188",
+      "name": "component.buttons.accent_button_goals_hover",
+      "figmaName": "Component/Buttons/accent-button-goals-hover",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "4f21bb1e6dea8e21765c9d45d69baa9b2c03e81a",
+      "resolvesTo": "7c80570b941f448e7b2dee41958ddd1ca37790c6",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#24e786",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "a7b730c5b4851fac61409dcedd4b63cd469ea866",
+      "name": "component.buttons.accent_button_library",
+      "figmaName": "Component/Buttons/accent-button-library",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "58be65059f4b133c4c16c6b6b78609e3da4d0bbe",
+      "resolvesTo": "6ad4cf5fbb6186857cf53ff0af9ebe5259098731",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#fe7014",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "2f1295d273c978cbff77446b04dc2dcd0a60e529",
+      "name": "component.buttons.accent_button_library_hover",
+      "figmaName": "Component/Buttons/accent-button-library-hover",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "7f76f12ed50305cee3c4f8d6a22ffd32a2f3d64a",
+      "resolvesTo": "c3a09968f2434edd2ff1943e52a6746f289d9d4c",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ff934d",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "ab26636c638286a859345a08cc57218d214b53e4",
+      "name": "component.buttons.accent_button_multiple_labs",
+      "figmaName": "Component/Buttons/accent-button-multiple-labs",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "43142ca77c26dc0875f4af607e6bd03cddb5b171",
+      "resolvesTo": "4b3cd2b910536734e00e1dc7562c31459de0ac5c",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#a3ff4e",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "a5c7deb5bb644e8140b5ad0714f764e5f0d2de79",
+      "name": "component.buttons.accent_button_multiple_labs_hover",
+      "figmaName": "Component/Buttons/accent-button-multiple-labs-hover",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "70578749be12308ff49f901085b321d7cfa21bae",
+      "resolvesTo": "5ae45a73b62b45bbb8ba92db9681abf7fe7c9f4b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c9ff96",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "24398fedea96c04c97d73ba7ae07dd61194e066e",
+      "name": "component.buttons.accent_button_my_class",
+      "figmaName": "Component/Buttons/accent-button-my-class",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "5e0d6e4a8cf3dedfb8a3966ce18aa9b177e085e9",
+      "resolvesTo": "2dbb5fd401155de4bb5cb7e6c14c05c0a1d233c5",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#0081d4",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "8fe41e9b70d8739135c94c651835879aeedd49a3",
+      "name": "component.buttons.accent_button_my_class_hover",
+      "figmaName": "Component/Buttons/accent-button-my-class-hover",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "fb38743e693b1121db4f55aa461bbc83e5b496e9",
+      "resolvesTo": "656cc54e8d3f54c1181d4b4c041c3c39fc2af574",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#3fb4ff",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "d3ad88c37d4b8924efa9628104ff5783acba31f5",
+      "name": "component.buttons.accent_button_notebook",
+      "figmaName": "Component/Buttons/accent-button-notebook",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "4f83d53d326a57c1ccedbacaa30ff24e8deac0b9",
+      "resolvesTo": "4837a6c8e8398dd3b117146c1776e22fe06c8e73",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#aa24a1",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "d793a52e4f99dc1deb2fe171ed3d694049b5ecaa",
+      "name": "component.buttons.accent_button_notebook_hover",
+      "figmaName": "Component/Buttons/accent-button-notebook-hover",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "7df8c27ebf0c4cc69c1a9f58defa38a31184bc51",
+      "resolvesTo": "964d6a370112b4d97a9fef9ea1d45a82304337c9",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#f365e9",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "102caa1eb8e464f182726a0463d7f40bed4519f7",
+      "name": "component.buttons.accent_button_sim_1",
+      "figmaName": "Component/Buttons/accent-button-sim-1",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "70322f60c0947cdb9ad7a61b2f8e448e8b3b29df",
+      "resolvesTo": "352ee44fbfbe5f00b7296da678a89e2ddd156a3b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e11837",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "a7fdd31f41a12386ef312e047acb0c36d38181d2",
+      "name": "component.buttons.accent_button_sim_1_hover",
+      "figmaName": "Component/Buttons/accent-button-sim-1-hover",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "46710e265428cd6ff7fd48e641c7c69fa01af4ec",
+      "resolvesTo": "9bc920ce543d75dd2ceede6195273921d1813c9b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ff537b",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "515df41d13e31a3be5b5db2b779587835bc24382",
+      "name": "component.buttons.accent_button_sim_2",
+      "figmaName": "Component/Buttons/accent-button-sim-2",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "1ca7c7ab52c1cfa260fd119db9a24d460675891b",
+      "resolvesTo": "d1ea49cdfaae69c6a978d2319f6256ffe868bbad",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#d98a00",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "6640db721fac87b00053a1f156a9613ec19c4e55",
+      "name": "component.buttons.accent_button_sim_2_hover",
+      "figmaName": "Component/Buttons/accent-button-sim-2-hover",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "56e83a669fc73cd6ace1ae8b66430af10caf2920",
+      "resolvesTo": "65f6204ef7c79fac4ec9e3c28dba9a832fc99987",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ffb332",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "df2bbdd75a91a4ca266a75b079a2a6ee578af45b",
+      "name": "component.buttons.bg_button_alert",
+      "figmaName": "Component/Buttons/bg-button-alert",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "59d2df152b32aeba899a3ed074dacc15f4fbeb24",
+      "resolvesTo": "5954fbcfc9afbfaf26e037fbd51f3596c864375b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "8f44f8104725128dd76aae9d0039e42d14aeee53",
+      "name": "component.buttons.bg_button_camera",
+      "figmaName": "Component/Buttons/bg-button-camera",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "2ee48cc58c63fb0ef74355ab0eeb676f1ef46067",
+      "resolvesTo": "044452ea0ab497ba894e501cba2097a8bec0e3e5",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 0.2
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "c536d6494ca1feefc39db7f881c3dc44fb85acff",
+      "name": "component.buttons.bg_button_camera_hover",
+      "figmaName": "Component/Buttons/bg-button-camera-hover",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "4a3f4a37b6a84f09854669a1518867b5f23df0d0",
+      "resolvesTo": "42db26238db1bc8d494c9799324b01fbda2f5e6f",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 0.8
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "f0dd463072f583558a9cc7842bed48b316ba4c18",
+      "name": "component.buttons.bg_button_inactive",
+      "figmaName": "Component/Buttons/bg-button-inactive",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "28fc941bb5eab850d662f1da947aada48e7a4ab9",
+      "resolvesTo": "cbbcd26a9002475ade47e1c6af59488c615449ba",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#474543",
+          "alpha": 0.5
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "6f30308834a529a14c43d5aee42acf34f6516cb1",
+      "name": "component.buttons.bg_button_primary",
+      "figmaName": "Component/Buttons/bg-button-primary",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "f48646de32ce5bcba5048f27d3fe813378ef73cd",
+      "resolvesTo": "46dbfc963a87e5fd8d0fe52781e2a6784179aac2",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "f02c66c7759a21108eaef9600809583b66485f0c",
+      "name": "component.buttons.bg_button_primary_active",
+      "figmaName": "Component/Buttons/bg-button-primary-active",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "9b18419bf8454257072d6beb9d7d838b0b1744d2",
+      "resolvesTo": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "b7c1c908e623483990f2b1591613608628c0f810",
+      "name": "component.buttons.bg_button_primary_hover",
+      "figmaName": "Component/Buttons/bg-button-primary-hover",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "4ef7765886c69f48b0cf72952aeb8e5de47a2205",
+      "resolvesTo": "af6ed37b37af649b2f3ec74c4095fcfc036655db",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "76e68099625db0630a131ffa1a0b953f443df5d6",
+      "name": "component.buttons.bg_chat_button",
+      "figmaName": "Component/Buttons/bg-chat-button",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "28fc941bb5eab850d662f1da947aada48e7a4ab9",
+      "resolvesTo": "cbbcd26a9002475ade47e1c6af59488c615449ba",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#474543",
+          "alpha": 0.5
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "66ff76adb3cbc76b1c3383952f93366edf52f3c5",
+      "name": "component.buttons.bg_chat_button_hover",
+      "figmaName": "Component/Buttons/bg-chat-button-hover",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "292b222f5f39f920ed339f6d2f920af1f62359e4",
+      "resolvesTo": "32358082396c97080cfe1b3d6f3971df9e591459",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 0.6
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "ee51c9ade3fbcfc70cad18a9aaec170cae3059f1",
+      "name": "component.buttons.text_button_primary",
+      "figmaName": "Component/Buttons/text-button-primary",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "e64925a604672530bf753f2395b4d30e48cb22b0",
+      "resolvesTo": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "832fe14c3048b2fd6e8a1a28b13a0cc38d4ee9cf",
+      "name": "component.buttons.text_button_primary_active",
+      "figmaName": "Component/Buttons/text-button-primary-active",
+      "tier": "Component",
+      "group": "Buttons",
+      "published": true,
+      "aliasOf": "a2e601ec6f0c66b0e9d985b45e24f9d4bee15020",
+      "resolvesTo": "46dbfc963a87e5fd8d0fe52781e2a6784179aac2",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "ac2e7d9e09261e683ac65de6117c82ee4dd4b683",
+      "name": "component.chat.accent_bubble_client",
+      "figmaName": "Component/Chat/accent-bubble-client",
+      "tier": "Component",
+      "group": "Chat",
+      "published": true,
+      "aliasOf": "bf6697f9092a6bd4c4d697b12bd336182dcde16b",
+      "resolvesTo": "b21d7f31e072a4362dd0a028e7f6bb620498eaea",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#aa5e00",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "9670946756e6408741ee4ef2e08a283102b559c7",
+      "name": "component.chat.accent_bubble_client_light",
+      "figmaName": "Component/Chat/accent-bubble-client-light",
+      "tier": "Component",
+      "group": "Chat",
+      "published": true,
+      "aliasOf": "56e83a669fc73cd6ace1ae8b66430af10caf2920",
+      "resolvesTo": "65f6204ef7c79fac4ec9e3c28dba9a832fc99987",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ffb332",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "c1956cb54f286d1ca3fc5363c1dcdd3485e7216e",
+      "name": "component.chat.accent_bubble_luca",
+      "figmaName": "Component/Chat/accent-bubble-luca",
+      "tier": "Component",
+      "group": "Chat",
+      "published": true,
+      "aliasOf": "95433cca2467f7f1a29aeaef5b6803e66eab4b64",
+      "resolvesTo": "15578077585ba55688a8525d9aca5f117d3ba41c",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#00558c",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "c06421443dfa74cefe24bc414744e286b27c75a5",
+      "name": "component.chat.accent_bubble_luca_light",
+      "figmaName": "Component/Chat/accent-bubble-luca-light",
+      "tier": "Component",
+      "group": "Chat",
+      "published": true,
+      "aliasOf": "fb38743e693b1121db4f55aa461bbc83e5b496e9",
+      "resolvesTo": "656cc54e8d3f54c1181d4b4c041c3c39fc2af574",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#3fb4ff",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "08c05bfea57505269249781574e6f5e3469bf02d",
+      "name": "component.chat.bg_bubble_user",
+      "figmaName": "Component/Chat/bg-bubble-user",
+      "tier": "Component",
+      "group": "Chat",
+      "published": true,
+      "aliasOf": "4ef7765886c69f48b0cf72952aeb8e5de47a2205",
+      "resolvesTo": "af6ed37b37af649b2f3ec74c4095fcfc036655db",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "a996fe65606d771297eddfd76e270a46f8f33d0f",
+      "name": "component.chat.bg_chat",
+      "figmaName": "Component/Chat/bg-chat",
+      "tier": "Component",
+      "group": "Chat",
+      "published": true,
+      "aliasOf": "4a3f4a37b6a84f09854669a1518867b5f23df0d0",
+      "resolvesTo": "42db26238db1bc8d494c9799324b01fbda2f5e6f",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 0.8
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "f411bb118f94c33b8ee10d7851610e5a94a46800",
+      "name": "component.chat.bg_chat_field",
+      "figmaName": "Component/Chat/bg-chat-field",
+      "tier": "Component",
+      "group": "Chat",
+      "published": true,
+      "aliasOf": "28fc941bb5eab850d662f1da947aada48e7a4ab9",
+      "resolvesTo": "cbbcd26a9002475ade47e1c6af59488c615449ba",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#474543",
+          "alpha": 0.5
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "f92cf100c16746fb0cd826f4f4195a5d3de0fd45",
+      "name": "component.chat.bg_chat_log",
+      "figmaName": "Component/Chat/bg-chat-log",
+      "tier": "Component",
+      "group": "Chat",
+      "published": true,
+      "aliasOf": "292b222f5f39f920ed339f6d2f920af1f62359e4",
+      "resolvesTo": "32358082396c97080cfe1b3d6f3971df9e591459",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 0.6
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "0cab59b810ab6d6bb7759f66aceb937ca04d0413",
+      "name": "component.chat.text_bubble_body",
+      "figmaName": "Component/Chat/text-bubble-body",
+      "tier": "Component",
+      "group": "Chat",
+      "published": true,
+      "aliasOf": "e64925a604672530bf753f2395b4d30e48cb22b0",
+      "resolvesTo": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "2e0b97de10f306958301d6feb800a9aa566b36c6",
+      "name": "component.chat.text_chat_field",
+      "figmaName": "Component/Chat/text-chat-field",
+      "tier": "Component",
+      "group": "Chat",
+      "published": true,
+      "aliasOf": "e64925a604672530bf753f2395b4d30e48cb22b0",
+      "resolvesTo": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "9ed30eb3be724d239d7787ebe540dcb53df64481",
+      "name": "component.chat.text_chat_placeholder",
+      "figmaName": "Component/Chat/text-chat-placeholder",
+      "tier": "Component",
+      "group": "Chat",
+      "published": true,
+      "aliasOf": "bff79c789789f403587f336743ae44dba6439f93",
+      "resolvesTo": "232e8aba07b5787ec4ec4b4586e8911a4c7dc723",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c5c0b0",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "2df8672c4621f7602f7751a4a3c9845d66f45303",
+      "name": "component.detail_panels.bg_button_detail_panel",
+      "figmaName": "Component/Detail Panels/bg-button-detail-panel",
+      "tier": "Component",
+      "group": "Detail Panels",
+      "published": true,
+      "aliasOf": "f48646de32ce5bcba5048f27d3fe813378ef73cd",
+      "resolvesTo": "46dbfc963a87e5fd8d0fe52781e2a6784179aac2",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "def9a0cc8fe06b5db4866b969723b0008f04694b",
+      "name": "component.detail_panels.bg_detail_panel",
+      "figmaName": "Component/Detail Panels/bg-detail-panel",
+      "tier": "Component",
+      "group": "Detail Panels",
+      "published": true,
+      "aliasOf": "11753182c4928b90af739fde4a7849c0cab1450b",
+      "resolvesTo": "482fe9fe74945299b8f76b764d6cdbc6babec76f",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 0.8
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "06759d012c29d34c8c3aba520b1c47317ec635db",
+      "name": "component.detail_panels.icon_detail_panel",
+      "figmaName": "Component/Detail Panels/icon-detail-panel",
+      "tier": "Component",
+      "group": "Detail Panels",
+      "published": true,
+      "aliasOf": "e64925a604672530bf753f2395b4d30e48cb22b0",
+      "resolvesTo": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "32ecb7e4e044f15ed8701e853e9a5a1b789c1852",
+      "name": "component.detail_panels.text_detail_panel",
+      "figmaName": "Component/Detail Panels/text-detail-panel",
+      "tier": "Component",
+      "group": "Detail Panels",
+      "published": true,
+      "aliasOf": "e64925a604672530bf753f2395b4d30e48cb22b0",
+      "resolvesTo": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "a7ff29f8a1433a3d0296b7e100e80dcebb6b2637",
+      "name": "component.icons_primary.icon_goals",
+      "figmaName": "Component/Icons - Primary/icon-goals",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "bb230bafa611a4d29d3a116b29cd981a356576a4",
+      "resolvesTo": "2ca6d44b525b0c9e4aa7885be53c5f3c6c3f3259",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#00d86c",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "2a8184a7295e389d6578c4749969464927f8db30",
+      "name": "component.icons_primary.icon_goals_hover",
+      "figmaName": "Component/Icons - Primary/icon-goals-hover",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "4f21bb1e6dea8e21765c9d45d69baa9b2c03e81a",
+      "resolvesTo": "7c80570b941f448e7b2dee41958ddd1ca37790c6",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#24e786",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "078ede697551cbd692b6367e27a01941b0002b7a",
+      "name": "component.icons_primary.icon_library",
+      "figmaName": "Component/Icons - Primary/icon-library",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "58be65059f4b133c4c16c6b6b78609e3da4d0bbe",
+      "resolvesTo": "6ad4cf5fbb6186857cf53ff0af9ebe5259098731",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#fe7014",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "d4adda437a64a991faf47c5c0aa97e7733437e28",
+      "name": "component.icons_primary.icon_library_hover",
+      "figmaName": "Component/Icons - Primary/icon-library-hover",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "7f76f12ed50305cee3c4f8d6a22ffd32a2f3d64a",
+      "resolvesTo": "c3a09968f2434edd2ff1943e52a6746f289d9d4c",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ff934d",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "ba7d1e89defb1654426423163108a41395ab1887",
+      "name": "component.icons_primary.icon_multiple_labs",
+      "figmaName": "Component/Icons - Primary/icon-multiple-labs",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "43142ca77c26dc0875f4af607e6bd03cddb5b171",
+      "resolvesTo": "4b3cd2b910536734e00e1dc7562c31459de0ac5c",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#a3ff4e",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "34da53fffe1ba5bbbf1c236c13d80e1328c6d05d",
+      "name": "component.icons_primary.icon_multiple_labs_active_hover",
+      "figmaName": "Component/Icons - Primary/icon-multiple-labs-active-hover",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "70578749be12308ff49f901085b321d7cfa21bae",
+      "resolvesTo": "5ae45a73b62b45bbb8ba92db9681abf7fe7c9f4b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c9ff96",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "062b873b7aeda16603123d774918642246136c49",
+      "name": "component.icons_primary.icon_my_class",
+      "figmaName": "Component/Icons - Primary/icon-my-class",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "5e0d6e4a8cf3dedfb8a3966ce18aa9b177e085e9",
+      "resolvesTo": "2dbb5fd401155de4bb5cb7e6c14c05c0a1d233c5",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#0081d4",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "952a6b51e86ec05c6c6bd601f9afaf5be23afc51",
+      "name": "component.icons_primary.icon_my_class_hover",
+      "figmaName": "Component/Icons - Primary/icon-my-class-hover",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "fb38743e693b1121db4f55aa461bbc83e5b496e9",
+      "resolvesTo": "656cc54e8d3f54c1181d4b4c041c3c39fc2af574",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#3fb4ff",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "e5d20e287097000eee7b90b2907134b563d874b2",
+      "name": "component.icons_primary.icon_notebook",
+      "figmaName": "Component/Icons - Primary/icon-notebook",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "4f83d53d326a57c1ccedbacaa30ff24e8deac0b9",
+      "resolvesTo": "4837a6c8e8398dd3b117146c1776e22fe06c8e73",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#aa24a1",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "63fc647e223cc9359e48a97e66c8b743fc214baa",
+      "name": "component.icons_primary.icon_notebook_hover",
+      "figmaName": "Component/Icons - Primary/icon-notebook-hover",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "7df8c27ebf0c4cc69c1a9f58defa38a31184bc51",
+      "resolvesTo": "964d6a370112b4d97a9fef9ea1d45a82304337c9",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#f365e9",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "48e3e27b2a87b28630337e13bfea5586ad490cb0",
+      "name": "component.icons_primary.icon_primary_active",
+      "figmaName": "Component/Icons - Primary/icon-primary-active",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "e64925a604672530bf753f2395b4d30e48cb22b0",
+      "resolvesTo": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "7a226371a8b4a7e366fb7bbbfb30b16504283d90",
+      "name": "component.icons_primary.icon_primary_default",
+      "figmaName": "Component/Icons - Primary/icon-primary-default",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "9ccf7d81c56bb1e69c6b396f21d54ce73e98ec92",
+      "resolvesTo": "3bd96648eb53cdbbb33c3d521acaa53979adb48a",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#474543",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "3f0a6766d8fd89ea00dfe21425b8dbe499387cef",
+      "name": "component.icons_primary.icon_primary_hover",
+      "figmaName": "Component/Icons - Primary/icon-primary-hover",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "ca94b665f2065800655c9f58fc3599c7f36afcc8",
+      "resolvesTo": "c4378991aed998af7c6417f72626e2ca180c5a50",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#949084",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "3df9c22ff40e96e9812015004df6e4ba0766e3bf",
+      "name": "component.icons_primary.icon_sim_1",
+      "figmaName": "Component/Icons - Primary/icon-sim-1",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "70322f60c0947cdb9ad7a61b2f8e448e8b3b29df",
+      "resolvesTo": "352ee44fbfbe5f00b7296da678a89e2ddd156a3b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e11837",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "354acd24ba7f24b0d382170112b4d9fdfc47c52e",
+      "name": "component.icons_primary.icon_sim_1_hover",
+      "figmaName": "Component/Icons - Primary/icon-sim-1-hover",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "46710e265428cd6ff7fd48e641c7c69fa01af4ec",
+      "resolvesTo": "9bc920ce543d75dd2ceede6195273921d1813c9b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ff537b",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "5d966744014da84f5c116d2eb005823be46c7e3b",
+      "name": "component.icons_primary.icon_sim_2",
+      "figmaName": "Component/Icons - Primary/icon-sim-2",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "1ca7c7ab52c1cfa260fd119db9a24d460675891b",
+      "resolvesTo": "d1ea49cdfaae69c6a978d2319f6256ffe868bbad",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#d98a00",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "ecba5ef2ac3153894a495090db387dac4a9a64cc",
+      "name": "component.icons_primary.icon_sim_2_hover",
+      "figmaName": "Component/Icons - Primary/icon-sim-2-hover",
+      "tier": "Component",
+      "group": "Icons - Primary",
+      "published": true,
+      "aliasOf": "56e83a669fc73cd6ace1ae8b66430af10caf2920",
+      "resolvesTo": "65f6204ef7c79fac4ec9e3c28dba9a832fc99987",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ffb332",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "100c8989517c6d39cb85901aa7158083dae03177",
+      "name": "component.icons_secondary.icon_alert_1",
+      "figmaName": "Component/Icons - Secondary/icon-alert-1",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "09ce91df836eb1f3dc1fbaaa223339e5c0bd3c90",
+      "resolvesTo": "5954fbcfc9afbfaf26e037fbd51f3596c864375b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "3e62f6f4a61a096d0c362ccc8df82bb6eccae903",
+      "name": "component.icons_secondary.icon_alert_2",
+      "figmaName": "Component/Icons - Secondary/icon-alert-2",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "43142ca77c26dc0875f4af607e6bd03cddb5b171",
+      "resolvesTo": "4b3cd2b910536734e00e1dc7562c31459de0ac5c",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#a3ff4e",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "da72d482dfc584cda6999d0857e4e518ccfc3482",
+      "name": "component.icons_secondary.icon_alternate_default",
+      "figmaName": "Component/Icons - Secondary/icon-alternate-default",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "a2e601ec6f0c66b0e9d985b45e24f9d4bee15020",
+      "resolvesTo": "46dbfc963a87e5fd8d0fe52781e2a6784179aac2",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "3793092381dcaedb35c14d58e0c2e700d616f482",
+      "name": "component.icons_secondary.icon_alternate_hover",
+      "figmaName": "Component/Icons - Secondary/icon-alternate-hover",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "a62e9a2f99627a0ec575f505696c2feb4d27404b",
+      "resolvesTo": "af6ed37b37af649b2f3ec74c4095fcfc036655db",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "ea1e84f6dd5e43abbcb1fbd525605620cab9595d",
+      "name": "component.icons_secondary.icon_good",
+      "figmaName": "Component/Icons - Secondary/icon-good",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "4f229ab444d77c8b4ab735915e2b612d99ce92da",
+      "resolvesTo": "ae6f45425df5b4c6c9b7ee0900b8c703ac74427a",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#079f36",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "c35084d011d77bd7fa888261f4e593ed22a6b4a4",
+      "name": "component.icons_secondary.icon_new",
+      "figmaName": "Component/Icons - Secondary/icon-new",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "bcff4ae2a08094b8aa19845c728fefed018e5fa9",
+      "resolvesTo": "2dbb5fd401155de4bb5cb7e6c14c05c0a1d233c5",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#0081d4",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "5ce71112ca709de6d2c493bfef391b5283e0e128",
+      "name": "component.icons_secondary.icon_secondary_default",
+      "figmaName": "Component/Icons - Secondary/icon-secondary-default",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "e64925a604672530bf753f2395b4d30e48cb22b0",
+      "resolvesTo": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "283db4d5aa771fc6ab64dc7db0403470256ed2f9",
+      "name": "component.icons_secondary.icon_secondary_hover",
+      "figmaName": "Component/Icons - Secondary/icon-secondary-hover",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "bff79c789789f403587f336743ae44dba6439f93",
+      "resolvesTo": "232e8aba07b5787ec4ec4b4586e8911a4c7dc723",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c5c0b0",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "9e63c44f110841f3339f22dd885336988fcecbaf",
+      "name": "component.icons_secondary.icon_secondary_inactive",
+      "figmaName": "Component/Icons - Secondary/icon-secondary-Inactive",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "9ccf7d81c56bb1e69c6b396f21d54ce73e98ec92",
+      "resolvesTo": "3bd96648eb53cdbbb33c3d521acaa53979adb48a",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#474543",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "32d88f79c7ac150a3d7be8da8a0b599b480402c4",
+      "name": "component.icons_secondary.vital_blood_pressure",
+      "figmaName": "Component/Icons - Secondary/vital-blood-pressure",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "feb2db53ff9d017ecbbfc6fe343f14bd0879cf81",
+      "resolvesTo": "5954fbcfc9afbfaf26e037fbd51f3596c864375b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "e58f7ab2435611202cd1606acd0b5e2134d2a220",
+      "name": "component.icons_secondary.vital_heart_rate",
+      "figmaName": "Component/Icons - Secondary/vital-heart-rate",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "bb230bafa611a4d29d3a116b29cd981a356576a4",
+      "resolvesTo": "2ca6d44b525b0c9e4aa7885be53c5f3c6c3f3259",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#00d86c",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "76a86206feac69ba16cd859667697cc8e9ffe0e9",
+      "name": "component.icons_secondary.vital_oxygen",
+      "figmaName": "Component/Icons - Secondary/vital-oxygen",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "5e0d6e4a8cf3dedfb8a3966ce18aa9b177e085e9",
+      "resolvesTo": "2dbb5fd401155de4bb5cb7e6c14c05c0a1d233c5",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#0081d4",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "13d0e8447e980323b488761a3f037e661b03fa0b",
+      "name": "component.icons_secondary.vital_respiration",
+      "figmaName": "Component/Icons - Secondary/vital-respiration",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "1ca7c7ab52c1cfa260fd119db9a24d460675891b",
+      "resolvesTo": "d1ea49cdfaae69c6a978d2319f6256ffe868bbad",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#d98a00",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "2f72d5cac2b789384051c1581366e73b634b2101",
+      "name": "component.icons_secondary.vital_temperature",
+      "figmaName": "Component/Icons - Secondary/vital-temperature",
+      "tier": "Component",
+      "group": "Icons - Secondary",
+      "published": true,
+      "aliasOf": "46710e265428cd6ff7fd48e641c7c69fa01af4ec",
+      "resolvesTo": "9bc920ce543d75dd2ceede6195273921d1813c9b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ff537b",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "cd4be2cb1df7a75916b6ca71eb4d800187897d7c",
+      "name": "component.nav_bar.bg_nav_bar",
+      "figmaName": "Component/Nav Bar/bg-nav-bar",
+      "tier": "Component",
+      "group": "Nav Bar",
+      "published": true,
+      "aliasOf": "f48646de32ce5bcba5048f27d3fe813378ef73cd",
+      "resolvesTo": "46dbfc963a87e5fd8d0fe52781e2a6784179aac2",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "c8f5c9579dd01ab03fc3c389e03aff17094500cc",
+      "name": "component.nav_bar.icon_switch",
+      "figmaName": "Component/Nav Bar/icon-switch",
+      "tier": "Component",
+      "group": "Nav Bar",
+      "published": true,
+      "aliasOf": "9ccf7d81c56bb1e69c6b396f21d54ce73e98ec92",
+      "resolvesTo": "3bd96648eb53cdbbb33c3d521acaa53979adb48a",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#474543",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "6d1f2c196d2cee5ae52b3bf4fefc3a3d68b26a10",
+      "name": "component.nav_bar.text_nav_bar",
+      "figmaName": "Component/Nav Bar/text-nav-bar",
+      "tier": "Component",
+      "group": "Nav Bar",
+      "published": true,
+      "aliasOf": "e64925a604672530bf753f2395b4d30e48cb22b0",
+      "resolvesTo": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "6992d3ff3e42be5ea4727a8320a08e52ffaed7d0",
+      "name": "component.nav_bar.text_virtual_lab_header",
+      "figmaName": "Component/Nav Bar/text-virtual-lab-header",
+      "tier": "Component",
+      "group": "Nav Bar",
+      "published": true,
+      "aliasOf": "43142ca77c26dc0875f4af607e6bd03cddb5b171",
+      "resolvesTo": "4b3cd2b910536734e00e1dc7562c31459de0ac5c",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#a3ff4e",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "6def3f4fa4b9dc8081597f48c18755ef77b46e3d",
+      "name": "component.pois.icon_poi_bg",
+      "figmaName": "Component/POIs/icon-poi-bg",
+      "tier": "Component",
+      "group": "POIs",
+      "published": true,
+      "aliasOf": "9b18419bf8454257072d6beb9d7d838b0b1744d2",
+      "resolvesTo": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "9e87bca8ffb399f9d097ea8598e9b0691edbd64c",
+      "name": "component.pois.icon_poi_zoom",
+      "figmaName": "Component/POIs/icon-poi-zoom",
+      "tier": "Component",
+      "group": "POIs",
+      "published": true,
+      "aliasOf": "43142ca77c26dc0875f4af607e6bd03cddb5b171",
+      "resolvesTo": "4b3cd2b910536734e00e1dc7562c31459de0ac5c",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#a3ff4e",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "55085e8f84bb3026d7b8ae870ca10bbd17c4d1c1",
+      "name": "component.pois.icon_poi_zoom_hover",
+      "figmaName": "Component/POIs/icon-poi-zoom-hover",
+      "tier": "Component",
+      "group": "POIs",
+      "published": true,
+      "aliasOf": "70578749be12308ff49f901085b321d7cfa21bae",
+      "resolvesTo": "5ae45a73b62b45bbb8ba92db9681abf7fe7c9f4b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c9ff96",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "e58f600b7b92936ca11b6d81742bbdda5ce644ab",
+      "name": "component.pois.text_poi",
+      "figmaName": "Component/POIs/text-poi",
+      "tier": "Component",
+      "group": "POIs",
+      "published": true,
+      "aliasOf": "e64925a604672530bf753f2395b4d30e48cb22b0",
+      "resolvesTo": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "656cc54e8d3f54c1181d4b4c041c3c39fc2af574",
+      "name": "global.blue_200",
+      "figmaName": "Global/blue-200",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "656cc54e8d3f54c1181d4b4c041c3c39fc2af574",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#3fb4ff",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#3fb4ff",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "2dbb5fd401155de4bb5cb7e6c14c05c0a1d233c5",
+      "name": "global.blue_400",
+      "figmaName": "Global/blue-400",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "2dbb5fd401155de4bb5cb7e6c14c05c0a1d233c5",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#0081d4",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#0081d4",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "15578077585ba55688a8525d9aca5f117d3ba41c",
+      "name": "global.blue_600",
+      "figmaName": "Global/blue-600",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "15578077585ba55688a8525d9aca5f117d3ba41c",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#00558c",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#00558c",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "name": "global.gray_100",
+      "figmaName": "Global/gray-100",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "232e8aba07b5787ec4ec4b4586e8911a4c7dc723",
+      "name": "global.gray_300",
+      "figmaName": "Global/gray-300",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "232e8aba07b5787ec4ec4b4586e8911a4c7dc723",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c5c0b0",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#c5c0b0",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "c4378991aed998af7c6417f72626e2ca180c5a50",
+      "name": "global.gray_500",
+      "figmaName": "Global/gray-500",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "c4378991aed998af7c6417f72626e2ca180c5a50",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#949084",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#949084",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "3bd96648eb53cdbbb33c3d521acaa53979adb48a",
+      "name": "global.gray_600",
+      "figmaName": "Global/gray-600",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "3bd96648eb53cdbbb33c3d521acaa53979adb48a",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#474543",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#474543",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "cbbcd26a9002475ade47e1c6af59488c615449ba",
+      "name": "global.gray_600_50",
+      "figmaName": "Global/gray-600-50",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "cbbcd26a9002475ade47e1c6af59488c615449ba",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#474543",
+          "alpha": 0.5
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#474543",
+          "alpha": 0.5
+        }
+      }
+    },
+    {
+      "key": "af6ed37b37af649b2f3ec74c4095fcfc036655db",
+      "name": "global.gray_800",
+      "figmaName": "Global/gray-800",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "af6ed37b37af649b2f3ec74c4095fcfc036655db",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "32358082396c97080cfe1b3d6f3971df9e591459",
+      "name": "global.gray_800_60",
+      "figmaName": "Global/gray-800-60",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "32358082396c97080cfe1b3d6f3971df9e591459",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 0.6
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 0.6
+        }
+      }
+    },
+    {
+      "key": "482fe9fe74945299b8f76b764d6cdbc6babec76f",
+      "name": "global.gray_800_80",
+      "figmaName": "Global/gray-800-80",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "482fe9fe74945299b8f76b764d6cdbc6babec76f",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 0.8
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 0.8
+        }
+      }
+    },
+    {
+      "key": "46dbfc963a87e5fd8d0fe52781e2a6784179aac2",
+      "name": "global.gray_900",
+      "figmaName": "Global/gray-900",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "46dbfc963a87e5fd8d0fe52781e2a6784179aac2",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "044452ea0ab497ba894e501cba2097a8bec0e3e5",
+      "name": "global.gray_900_20",
+      "figmaName": "Global/gray-900-20",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "044452ea0ab497ba894e501cba2097a8bec0e3e5",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 0.2
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 0.2
+        }
+      }
+    },
+    {
+      "key": "42db26238db1bc8d494c9799324b01fbda2f5e6f",
+      "name": "global.gray_900_80",
+      "figmaName": "Global/gray-900-80",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "42db26238db1bc8d494c9799324b01fbda2f5e6f",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 0.8
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 0.8
+        }
+      }
+    },
+    {
+      "key": "7c80570b941f448e7b2dee41958ddd1ca37790c6",
+      "name": "global.green_200",
+      "figmaName": "Global/green-200",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "7c80570b941f448e7b2dee41958ddd1ca37790c6",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#24e786",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#24e786",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "2ca6d44b525b0c9e4aa7885be53c5f3c6c3f3259",
+      "name": "global.green_400",
+      "figmaName": "Global/green-400",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "2ca6d44b525b0c9e4aa7885be53c5f3c6c3f3259",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#00d86c",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#00d86c",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "ae6f45425df5b4c6c9b7ee0900b8c703ac74427a",
+      "name": "global.green_600",
+      "figmaName": "Global/green-600",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "ae6f45425df5b4c6c9b7ee0900b8c703ac74427a",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#079f36",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#079f36",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "87f6f6454bef38980909cb1ca5606b6a848df839",
+      "name": "global.green_600_40",
+      "figmaName": "Global/green-600-40",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "87f6f6454bef38980909cb1ca5606b6a848df839",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#079f36",
+          "alpha": 0.4
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#079f36",
+          "alpha": 0.4
+        }
+      }
+    },
+    {
+      "key": "5ae45a73b62b45bbb8ba92db9681abf7fe7c9f4b",
+      "name": "global.neon_200",
+      "figmaName": "Global/neon-200",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "5ae45a73b62b45bbb8ba92db9681abf7fe7c9f4b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c9ff96",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#c9ff96",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "4b3cd2b910536734e00e1dc7562c31459de0ac5c",
+      "name": "global.neon_400",
+      "figmaName": "Global/neon-400",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "4b3cd2b910536734e00e1dc7562c31459de0ac5c",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#a3ff4e",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#a3ff4e",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "c3a09968f2434edd2ff1943e52a6746f289d9d4c",
+      "name": "global.orange_200",
+      "figmaName": "Global/orange-200",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "c3a09968f2434edd2ff1943e52a6746f289d9d4c",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ff934d",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#ff934d",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "6ad4cf5fbb6186857cf53ff0af9ebe5259098731",
+      "name": "global.orange_400",
+      "figmaName": "Global/orange-400",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "6ad4cf5fbb6186857cf53ff0af9ebe5259098731",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#fe7014",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#fe7014",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "964d6a370112b4d97a9fef9ea1d45a82304337c9",
+      "name": "global.purple_200",
+      "figmaName": "Global/purple-200",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "964d6a370112b4d97a9fef9ea1d45a82304337c9",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#f365e9",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#f365e9",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "4837a6c8e8398dd3b117146c1776e22fe06c8e73",
+      "name": "global.purple_400",
+      "figmaName": "Global/purple-400",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "4837a6c8e8398dd3b117146c1776e22fe06c8e73",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#aa24a1",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#aa24a1",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "9bc920ce543d75dd2ceede6195273921d1813c9b",
+      "name": "global.red_200",
+      "figmaName": "Global/red-200",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "9bc920ce543d75dd2ceede6195273921d1813c9b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ff537b",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#ff537b",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "352ee44fbfbe5f00b7296da678a89e2ddd156a3b",
+      "name": "global.red_400",
+      "figmaName": "Global/red-400",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "352ee44fbfbe5f00b7296da678a89e2ddd156a3b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e11837",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#e11837",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "5954fbcfc9afbfaf26e037fbd51f3596c864375b",
+      "name": "global.red_600",
+      "figmaName": "Global/red-600",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "5954fbcfc9afbfaf26e037fbd51f3596c864375b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "b54d354dfc887f6c94239262adc6337c28911d75",
+      "name": "global.red_600_40",
+      "figmaName": "Global/red-600-40",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "b54d354dfc887f6c94239262adc6337c28911d75",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 0.4
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 0.4
+        }
+      }
+    },
+    {
+      "key": "65f6204ef7c79fac4ec9e3c28dba9a832fc99987",
+      "name": "global.yellow_200",
+      "figmaName": "Global/yellow-200",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "65f6204ef7c79fac4ec9e3c28dba9a832fc99987",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ffb332",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#ffb332",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "d1ea49cdfaae69c6a978d2319f6256ffe868bbad",
+      "name": "global.yellow_400",
+      "figmaName": "Global/yellow-400",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "d1ea49cdfaae69c6a978d2319f6256ffe868bbad",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#d98a00",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#d98a00",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "b21d7f31e072a4362dd0a028e7f6bb620498eaea",
+      "name": "global.yellow_600",
+      "figmaName": "Global/yellow-600",
+      "tier": "Global",
+      "group": "",
+      "published": false,
+      "aliasOf": null,
+      "resolvesTo": "b21d7f31e072a4362dd0a028e7f6bb620498eaea",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#aa5e00",
+          "alpha": 1
+        }
+      },
+      "own": {
+        "3680:0": {
+          "srgbHex": "#aa5e00",
+          "alpha": 1
+        }
+      }
+    },
+    {
+      "key": "5e0d6e4a8cf3dedfb8a3966ce18aa9b177e085e9",
+      "name": "semantic.accent_blue",
+      "figmaName": "Semantic/accent-blue",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "2dbb5fd401155de4bb5cb7e6c14c05c0a1d233c5",
+      "resolvesTo": "2dbb5fd401155de4bb5cb7e6c14c05c0a1d233c5",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#0081d4",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "95433cca2467f7f1a29aeaef5b6803e66eab4b64",
+      "name": "semantic.accent_blue_dark",
+      "figmaName": "Semantic/accent-blue-dark",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "15578077585ba55688a8525d9aca5f117d3ba41c",
+      "resolvesTo": "15578077585ba55688a8525d9aca5f117d3ba41c",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#00558c",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "fb38743e693b1121db4f55aa461bbc83e5b496e9",
+      "name": "semantic.accent_blue_light",
+      "figmaName": "Semantic/accent-blue-light",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "656cc54e8d3f54c1181d4b4c041c3c39fc2af574",
+      "resolvesTo": "656cc54e8d3f54c1181d4b4c041c3c39fc2af574",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#3fb4ff",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "bb230bafa611a4d29d3a116b29cd981a356576a4",
+      "name": "semantic.accent_green",
+      "figmaName": "Semantic/accent-green",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "2ca6d44b525b0c9e4aa7885be53c5f3c6c3f3259",
+      "resolvesTo": "2ca6d44b525b0c9e4aa7885be53c5f3c6c3f3259",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#00d86c",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "4f21bb1e6dea8e21765c9d45d69baa9b2c03e81a",
+      "name": "semantic.accent_green_light",
+      "figmaName": "Semantic/accent-green-light",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "7c80570b941f448e7b2dee41958ddd1ca37790c6",
+      "resolvesTo": "7c80570b941f448e7b2dee41958ddd1ca37790c6",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#24e786",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "43142ca77c26dc0875f4af607e6bd03cddb5b171",
+      "name": "semantic.accent_neon",
+      "figmaName": "Semantic/accent-neon",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "4b3cd2b910536734e00e1dc7562c31459de0ac5c",
+      "resolvesTo": "4b3cd2b910536734e00e1dc7562c31459de0ac5c",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#a3ff4e",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "70578749be12308ff49f901085b321d7cfa21bae",
+      "name": "semantic.accent_neon_light",
+      "figmaName": "Semantic/accent-neon-light",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "5ae45a73b62b45bbb8ba92db9681abf7fe7c9f4b",
+      "resolvesTo": "5ae45a73b62b45bbb8ba92db9681abf7fe7c9f4b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c9ff96",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "58be65059f4b133c4c16c6b6b78609e3da4d0bbe",
+      "name": "semantic.accent_orange",
+      "figmaName": "Semantic/accent-orange",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "6ad4cf5fbb6186857cf53ff0af9ebe5259098731",
+      "resolvesTo": "6ad4cf5fbb6186857cf53ff0af9ebe5259098731",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#fe7014",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "7f76f12ed50305cee3c4f8d6a22ffd32a2f3d64a",
+      "name": "semantic.accent_orange_light",
+      "figmaName": "Semantic/accent-orange-light",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "c3a09968f2434edd2ff1943e52a6746f289d9d4c",
+      "resolvesTo": "c3a09968f2434edd2ff1943e52a6746f289d9d4c",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ff934d",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "4f83d53d326a57c1ccedbacaa30ff24e8deac0b9",
+      "name": "semantic.accent_purple",
+      "figmaName": "Semantic/accent-purple",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "4837a6c8e8398dd3b117146c1776e22fe06c8e73",
+      "resolvesTo": "4837a6c8e8398dd3b117146c1776e22fe06c8e73",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#aa24a1",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "7df8c27ebf0c4cc69c1a9f58defa38a31184bc51",
+      "name": "semantic.accent_purple_light",
+      "figmaName": "Semantic/accent-purple-light",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "964d6a370112b4d97a9fef9ea1d45a82304337c9",
+      "resolvesTo": "964d6a370112b4d97a9fef9ea1d45a82304337c9",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#f365e9",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "70322f60c0947cdb9ad7a61b2f8e448e8b3b29df",
+      "name": "semantic.accent_red",
+      "figmaName": "Semantic/accent-red",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "352ee44fbfbe5f00b7296da678a89e2ddd156a3b",
+      "resolvesTo": "352ee44fbfbe5f00b7296da678a89e2ddd156a3b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e11837",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "46710e265428cd6ff7fd48e641c7c69fa01af4ec",
+      "name": "semantic.accent_red_light",
+      "figmaName": "Semantic/accent-red-light",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "9bc920ce543d75dd2ceede6195273921d1813c9b",
+      "resolvesTo": "9bc920ce543d75dd2ceede6195273921d1813c9b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ff537b",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "1ca7c7ab52c1cfa260fd119db9a24d460675891b",
+      "name": "semantic.accent_yellow",
+      "figmaName": "Semantic/accent-yellow",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "d1ea49cdfaae69c6a978d2319f6256ffe868bbad",
+      "resolvesTo": "d1ea49cdfaae69c6a978d2319f6256ffe868bbad",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#d98a00",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "bf6697f9092a6bd4c4d697b12bd336182dcde16b",
+      "name": "semantic.accent_yellow_dark",
+      "figmaName": "Semantic/accent-yellow-dark",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "b21d7f31e072a4362dd0a028e7f6bb620498eaea",
+      "resolvesTo": "b21d7f31e072a4362dd0a028e7f6bb620498eaea",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#aa5e00",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "56e83a669fc73cd6ace1ae8b66430af10caf2920",
+      "name": "semantic.accent_yellow_light",
+      "figmaName": "Semantic/accent-yellow-light",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "65f6204ef7c79fac4ec9e3c28dba9a832fc99987",
+      "resolvesTo": "65f6204ef7c79fac4ec9e3c28dba9a832fc99987",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#ffb332",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "09ce91df836eb1f3dc1fbaaa223339e5c0bd3c90",
+      "name": "semantic.alert_bad",
+      "figmaName": "Semantic/alert-bad",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "5954fbcfc9afbfaf26e037fbd51f3596c864375b",
+      "resolvesTo": "5954fbcfc9afbfaf26e037fbd51f3596c864375b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "ae2c806fa8e555fbf28dd627350a3e1bc0827106",
+      "name": "semantic.alert_bad_40",
+      "figmaName": "Semantic/alert-bad-40",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "b54d354dfc887f6c94239262adc6337c28911d75",
+      "resolvesTo": "b54d354dfc887f6c94239262adc6337c28911d75",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 0.4
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "4f229ab444d77c8b4ab735915e2b612d99ce92da",
+      "name": "semantic.alert_good",
+      "figmaName": "Semantic/alert-good",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "ae6f45425df5b4c6c9b7ee0900b8c703ac74427a",
+      "resolvesTo": "ae6f45425df5b4c6c9b7ee0900b8c703ac74427a",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#079f36",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "87b651418b249a6d2f9b858e90cb6ef3d90097a5",
+      "name": "semantic.alert_good_40",
+      "figmaName": "Semantic/alert-good-40",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "87f6f6454bef38980909cb1ca5606b6a848df839",
+      "resolvesTo": "87f6f6454bef38980909cb1ca5606b6a848df839",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#079f36",
+          "alpha": 0.4
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "bcff4ae2a08094b8aa19845c728fefed018e5fa9",
+      "name": "semantic.alert_new",
+      "figmaName": "Semantic/alert-new",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "2dbb5fd401155de4bb5cb7e6c14c05c0a1d233c5",
+      "resolvesTo": "2dbb5fd401155de4bb5cb7e6c14c05c0a1d233c5",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#0081d4",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "9b18419bf8454257072d6beb9d7d838b0b1744d2",
+      "name": "semantic.bg_active",
+      "figmaName": "Semantic/bg-active",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "resolvesTo": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "59d2df152b32aeba899a3ed074dacc15f4fbeb24",
+      "name": "semantic.bg_alert",
+      "figmaName": "Semantic/bg-alert",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "5954fbcfc9afbfaf26e037fbd51f3596c864375b",
+      "resolvesTo": "5954fbcfc9afbfaf26e037fbd51f3596c864375b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "f48646de32ce5bcba5048f27d3fe813378ef73cd",
+      "name": "semantic.bg_primary",
+      "figmaName": "Semantic/bg-primary",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "46dbfc963a87e5fd8d0fe52781e2a6784179aac2",
+      "resolvesTo": "46dbfc963a87e5fd8d0fe52781e2a6784179aac2",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "2ee48cc58c63fb0ef74355ab0eeb676f1ef46067",
+      "name": "semantic.bg_primary_20",
+      "figmaName": "Semantic/bg-primary-20",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "044452ea0ab497ba894e501cba2097a8bec0e3e5",
+      "resolvesTo": "044452ea0ab497ba894e501cba2097a8bec0e3e5",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 0.2
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "4a3f4a37b6a84f09854669a1518867b5f23df0d0",
+      "name": "semantic.bg_primary_80",
+      "figmaName": "Semantic/bg-primary-80",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "42db26238db1bc8d494c9799324b01fbda2f5e6f",
+      "resolvesTo": "42db26238db1bc8d494c9799324b01fbda2f5e6f",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 0.8
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "4ef7765886c69f48b0cf72952aeb8e5de47a2205",
+      "name": "semantic.bg_secondary",
+      "figmaName": "Semantic/bg-secondary",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "af6ed37b37af649b2f3ec74c4095fcfc036655db",
+      "resolvesTo": "af6ed37b37af649b2f3ec74c4095fcfc036655db",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "292b222f5f39f920ed339f6d2f920af1f62359e4",
+      "name": "semantic.bg_secondary_60",
+      "figmaName": "Semantic/bg-secondary-60",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "32358082396c97080cfe1b3d6f3971df9e591459",
+      "resolvesTo": "32358082396c97080cfe1b3d6f3971df9e591459",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 0.6
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "11753182c4928b90af739fde4a7849c0cab1450b",
+      "name": "semantic.bg_secondary_80",
+      "figmaName": "Semantic/bg-secondary-80",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "482fe9fe74945299b8f76b764d6cdbc6babec76f",
+      "resolvesTo": "482fe9fe74945299b8f76b764d6cdbc6babec76f",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 0.8
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "28fc941bb5eab850d662f1da947aada48e7a4ab9",
+      "name": "semantic.bg_tertiary_50",
+      "figmaName": "Semantic/bg-tertiary-50",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "cbbcd26a9002475ade47e1c6af59488c615449ba",
+      "resolvesTo": "cbbcd26a9002475ade47e1c6af59488c615449ba",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#474543",
+          "alpha": 0.5
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "feb2db53ff9d017ecbbfc6fe343f14bd0879cf81",
+      "name": "semantic.fg_alert",
+      "figmaName": "Semantic/fg-alert",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "5954fbcfc9afbfaf26e037fbd51f3596c864375b",
+      "resolvesTo": "5954fbcfc9afbfaf26e037fbd51f3596c864375b",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c7002e",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "a2e601ec6f0c66b0e9d985b45e24f9d4bee15020",
+      "name": "semantic.fg_alt_primary",
+      "figmaName": "Semantic/fg-alt-primary",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "46dbfc963a87e5fd8d0fe52781e2a6784179aac2",
+      "resolvesTo": "46dbfc963a87e5fd8d0fe52781e2a6784179aac2",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#1c1b1a",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "a62e9a2f99627a0ec575f505696c2feb4d27404b",
+      "name": "semantic.fg_alt_secondary",
+      "figmaName": "Semantic/fg-alt-secondary",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "af6ed37b37af649b2f3ec74c4095fcfc036655db",
+      "resolvesTo": "af6ed37b37af649b2f3ec74c4095fcfc036655db",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#292726",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "9ccf7d81c56bb1e69c6b396f21d54ce73e98ec92",
+      "name": "semantic.fg_alt_tertiary",
+      "figmaName": "Semantic/fg-alt-tertiary",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "3bd96648eb53cdbbb33c3d521acaa53979adb48a",
+      "resolvesTo": "3bd96648eb53cdbbb33c3d521acaa53979adb48a",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#474543",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "e64925a604672530bf753f2395b4d30e48cb22b0",
+      "name": "semantic.fg_primary",
+      "figmaName": "Semantic/fg-primary",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "resolvesTo": "a8d6e349db61384263e75928170eb9e49ee4367d",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#e8e5da",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "bff79c789789f403587f336743ae44dba6439f93",
+      "name": "semantic.fg_secondary",
+      "figmaName": "Semantic/fg-secondary",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "232e8aba07b5787ec4ec4b4586e8911a4c7dc723",
+      "resolvesTo": "232e8aba07b5787ec4ec4b4586e8911a4c7dc723",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#c5c0b0",
+          "alpha": 1
+        }
+      },
+      "own": null
+    },
+    {
+      "key": "ca94b665f2065800655c9f58fc3599c7f36afcc8",
+      "name": "semantic.fg_tertiary",
+      "figmaName": "Semantic/fg-tertiary",
+      "tier": "Semantic",
+      "group": "",
+      "published": false,
+      "aliasOf": "c4378991aed998af7c6417f72626e2ca180c5a50",
+      "resolvesTo": "c4378991aed998af7c6417f72626e2ca180c5a50",
+      "values": {
+        "3680:0": {
+          "srgbHex": "#949084",
+          "alpha": 1
+        }
+      },
+      "own": null
+    }
+  ]
+}

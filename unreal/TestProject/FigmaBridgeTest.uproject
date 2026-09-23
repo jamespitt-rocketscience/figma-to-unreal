@@ -1,0 +1,19 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "5.8",
+	"Category": "",
+	"Description": "Throwaway host project for exercising the Figma Token Bridge plugin end to end. Holds no game content: its only job is to be a real Unreal project the plugin can be built into, generate a project id for the Figma handshake, and run the automation tests.",
+	"Modules": [
+		{
+			"Name": "FigmaBridgeTest",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "FigmaTokenBridge",
+			"Enabled": true
+		}
+	]
+}

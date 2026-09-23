@@ -1,0 +1,383 @@
+<!-- Figma Token Bridge — the designer's authoring surface.
+     A link says: this part of the design system feeds that Unreal project.
+     Links live in the Figma file, so every designer sees the same set.
+     No network access; the export is a file a person saves and commits. -->
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 12px 14px 20px;
+    font: 11px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #1c1b1a; background: #fff;
+  }
+  @media (prefers-color-scheme: dark) { body { color: #e8e5da; background: #2c2c2c; } }
+
+  h1 { font-size: 12px; font-weight: 600; margin: 0 0 1px; }
+  h2 {
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em;
+    opacity: .6; margin: 18px 0 7px;
+  }
+  p.sub { opacity: .6; margin: 0 0 12px; }
+  code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 10px; }
+
+  button {
+    padding: 7px 11px; border-radius: 6px; border: 0; cursor: pointer;
+    font: inherit; font-weight: 600; background: #0d99ff; color: #fff;
+  }
+  button:hover:not(:disabled) { background: #0b87e3; }
+  button:disabled { opacity: .45; cursor: default; }
+  button.sec { background: transparent; color: inherit; border: 1px solid rgba(128,128,128,.45); font-weight: 500; }
+  button.sec:hover:not(:disabled) { background: rgba(128,128,128,.13); }
+  button.tiny { padding: 4px 8px; font-size: 10px; font-weight: 500; }
+  button.danger { color: #c7002e; }
+  .wide { width: 100%; }
+  .row { display: flex; gap: 6px; align-items: center; }
+  .row.end { justify-content: flex-end; }
+
+  label { display: block; font-weight: 500; margin: 9px 0 3px; }
+  label .hint { font-weight: 400; opacity: .55; }
+  input[type=text] {
+    width: 100%; padding: 6px 8px; border-radius: 5px; font: inherit;
+    border: 1px solid rgba(128,128,128,.45); background: transparent; color: inherit;
+  }
+  input[type=text]:focus { outline: 2px solid #0d99ff; outline-offset: -1px; border-color: transparent; }
+  input.bad { border-color: #c7002e; }
+
+  .card {
+    border: 1px solid rgba(128,128,128,.32); border-radius: 7px;
+    padding: 10px 11px; margin-bottom: 7px;
+  }
+  .card.active { border-color: #0d99ff; }
+  .card h3 { font-size: 11.5px; font-weight: 600; margin: 0 0 2px; }
+  .card .meta { opacity: .6; font-size: 10px; margin-bottom: 8px; }
+  .card .meta div { margin-top: 1px; }
+
+  .groups { max-height: 190px; overflow-y: auto; border: 1px solid rgba(128,128,128,.3); border-radius: 6px; padding: 6px 8px; }
+  .groups .tierhead { font-weight: 600; margin: 6px 0 2px; opacity: .75; }
+  .groups .tierhead:first-child { margin-top: 0; }
+  .chk { display: flex; align-items: center; gap: 7px; padding: 2px 0 2px 10px; }
+  .chk input { margin: 0; }
+  .chk .n { flex: 1; }
+  .chk .c { opacity: .5; font-variant-numeric: tabular-nums; }
+
+  .msg { margin-top: 9px; padding: 8px 9px; border-radius: 5px; font-size: 10.5px; }
+  .msg.err  { background: rgba(199,0,46,.12);  border: 1px solid rgba(199,0,46,.5); }
+  .msg.warn { background: rgba(217,138,0,.13); border: 1px solid rgba(217,138,0,.5); }
+  .msg.ok   { background: rgba(7,159,54,.12);  border: 1px solid rgba(7,159,54,.5); }
+  .msg ul { margin: 4px 0 0; padding-left: 15px; }
+  .msg li { margin-bottom: 2px; }
+
+  .stat { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid rgba(128,128,128,.18); }
+  .stat b { font-variant-numeric: tabular-nums; }
+  .empty { opacity: .55; padding: 10px 0; }
+  .hide { display: none; }
+</style>
+
+<h1>Figma Token Bridge</h1>
+<p class="sub" id="fileline">Loading…</p>
+
+<div class="row">
+  <button id="scan" class="wide">Scan this file</button>
+</div>
+<div id="scanReport"></div>
+
+<h2>Unreal links</h2>
+<div id="links"></div>
+<button id="add" class="sec wide">New link…</button>
+
+<div id="editor" class="hide">
+  <h2 id="editorTitle">New link</h2>
+  <div class="card">
+    <label>Link name <span class="hint">— what this link is for</span></label>
+    <input type="text" id="linkName" placeholder="Clinical Sim — main UI">
+
+    <label>Unreal project id <span class="hint">— Project Settings › Plugins › Figma Token Bridge</span></label>
+    <input type="text" id="projectId" placeholder="A1B2C3D4-E5F6-7890-ABCD-EF1234567890">
+
+    <label>Unreal project name <span class="hint">— optional, for reading the file</span></label>
+    <input type="text" id="projectName" placeholder="ClinicalSim">
+
+    <label>Figma file key <span class="hint">— from this file’s URL, after /design/</span></label>
+    <input type="text" id="fileKey" placeholder="FruupulmvbUZbkUlTQ0kIm">
+
+    <label>Publish to Unreal <span class="hint">— what this project may use</span></label>
+    <div id="groups" class="groups"><div class="empty">Scan the file first.</div></div>
+
+    <div class="row end" style="margin-top:10px">
+      <button id="cancel" class="sec">Cancel</button>
+      <button id="save">Save link</button>
+    </div>
+    <div id="editorMsg"></div>
+  </div>
+</div>
+
+<div id="exportReport"></div>
+
+<script>
+  var state = { links: [], activeLinkId: null, inventory: null, readMode: null, total: 0, editing: null, doc: null, fileKey: null };
+
+  function el(t, c, x) { var n = document.createElement(t); if (c) n.className = c; if (x !== undefined) n.textContent = x; return n; }
+  function $(id) { return document.getElementById(id); }
+  function send(m) { parent.postMessage({ pluginMessage: m }, '*'); }
+  function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); }
+
+  function msg(kind, title, items) {
+    var d = el('div', 'msg ' + kind);
+    d.appendChild(el('div', null, title));
+    if (items && items.length) {
+      var ul = el('ul');
+      items.slice(0, 10).forEach(function (i) { ul.appendChild(el('li', null, i)); });
+      if (items.length > 10) ul.appendChild(el('li', null, '…and ' + (items.length - 10) + ' more'));
+      d.appendChild(ul);
+    }
+    return d;
+  }
+
+  function stat(k, v) {
+    var d = el('div', 'stat');
+    d.appendChild(el('span', null, k));
+    d.appendChild(el('b', null, String(v)));
+    return d;
+  }
+
+  /* ------------------------------- links list ----------------------------- */
+
+  function renderLinks() {
+    var host = $('links');
+    clear(host);
+
+    if (!state.links.length) {
+      host.appendChild(el('div', 'empty', 'No links yet. A link says which parts of this design system feed which Unreal project.'));
+      return;
+    }
+
+    state.links.forEach(function (link) {
+      var card = el('div', 'card' + (link.id === state.activeLinkId ? ' active' : ''));
+      card.appendChild(el('h3', null, link.linkName));
+
+      var meta = el('div', 'meta');
+      meta.appendChild(el('div', null, (link.projectName || 'project') + ' · ' + link.projectId));
+      if (link.fileKey) meta.appendChild(el('div', null, 'from file ' + link.fileKey));
+      meta.appendChild(el('div', null, 'publishes ' + link.published.join(', ')));
+      if (link.linkedBy) meta.appendChild(el('div', null, 'linked by ' + link.linkedBy));
+      card.appendChild(meta);
+
+      var row = el('div', 'row');
+      var exportBtn = el('button', 'tiny', 'Export tokens.json');
+      exportBtn.onclick = function () { send({ type: 'export', id: link.id }); };
+      row.appendChild(exportBtn);
+
+      var editBtn = el('button', 'tiny sec', 'Edit');
+      editBtn.onclick = function () { openEditor(link); };
+      row.appendChild(editBtn);
+
+      var delBtn = el('button', 'tiny sec danger', 'Delete');
+      delBtn.onclick = function () { send({ type: 'deleteLink', id: link.id }); };
+      row.appendChild(delBtn);
+
+      card.appendChild(row);
+      host.appendChild(card);
+    });
+  }
+
+  /* -------------------------------- editor -------------------------------- */
+
+  function renderGroups(selected) {
+    var host = $('groups');
+    clear(host);
+
+    if (!state.inventory) {
+      host.appendChild(el('div', 'empty', 'Scan the file first.'));
+      return;
+    }
+
+    var chosen = {};
+    (selected || []).forEach(function (s) { chosen[s] = true; });
+
+    var lastTier = null;
+    state.inventory.forEach(function (item) {
+      if (item.tier !== lastTier) {
+        lastTier = item.tier;
+        var head = el('div', 'tierhead', item.tier);
+        host.appendChild(head);
+      }
+
+      var wrap = el('label', 'chk');
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.value = item.path;
+      cb.checked = !!chosen[item.path] || !!chosen[item.tier];
+      wrap.appendChild(cb);
+      wrap.appendChild(el('span', 'n', item.group || '(no group)'));
+      wrap.appendChild(el('span', 'c', item.count));
+      host.appendChild(wrap);
+    });
+  }
+
+  function openEditor(link) {
+    state.editing = link || null;
+    $('editorTitle').textContent = link ? 'Edit link' : 'New link';
+    $('linkName').value = link ? link.linkName : '';
+    $('projectId').value = link ? link.projectId : '';
+    $('projectName').value = link ? link.projectName : '';
+    // Prefilled from the API when the plugin is allowed to read it, which only
+    // private org plugins are. Otherwise the designer confirms it from the URL.
+    $('fileKey').value = link ? (link.fileKey || state.fileKey || '') : (state.fileKey || '');
+    $('projectId').classList.remove('bad');
+    $('fileKey').classList.remove('bad');
+    clear($('editorMsg'));
+    // Default a new link to the Component tier, matching the board's own advice.
+    renderGroups(link ? link.published : (state.inventory ? ['Component'] : []));
+    $('editor').classList.remove('hide');
+    $('linkName').focus();
+  }
+
+  function closeEditor() {
+    state.editing = null;
+    $('editor').classList.add('hide');
+  }
+
+  $('add').onclick = function () { openEditor(null); };
+  $('cancel').onclick = closeEditor;
+
+  $('save').onclick = function () {
+    var boxes = $('groups').querySelectorAll('input[type=checkbox]');
+    var published = [];
+    for (var i = 0; i < boxes.length; i++) {
+      if (boxes[i].checked) published.push(boxes[i].value);
+    }
+
+    clear($('editorMsg'));
+    if (!published.length) {
+      $('editorMsg').appendChild(msg('err', 'Select at least one group to publish.'));
+      return;
+    }
+
+    send({
+      type: 'saveLink',
+      link: {
+        id: state.editing ? state.editing.id : null,
+        linkName: $('linkName').value.trim(),
+        fileKey: $('fileKey').value.trim(),
+        projectId: $('projectId').value.trim(),
+        projectName: $('projectName').value.trim(),
+        published: published
+      }
+    });
+  };
+
+  $('scan').onclick = function () {
+    this.disabled = true;
+    this.textContent = 'Scanning…';
+    send({ type: 'scan' });
+  };
+
+  /* ------------------------------- messages ------------------------------- */
+
+  onmessage = function (e) {
+    var m = e.data.pluginMessage;
+    if (!m) return;
+
+    if (m.type === 'init') {
+      state.fileKey = m.fileKey;
+      $('fileline').textContent = m.fileName +
+        (m.fileKey ? ' · ' + m.fileKey : ' · file key unavailable — enter it when linking');
+      state.links = m.links;
+      state.activeLinkId = m.activeLinkId;
+      renderLinks();
+      return;
+    }
+
+    if (m.type === 'scan') {
+      $('scan').disabled = false;
+      $('scan').textContent = 'Re-scan this file';
+      state.inventory = m.inventory;
+      state.readMode = m.readMode;
+      state.total = m.total;
+
+      var host = $('scanReport');
+      clear(host);
+      host.appendChild(stat('Read mode', m.readMode === 'local' ? 'library file' : 'consuming file'));
+      host.appendChild(stat('Variables found', m.total));
+
+      if (m.total === 0) {
+        // The most likely first-run state in a brand new file. Saying what is
+        // missing beats an empty group list the designer has to interpret.
+        host.appendChild(msg('err', 'No colour variables found in this file.', [
+          'If this file should own the design system, create colour variables named Global/…, Semantic/… and Component/….',
+          'If it subscribes to a library, the scan only finds variables bound to something on the current page — open the library file instead.'
+        ]));
+      } else if (m.readMode === 'consumer') {
+        host.appendChild(msg('warn',
+          'This file subscribes to the design system rather than owning it, so only variables bound on the current page were found. Run this in the library file for an authoritative export.'));
+      }
+
+      if (m.warnings && m.warnings.length) {
+        host.appendChild(msg('warn', 'Worth knowing before you link:', m.warnings));
+      }
+
+      // Refresh the checkbox list if the editor is open.
+      if (!$('editor').classList.contains('hide')) {
+        renderGroups(state.editing ? state.editing.published : ['Component']);
+      }
+      return;
+    }
+
+    if (m.type === 'links') {
+      state.links = m.links;
+      state.activeLinkId = m.activeLinkId;
+      renderLinks();
+      if (m.saved) closeEditor();
+      return;
+    }
+
+    if (m.type === 'export') {
+      state.doc = m.doc;
+      var rep = $('exportReport');
+      clear(rep);
+
+      rep.appendChild(el('h2', null, 'Export — ' + m.link.linkName));
+      rep.appendChild(stat('Target project', m.link.projectName || m.link.projectId));
+      rep.appendChild(stat('Published to Unreal', m.publishedCount));
+      rep.appendChild(stat('Exported in total', m.total));
+
+      if (m.errors.length) {
+        rep.appendChild(msg('err', 'Fix these before importing:', m.errors));
+      } else {
+        var note = el('div', 'msg ok');
+        note.appendChild(el('div', null,
+          m.publishedCount + ' tokens published; ' + (m.total - m.publishedCount) +
+          ' exported unpublished so alias chains still resolve.'));
+        rep.appendChild(note);
+
+        var dl = el('button', 'wide', 'Download tokens.json');
+        dl.style.marginTop = '9px';
+        dl.onclick = function () {
+          var blob = new Blob([JSON.stringify(state.doc, null, 2)], { type: 'application/json' });
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = (m.link.projectName || 'tokens').replace(/[^A-Za-z0-9._-]/g, '_') + '.tokens.json';
+          a.click();
+          URL.revokeObjectURL(a.href);
+        };
+        rep.appendChild(dl);
+      }
+
+      if (m.warnings.length) rep.appendChild(msg('warn', 'Warnings:', m.warnings));
+      return;
+    }
+
+    if (m.type === 'error') {
+      $('scan').disabled = false;
+      $('scan').textContent = 'Scan this file';
+      var target = $('editor').classList.contains('hide') ? $('exportReport') : $('editorMsg');
+      clear(target);
+      target.appendChild(msg('err', m.message, m.details));
+      if (m.message.indexOf('project id') !== -1) $('projectId').classList.add('bad');
+      if (m.message.indexOf('file key') !== -1) $('fileKey').classList.add('bad');
+      return;
+    }
+  };
+
+  send({ type: 'init' });
+</script>

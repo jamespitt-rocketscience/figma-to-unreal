@@ -1,0 +1,45 @@
+{
+  "_comment": "Captured from the live Figma file on 2026-09-22 via the Plugin API, in library mode (this file owns its variables, so getLocalVariablesAsync returns all 25). Tuple layout: [figmaName, key, aliasTargetKey, srgbHex, alpha, scopes]. Purpose-built to exercise the bridge: a group name with a space and a dash, one upper-case leaf, alpha baked into primitives, and two Component tokens legitimately sharing a Semantic parent.",
+  "source": {
+    "fileKey": "FruupulmvbUZbkUlTQ0kIm",
+    "fileName": "Figma Token Bridge — Test Design System",
+    "readMode": "local",
+    "collectionId": "VariableCollectionId:2:2",
+    "modeId": "2:0",
+    "note": "Local variables, single mode named Value. This is the file a fresh end-to-end test starts from."
+  },
+  "out": "tokens/FigmaBridgeTest.tokens.json",
+  "expect": {
+    "total": 25,
+    "tiers": {"Component":10,"Global":8,"Semantic":7},
+    "publishedComponentTier": 10,
+    "publishedBladesAndChat": 7
+  },
+  "colours": [
+    ["Component/Blades/accent-goals","a865b784a3274d84b4edda35f629ce4ea8a86fc1","be32147aeba469c1a41ba753d94394ba4f479f21",null,null,["TEXT_FILL"]],
+    ["Component/Blades/bg-abnormal","218b58ac2d4ad762ee7941ff0deb45549ced641e","c80bdc52834ff29f5a4d017e67fe7ae388b40275",null,null,["FRAME_FILL","SHAPE_FILL"]],
+    ["Component/Blades/bg-blade","7866b9550ccd0bae57460397ac0004a4065aa189","f39a1931a50afb1a9c9551fdcfe683a25f519a40",null,null,["FRAME_FILL","SHAPE_FILL"]],
+    ["Component/Blades/fg-blade","368da363acf066dfc049585007adbe8bad164b6c","c7d1a086eafd42f5afb27d705269550fbdc184b0",null,null,["TEXT_FILL"]],
+    ["Component/Chat/accent-link","2dd6dd078967ec3b4391d0e105324af420744138","f75e9f821462a730cf369ec58df9477c3c02d961",null,null,["TEXT_FILL"]],
+    ["Component/Chat/bg-bubble","6a352c4b7ecb846b9147bc52d3d70e8f53d717dd","847efb453bc0b0141468c26432841b04c9cd9e5c",null,null,["FRAME_FILL","SHAPE_FILL"]],
+    ["Component/Chat/fg-message","a06695afc767b9fff747be7067d412a9500257f5","c7d1a086eafd42f5afb27d705269550fbdc184b0",null,null,["TEXT_FILL"]],
+    ["Component/Icons - Secondary/icon-alert","96916c9e13950088accc67095b078809beda02a0","6ea2a7d7b4907c67c71fc76999ccda5b6c307e84",null,null,["SHAPE_FILL","STROKE_COLOR"]],
+    ["Component/Icons - Secondary/icon-secondary-Inactive","1bb9d915fd57d80c0e06627588e50dc16087c15c","c7d1a086eafd42f5afb27d705269550fbdc184b0",null,null,["SHAPE_FILL","STROKE_COLOR"]],
+    ["Component/Icons - Secondary/vital-heart-rate","ff3c3de83b0bca74dc6ae865deee2350b1db84dd","be32147aeba469c1a41ba753d94394ba4f479f21",null,null,["SHAPE_FILL","STROKE_COLOR"]],
+    ["Global/black","30997b569336777f04b8a2b0d98a3e0af3246768",null,"#000000",1,["ALL_SCOPES"]],
+    ["Global/blue-400","022f92ac1ecb64b55fb37dcd3ac2f0a67b05e315",null,"#0d99ff",1,["ALL_SCOPES"]],
+    ["Global/gray-900","c542e32507e4a6fe2a2060f35b3db5af75aa1b7b",null,"#1c1b1a",1,["ALL_SCOPES"]],
+    ["Global/gray-900-80","be43cd18e4c70c065399f17db0780df05b5f33f9",null,"#1c1b1a",0.8,["ALL_SCOPES"]],
+    ["Global/green-400","7bb1b0ba19e8d48287f847d8b8103032c5a7e2ff",null,"#00d86c",1,["ALL_SCOPES"]],
+    ["Global/red-500","f92b35bab2250dd11ec77bee46b8545d7bc29e5c",null,"#c7002e",1,["ALL_SCOPES"]],
+    ["Global/red-500-40","2d641c67b30764cc0f61a5b9ce5178dde1146cd6",null,"#c7002e",0.4,["ALL_SCOPES"]],
+    ["Global/white","7a85a4ee964dbd14cc8fcbadfea6170069d76482",null,"#ffffff",1,["ALL_SCOPES"]],
+    ["Semantic/accent-blue","f75e9f821462a730cf369ec58df9477c3c02d961","022f92ac1ecb64b55fb37dcd3ac2f0a67b05e315",null,null,["ALL_SCOPES"]],
+    ["Semantic/accent-green","be32147aeba469c1a41ba753d94394ba4f479f21","7bb1b0ba19e8d48287f847d8b8103032c5a7e2ff",null,null,["ALL_SCOPES"]],
+    ["Semantic/alert-bad","6ea2a7d7b4907c67c71fc76999ccda5b6c307e84","f92b35bab2250dd11ec77bee46b8545d7bc29e5c",null,null,["ALL_SCOPES"]],
+    ["Semantic/alert-bad-40","c80bdc52834ff29f5a4d017e67fe7ae388b40275","2d641c67b30764cc0f61a5b9ce5178dde1146cd6",null,null,["ALL_SCOPES"]],
+    ["Semantic/bg-primary","847efb453bc0b0141468c26432841b04c9cd9e5c","c542e32507e4a6fe2a2060f35b3db5af75aa1b7b",null,null,["ALL_SCOPES"]],
+    ["Semantic/bg-primary-80","f39a1931a50afb1a9c9551fdcfe683a25f519a40","be43cd18e4c70c065399f17db0780df05b5f33f9",null,null,["ALL_SCOPES"]],
+    ["Semantic/fg-primary","c7d1a086eafd42f5afb27d705269550fbdc184b0","7a85a4ee964dbd14cc8fcbadfea6170069d76482",null,null,["ALL_SCOPES"]]
+  ]
+}
