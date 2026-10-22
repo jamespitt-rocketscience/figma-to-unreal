@@ -330,11 +330,16 @@ shows `Figma live link listening on port 30871.`
 *Paired with FigmaBridgeTest*, a row listing the project and port, and a **Push
 live** button on the link card for this project.
 
-**Push live.** Expected in Figma: added/updated/unchanged counts and *Imported
-into FigmaBridgeTest*. Expected in Unreal: the usual summary toast with *Pushed
-live from Figma by <you>.*, and a new page in **Window → Message Log → Figma
-Sygma**. `tokens/FigmaBridgeTest.tokens.json` is rewritten exactly as a
-Sync would rewrite it.
+**Push live.** Expected in Figma: *Imported into FigmaBridgeTest*, then one row
+per changed token with its old and new colour, then the counts. Expected in
+Unreal: the usual summary toast with *Pushed live from Figma by <you>.*, and a
+new page in **Window → Message Log → Sygma** listing the same changes.
+`tokens/FigmaBridgeTest.tokens.json` is rewritten exactly as a Sync would
+rewrite it.
+
+**Push again without changing anything.** Expected: *Already up to date* in
+Figma and Unreal, and `git status` shows neither `tokens.json` nor
+`DA_DesignTokens.uasset` modified. Nothing is written when nothing changed.
 
 **Verified end to end on 2026-10-22** in Figma desktop against this test
 project: pairing, a push with nothing changed (25 unchanged), and a push after
@@ -344,16 +349,16 @@ If Pair says *Could not reach Unreal* while the editor is open with the tick
 showing, check the plugin console (**Plugins → Development → Show/Hide
 console**) for a CSP or Private Network Access error.
 
-**An open widget editor does not repaint on its own.** After a push, the token
-swatch in Details updates at once, but the Designer preview keeps the old colour
-until you click **Compile** (or reopen the widget). Placed instances elsewhere
-pick it up when they next synchronise.
+**Open widget editors repaint on their own.** With `WBP_Test` open, change
+`Global/green-400` and push: the preview turns the new colour without a
+Compile, and the log says *Refreshed 1 open widget editor(s)*. (Before Plan A
+it needed a Compile; verified fixed on 2026-10-22.)
 
 **Restart the editor and push again without re-pairing.** It should just work:
 the secret is kept in `Saved/Config/…/EditorPerProjectUserSettings.ini`. That
 is the improvement over Unity's connector, whose token changes on every restart.
 
-**Revoke:** clear *Live Link Secret* in **Editor Preferences → Plugins → Figma
+**Revoke:** clear *Live Link Secret* in **Editor Preferences → Plugins →
 Sygma**. A new one is generated, and the plugin's next push gets *did not
 recognise the pairing code*.
 

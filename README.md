@@ -264,9 +264,9 @@ Phase 0 is deliberately colour-only. Deferred, in order:
   [TESTING.md §3](TESTING.md).
 - **The live link is verified in Figma desktop** (2026-10-22): pair, push, and a
   colour change landing as `4 updated`. The first real import found that Figma
-  rejects an IP address in `allowedDomains`, so the plugin uses `localhost`. An
-  open widget editor needs a **Compile** before its preview shows a pushed
-  change. The browser version of Figma is still untried. See
+  rejects an IP address in `allowedDomains`, so the plugin uses `localhost`.
+  Open widget editors now repaint after a push, and an import with nothing
+  changed writes nothing. The browser version of Figma is still untried. See
   [TESTING.md §3.6](TESTING.md).
 - Two hygiene items in the **Rocket Science** file, both reported by the exporter as
   warnings: `icon-secondary-Inactive` is the only capitalised token in 103, and
