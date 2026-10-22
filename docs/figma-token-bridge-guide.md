@@ -183,7 +183,7 @@ A push goes through the same checks as Sync and rewrites the same `tokens.json`,
 
 Use the Figma desktop app. The browser version may block it.
 
-If a widget is open in Unreal's widget editor when you push, its preview repaints with the new colour straight away. The plugin lists every token that changed, with its old and new colour; a push with nothing changed says *Already up to date* and writes nothing.
+If a widget is open in Unreal's widget editor when you push, its preview repaints with the new colour straight away. The plugin lists the tokens that changed, with their old and new colours (the first 20; Unreal's Output Log has every one). A push with nothing changed says *Already up to date* and writes nothing.
 
 ---
 
@@ -232,7 +232,7 @@ It is saved under `Saved/`, not `DefaultGame.ini`, so it is never committed. Bui
 
 With a token, this fetches the designer's latest publish from Figma, rewrites `tokens.json`, and imports it. `tokens.json` is only rewritten if the publish passes both interlocks. Without a token, it imports the local `tokens.json` and warns that it did not fetch from Figma.
 
-You get a summary like `171 tokens (4 added, 2 updated, 165 unchanged, 1 renamed, 0 deprecated), 2 warning(s)`. The detail goes to **Window → Message Log → Sygma**, one page per import, and the toast links to it. The page stays after the toast fades, and earlier imports are a dropdown away. It lists every token that changed, with its old and new colour. A sync where nothing changed says *Already up to date* and writes nothing, so `tokens.json` and the asset are left alone.
+You get a summary like `171 tokens (4 added, 2 updated, 165 unchanged, 1 renamed, 0 deprecated), 2 warning(s)`. The detail goes to **Window → Message Log → Sygma**, one page per import, and the toast links to it. The page stays after the toast fades, and earlier imports are a dropdown away. It lists the tokens that changed, with their old and new colours: the first 50 on the page, and every one in the Output Log under `LogFigmaTokens`. A sync where nothing changed says *Already up to date* and writes nothing, so `tokens.json` and the asset are left alone.
 
 ### Live link (optional)
 

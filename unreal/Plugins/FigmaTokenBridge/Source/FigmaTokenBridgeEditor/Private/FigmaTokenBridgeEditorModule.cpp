@@ -467,6 +467,12 @@ private:
 			UE_LOG(LogFigmaTokens, Error, TEXT("%s"), *Error);
 		}
 
+		// The Message Log page stops at 50 changes; this is the full list.
+		for (const FString& Line : FFigmaTokenBridgeReport::ChangeLines(Result.Changes, MAX_int32))
+		{
+			UE_LOG(LogFigmaTokens, Display, TEXT("%s"), *Line);
+		}
+
 		UE_LOG(LogFigmaTokens, Display, TEXT("%s"), *Result.Summary());
 
 		// The toast carries the headline; the report carries the detail, because a

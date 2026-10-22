@@ -170,10 +170,11 @@ answered without the secret.
 
 ### The import report
 
-Every sync and every live push writes a page to **Message Log → Figma Token
-Bridge**: where the tokens came from, every warning and error, and the summary.
-The toast links to it. Unlike the toast, it stays, so *what did the last sync
-skip, and why* has an answer afterwards.
+Every sync and every live push writes a page to **Message Log → Sygma**: where
+the tokens came from, every warning and error, the tokens that changed with
+their old and new colours (the first 50; the Output Log has them all under
+`LogFigmaTokens`), and the summary. The toast links to it. Unlike the toast, it
+stays, so *what did the last sync skip, and why* has an answer afterwards.
 
 ### Publishing controls the picker, not the import
 

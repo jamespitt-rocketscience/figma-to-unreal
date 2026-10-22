@@ -405,8 +405,11 @@
 
   var KIND_LABEL = { added: 'Added', updated: 'Updated', renamed: 'Renamed', deprecated: 'Gone from Figma' };
 
-  /** Up to 20 rows of before → after; Unreal's Message Log has the rest. */
-  function renderChanges(host, changes) {
+  /**
+   * Up to 20 rows of before → after. total is how many changes there were:
+   * Unreal sends at most 200, and its Output Log has every one.
+   */
+  function renderChanges(host, changes, total) {
     changes.slice(0, 20).forEach(function (c) {
       var row = el('div', 'chg');
       row.appendChild(el('span', 'k', KIND_LABEL[c.kind] || c.kind));
@@ -418,8 +421,8 @@
       row.appendChild(name);
       host.appendChild(row);
     });
-    if (changes.length > 20) {
-      host.appendChild(el('div', 'empty', '…and ' + (changes.length - 20) + ' more. The full list is in Unreal’s Message Log.'));
+    if (total > 20) {
+      host.appendChild(el('div', 'empty', '…and ' + (total - 20) + ' more. Unreal’s Output Log (LogFigmaTokens) has the full list.'));
     }
   }
 
@@ -441,15 +444,22 @@
       if (res.updated) parts.push(res.updated + ' updated');
       if (res.added) parts.push(res.added + ' added');
       if (res.renamed) parts.push(res.renamed + ' renamed');
-      var newlyGone = changes.filter(function (c) { return c.kind === 'deprecated'; }).length;
+      // An older editor sends neither count; the list it sends is then complete.
+      var newlyGone = res.newlyGone !== undefined ? res.newlyGone
+        : changes.filter(function (c) { return c.kind === 'deprecated'; }).length;
       if (newlyGone) parts.push(newlyGone + ' no longer in Figma');
+      // What Unreal wrote decides the headline, not the counts: a renamed or
+      // re-saved link changes no token but still rewrites the asset.
+      var wrote = res.wroteAsset !== undefined ? (res.wroteAsset || res.wroteTokensFile) : parts.length > 0;
 
       var ok = el('div', 'msg ok');
       ok.appendChild(el('div', null, parts.length
         ? 'Imported into ' + project + ': ' + parts.join(', ') + '. Its tokens.json is updated for review, the same as after a Sync.'
-        : 'Already up to date in ' + project + '. Nothing was written.'));
+        : wrote
+          ? 'Imported into ' + project + '. No colour changed, but Unreal rewrote its token files (the link details changed, or a file was missing). Review them as after any Sync.'
+          : 'Already up to date in ' + project + '. Nothing was written.'));
       out.appendChild(ok);
-      renderChanges(out, changes);
+      renderChanges(out, changes, res.changeCount !== undefined ? res.changeCount : changes.length);
 
       out.appendChild(stat('Added', res.added));
       out.appendChild(stat('Updated', res.updated));

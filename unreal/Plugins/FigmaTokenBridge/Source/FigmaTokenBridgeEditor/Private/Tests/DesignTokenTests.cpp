@@ -917,6 +917,19 @@ bool FDesignTokenNoOpTest::RunTest(const FString& Parameters)
 		TestEqual(TEXT("summary says so"), R.Summary(), FString(TEXT("Already up to date (4 tokens unchanged)")));
 	}
 
+	// The package is still in memory but its file is gone (deleted, or a branch
+	// switch with the editor open): a sync must put it back, not call it current.
+	// A package loaded from disk keeps its file open on Windows until its loader
+	// is reset, which is what the editor does before deleting a package's file.
+	ResetLoaders(Asset->GetPackage());
+	IFileManager::Get().Delete(*AssetFile, false, true, true);
+	TestFalse(TEXT("the asset file is gone before the sync"), IFileManager::Get().FileExists(*AssetFile));
+	{
+		const FDesignTokenImportResult R = FDesignTokenImporter::WriteAsset(Parse(B));
+		TestTrue(TEXT("a missing asset file is written again"), R.bWroteAsset);
+		TestTrue(TEXT("and is back on disk"), IFileManager::Get().FileExists(*AssetFile));
+	}
+
 	// An asset written before fingerprints existed is written once.
 	Asset->ContentFingerprint.Reset();
 	TestTrue(TEXT("upgrade write"), FDesignTokenImporter::WriteAsset(Parse(B)).bWroteAsset);
@@ -1063,7 +1076,8 @@ bool FDesignTokenChangeReportTest::RunTest(const FString& Parameters)
 	}
 	const TArray<FString> Lines = FFigmaTokenBridgeReport::ChangeLines(Many, 50);
 	TestEqual(TEXT("change lines are capped"), Lines.Num(), 51);
-	TestEqual(TEXT("and say how many were left out"), Lines.Last(), FString(TEXT("…and 10 more")));
+	TestEqual(TEXT("and say how many were left out, and where the rest are"), Lines.Last(),
+		FString(TEXT("…and 10 more. The Output Log (LogFigmaTokens) has the full list.")));
 
 	FDesignTokenChange Updated;
 	Updated.Name = TEXT("component.blades.accent_goals");
@@ -1083,6 +1097,32 @@ bool FDesignTokenChangeReportTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("with its old colour"), Json.Contains(TEXT("\"before\":\"#00D86C\"")));
 	TestTrue(TEXT("and its new colour"), Json.Contains(TEXT("\"after\":\"#7B61FF\"")));
 	TestTrue(TEXT("and its name"), Json.Contains(TEXT("\"name\":\"component.blades.accent_goals\"")));
+
+	// The plugin's headline goes by what Unreal wrote, not by the token counts:
+	// a renamed link writes the asset with no token changed.
+	TestTrue(TEXT("the push response says the asset was written"), Json.Contains(TEXT("\"wroteAsset\":true")));
+	TestTrue(TEXT("and whether tokens.json was"), Json.Contains(TEXT("\"wroteTokensFile\":false")));
+
+	// The change list is capped at 200; the counts are not.
+	FDesignTokenImportResult Large;
+	Large.bSuccess = true;
+	Large.bWroteAsset = true;
+	for (int32 i = 0; i < 250; ++i)
+	{
+		FDesignTokenChange Change;
+		Change.Name = FName(*FString::Printf(TEXT("component.test.token_%03d"), i));
+		Change.Kind = i < 240 ? EDesignTokenChangeKind::Added : EDesignTokenChangeKind::Deprecated;
+		Large.Changes.Add(Change);
+	}
+	TSharedPtr<FJsonObject> LargeJson;
+	const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(FFigmaLiveLink::MakePushResultJson(Large));
+	if (!TestTrue(TEXT("the large push response parses"), FJsonSerializer::Deserialize(Reader, LargeJson) && LargeJson.IsValid()))
+	{
+		return false;
+	}
+	TestEqual(TEXT("the change list is capped"), LargeJson->GetArrayField(TEXT("changes")).Num(), 200);
+	TestEqual(TEXT("the change count is not"), LargeJson->GetIntegerField(TEXT("changeCount")), 250);
+	TestEqual(TEXT("nor is the count of tokens gone from Figma"), LargeJson->GetIntegerField(TEXT("newlyGone")), 10);
 
 	return true;
 }

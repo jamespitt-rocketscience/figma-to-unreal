@@ -261,8 +261,21 @@ FString FFigmaLiveLink::MakePushResultJson(const FDesignTokenImportResult& Resul
 	Body->SetArrayField(TEXT("warnings"), ToJsonArray(Result.Warnings));
 	Body->SetArrayField(TEXT("errors"), ToJsonArray(Result.Errors));
 
+	// What was written, separately from what changed: a renamed link rewrites
+	// both files with no token changed, and the plugin must not say otherwise.
+	Body->SetBoolField(TEXT("wroteAsset"), Result.bWroteAsset);
+	Body->SetBoolField(TEXT("wroteTokensFile"), Result.bWroteTokensFile);
+
 	// Capped so a first import of a large system stays a small response; the
-	// plugin shows the first rows and the counts say how many there were.
+	// plugin shows the first rows and these counts say how many there were.
+	int32 NewlyGone = 0;
+	for (const FDesignTokenChange& Change : Result.Changes)
+	{
+		NewlyGone += Change.Kind == EDesignTokenChangeKind::Deprecated ? 1 : 0;
+	}
+	Body->SetNumberField(TEXT("changeCount"), Result.Changes.Num());
+	Body->SetNumberField(TEXT("newlyGone"), NewlyGone);
+
 	TArray<TSharedPtr<FJsonValue>> Changes;
 	for (const FDesignTokenChange& Change : Result.Changes)
 	{

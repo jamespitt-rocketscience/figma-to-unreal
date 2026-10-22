@@ -9,7 +9,7 @@ TArray<FString> FFigmaTokenBridgeReport::ChangeLines(const TArray<FDesignTokenCh
 	{
 		if (Lines.Num() >= Max)
 		{
-			Lines.Add(FString::Printf(TEXT("…and %d more"), Changes.Num() - Max));
+			Lines.Add(FString::Printf(TEXT("…and %d more. The Output Log (LogFigmaTokens) has the full list."), Changes.Num() - Max));
 			break;
 		}
 

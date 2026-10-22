@@ -10,6 +10,7 @@
 
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Dom/JsonObject.h"
+#include "HAL/FileManager.h"
 #include "Misc/FileHelper.h"
 #include "Misc/PackageName.h"
 #include "Misc/SecureHash.h"
@@ -422,7 +423,13 @@ FDesignTokenImportResult FDesignTokenImporter::WriteAsset(const FDesignTokenDocu
 	const FString PackagePath = Settings->GetTokensAssetPackagePath();
 	const FString AssetName = FPackageName::GetShortName(PackagePath);
 
-	UPackage* Package = LoadPackage(nullptr, *PackagePath, LOAD_NoWarn | LOAD_Quiet);
+	// In memory first: LoadPackage goes back to disk for a package whose loader
+	// was reset, and logs an error if the file has since gone.
+	UPackage* Package = FindPackage(nullptr, *PackagePath);
+	if (!Package)
+	{
+		Package = LoadPackage(nullptr, *PackagePath, LOAD_NoWarn | LOAD_Quiet);
+	}
 	UDesignTokens* Asset = Package ? FindObject<UDesignTokens>(Package, *AssetName) : nullptr;
 	const bool bAssetExisted = Asset != nullptr;
 
@@ -550,7 +557,13 @@ FDesignTokenImportResult FDesignTokenImporter::WriteAsset(const FDesignTokenDocu
 	const bool bNothingChanged = Result.Added == 0 && Result.Updated == 0
 		&& Result.Renamed == 0 && NewlyDeprecated == 0;
 
-	if (bAssetExisted && bNothingChanged && Asset->ContentFingerprint == Doc.Fingerprint)
+	const FString FileName = FPackageName::LongPackageNameToFilename(
+		PackagePath, FPackageName::GetAssetPackageExtension());
+
+	// The package can outlive its file (deleted on disk, or a branch switch with
+	// the editor open). A sync is how people repair that, so it must not skip.
+	if (bAssetExisted && bNothingChanged && Asset->ContentFingerprint == Doc.Fingerprint
+		&& IFileManager::Get().FileExists(*FileName))
 	{
 		UE_LOG(LogFigmaTokens, Log, TEXT("Tokens are already up to date (%d unchanged); nothing written."), Result.Unchanged);
 		Result.Asset = Asset;
@@ -575,9 +588,6 @@ FDesignTokenImportResult FDesignTokenImporter::WriteAsset(const FDesignTokenDocu
 	Asset->ContentFingerprint = Doc.Fingerprint;
 
 	Asset->MarkPackageDirty();
-
-	const FString FileName = FPackageName::LongPackageNameToFilename(
-		PackagePath, FPackageName::GetAssetPackageExtension());
 
 	FSavePackageArgs SaveArgs;
 	SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
