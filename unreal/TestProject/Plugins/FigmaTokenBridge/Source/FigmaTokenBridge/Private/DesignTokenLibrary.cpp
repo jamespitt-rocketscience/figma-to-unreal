@@ -87,6 +87,14 @@ void UDesignTokenLibrary::InvalidateDesignTokenCache()
 	// was missing and has now arrived stops being reported, and one that has just
 	// gone missing is reported once rather than never.
 	GReportedMissing.Empty();
+
+	OnDesignTokensChanged().Broadcast();
+}
+
+FSimpleMulticastDelegate& UDesignTokenLibrary::OnDesignTokensChanged()
+{
+	static FSimpleMulticastDelegate Changed;
+	return Changed;
 }
 
 UDesignTokens* UDesignTokenLibrary::GetDesignTokens()

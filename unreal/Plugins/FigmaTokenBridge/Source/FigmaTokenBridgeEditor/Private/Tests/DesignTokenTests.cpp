@@ -10,6 +10,7 @@
 #include "FigmaLiveLink.h"
 #include "FigmaPublication.h"
 #include "FigmaTokenBridgeReport.h"
+#include "WidgetPreviewRefresher.h"
 
 #include "Algo/AllOf.h"
 
@@ -974,6 +975,63 @@ bool FDesignTokenNoOpTest::RunTest(const FString& Parameters)
 		}
 	}
 
+	return true;
+}
+
+/**
+ * Open widget editors are refreshed off this event, so it must fire for an
+ * import that changed tokens and stay quiet for one that changed nothing.
+ */
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDesignTokenBroadcastTest,
+	"FigmaTokenBridge.Import.BroadcastsChange",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FDesignTokenBroadcastTest::RunTest(const FString& Parameters)
+{
+	const FString MyId = UDesignTokenSettings::GetOrCreateProjectId();
+	const FString A = MakeDoc(MyId, GoalsChain);
+	const FString B = A.Replace(TEXT("2026-08-19T00:00:00.000Z"), TEXT("2026-10-22T14:05:48.655Z"));
+	const FString C = A.Replace(TEXT("#00d86c"), TEXT("#7b61ff"));
+
+	UDesignTokenSettings* Settings = GetMutableDefault<UDesignTokenSettings>();
+	const FString OldPath = Settings->GeneratedPackagePath;
+	const FString OldName = Settings->TokensAssetName;
+	const FSoftObjectPath OldActive = Settings->ActiveTokens;
+	Settings->GeneratedPackagePath = TEXT("/Game/DesignSystem/Generated/AutomationTest");
+	Settings->TokensAssetName = FString::Printf(TEXT("DA_TokensBroadcast_%s"), *FGuid::NewGuid().ToString(EGuidFormats::Digits));
+	const FString AssetFile = FPackageName::LongPackageNameToFilename(
+		Settings->GetTokensAssetPackagePath(), FPackageName::GetAssetPackageExtension());
+
+	int32 Broadcasts = 0;
+	const FDelegateHandle Handle = UDesignTokenLibrary::OnDesignTokensChanged().AddLambda([&Broadcasts]() { ++Broadcasts; });
+
+	ON_SCOPE_EXIT
+	{
+		UDesignTokenLibrary::OnDesignTokensChanged().Remove(Handle);
+		Settings->GeneratedPackagePath = OldPath;
+		Settings->TokensAssetName = OldName;
+		Settings->ActiveTokens = OldActive;
+		UDesignTokenLibrary::InvalidateDesignTokenCache();
+		Settings->TryUpdateDefaultConfigFile();
+		IFileManager::Get().Delete(*AssetFile, false, true, true);
+	};
+
+	auto Write = [this](const FString& Text)
+	{
+		FDesignTokenDocument Doc;
+		FDesignTokenImportResult Unused;
+		TestTrue(TEXT("fixture parses"), FDesignTokenImporter::ParseDocument(Text, Doc, Unused));
+		return FDesignTokenImporter::WriteAsset(Doc);
+	};
+
+	Write(A);
+	TestEqual(TEXT("a first import announces the change"), Broadcasts, 1);
+	Write(B);
+	TestEqual(TEXT("an unchanged import stays quiet"), Broadcasts, 1);
+	Write(C);
+	TestEqual(TEXT("a recolour announces the change"), Broadcasts, 2);
+
+	TestEqual(TEXT("refresh with no editors open does nothing"), FWidgetPreviewRefresher::RefreshOpenWidgetEditors(), 0);
 	return true;
 }
 

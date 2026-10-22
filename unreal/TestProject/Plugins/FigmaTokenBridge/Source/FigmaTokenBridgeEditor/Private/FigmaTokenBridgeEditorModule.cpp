@@ -11,6 +11,7 @@
 #include "FigmaLiveLink.h"
 #include "FigmaTokenBridgeLog.h"
 #include "FigmaTokenBridgeReport.h"
+#include "WidgetPreviewRefresher.h"
 #include "FigmaTokenFetcher.h"
 
 #include "MessageLogModule.h"
@@ -57,6 +58,8 @@ public:
 
 		PropertyModule.NotifyCustomizationModuleChanged();
 
+		WidgetPreviewRefresher.Register();
+
 		FMessageLogInitializationOptions LogOptions;
 		LogOptions.bShowPages = true;
 		FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog").RegisterLogListing(
@@ -99,6 +102,7 @@ public:
 		FTSTicker::GetCoreTicker().RemoveTicker(LiveLinkStartHandle);
 
 		FFigmaLiveLink::Stop();
+		WidgetPreviewRefresher.Unregister();
 		if (UObjectInitialized())
 		{
 			UDesignTokenUserSettings::GetMutable()->OnSettingChanged().RemoveAll(this);
@@ -129,6 +133,7 @@ public:
 private:
 	FTSTicker::FDelegateHandle StartupCheckHandle;
 	FTSTicker::FDelegateHandle LiveLinkStartHandle;
+	FWidgetPreviewRefresher WidgetPreviewRefresher;
 
 	void RegisterMenus()
 	{

@@ -71,6 +71,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Design Tokens")
 	static void InvalidateDesignTokenCache();
 
+	/**
+	 * Broadcast by InvalidateDesignTokenCache, which the importer calls only after
+	 * it has actually written new tokens. The editor uses it to repaint open
+	 * widget editors, whose previews do not otherwise re-resolve their tokens.
+	 */
+	static FSimpleMulticastDelegate& OnDesignTokensChanged();
+
 	// --- dropdown providers; not intended to be called directly ---
 
 	UFUNCTION()
