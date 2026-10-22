@@ -132,6 +132,9 @@ function srgbHexToLinear(hex) {
 function buildDocument(records, meta) {
   var errors = [];
   var warnings = [];
+  // Tidiness of the Figma file itself. Reported on Scan, where a designer can act
+  // on it, rather than on every publish and push, where it reads as an export problem.
+  var hygiene = [];
   var byKey = {};
   var i;
 
@@ -169,7 +172,7 @@ function buildDocument(records, meta) {
     counts[tier] = (counts[tier] || 0) + 1;
 
     if (tier === 'Other') {
-      warnings.push('"' + rec.name + '" is not under Global/, Semantic/ or Component/ — it will import but sits outside the tier convention');
+      hygiene.push('"' + rec.name + '" is not under Global/, Semantic/ or Component/ — it will import but sits outside the tier convention');
     }
 
     var resolved = resolveTerminal(byKey, rec.key, []);
@@ -178,13 +181,13 @@ function buildDocument(records, meta) {
       continue;
     }
     if (resolved.chain.length > 4) {
-      warnings.push('"' + rec.name + '" resolves through ' + (resolved.chain.length - 1) + ' aliases — deep chains are hard to reason about');
+      hygiene.push('"' + rec.name + '" resolves through ' + (resolved.chain.length - 1) + ' aliases — deep chains are hard to reason about');
     }
 
     // The leaf of the Figma name should be lower-case by convention.
     var leaf = String(rec.name).split('/').pop();
     if (leaf !== leaf.toLowerCase()) {
-      warnings.push('"' + rec.name + '" has upper-case characters in its leaf name — inconsistent with the other tokens');
+      hygiene.push('"' + rec.name + '" has upper-case characters in its leaf name — inconsistent with the other tokens');
     }
 
     if (rec.scopes && rec.scopes.length === 1 && rec.scopes[0] === 'ALL_SCOPES') {
@@ -222,7 +225,7 @@ function buildDocument(records, meta) {
   }
 
   if (counts.__allScopes) {
-    warnings.push(counts.__allScopes + ' variables use ALL_SCOPES — narrowing scopes in Figma keeps property pickers clean (does not affect this export)');
+    hygiene.push(counts.__allScopes + ' variables use ALL_SCOPES — narrowing scopes in Figma keeps property pickers clean (does not affect this export)');
     delete counts.__allScopes;
   }
 
@@ -246,7 +249,7 @@ function buildDocument(records, meta) {
     var roots = {};
     group.forEach(function (t) { roots[t.resolvesTo] = true; });
     if (Object.keys(roots).length > 1) {
-      warnings.push(Object.keys(roots).length + ' different primitives all equal ' + sig +
+      hygiene.push(Object.keys(roots).length + ' different primitives all equal ' + sig +
         ' — duplicated values in the primitive tier will drift apart: ' +
         group.map(function (t) { return t.figmaName; }).join(', '));
     }
@@ -299,6 +302,7 @@ function buildDocument(records, meta) {
     counts: counts,
     publishedCount: publishedCount,
     warnings: warnings,
+    hygiene: hygiene,
     errors: errors
   };
 }
@@ -956,7 +960,7 @@ if (typeof figma !== 'undefined') {
   if (figma.command === 'publish-all') {
     publishAllHeadless();
   } else {
-    figma.showUI(__html__, { width: 400, height: 640, themeColors: true });
+    figma.showUI(__html__, { width: 460, height: 720, themeColors: true });
 
     var reply = function (payload) { figma.ui.postMessage(payload); };
 
@@ -1049,11 +1053,19 @@ if (typeof figma !== 'undefined') {
 
         if (msg.type === 'scan') {
           cached = await scan();
+          // Built without a link only to collect the file's tidiness notes; the
+          // export itself is built per link when publishing.
+          var tidy = buildDocument(cached.records, {
+            fileKey: cached.meta.fileKey, fileName: cached.meta.fileName, readMode: cached.meta.readMode,
+            collectionId: cached.meta.collectionId, defaultModeId: cached.meta.defaultModeId,
+            modes: cached.meta.modes, published: [], target: null, exportedAt: new Date().toISOString()
+          });
           reply({
             type: 'scan',
             readMode: cached.meta.readMode,
             total: cached.records.length,
             warnings: cached.warnings || [],
+            hygiene: tidy.hygiene,
             inventory: inventory(cached.records)
           });
           return;

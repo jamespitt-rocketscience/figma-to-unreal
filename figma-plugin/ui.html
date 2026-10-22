@@ -71,6 +71,12 @@
 
   .stat { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid rgba(128,128,128,.18); }
   .stat b { font-variant-numeric: tabular-nums; }
+  .chg { display: flex; align-items: center; gap: 6px; padding: 3px 0; border-bottom: 1px solid rgba(128,128,128,.18); }
+  .chg .n { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chg .k { opacity: .55; font-size: 10px; min-width: 64px; }
+  .sw { display: inline-block; width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(128,128,128,.55); flex: none; }
+  .sw.none { border-style: dashed; }
+  details.msg summary { cursor: pointer; }
   .empty { opacity: .55; padding: 10px 0; }
   .hide { display: none; }
 </style>
@@ -382,6 +388,41 @@
     send({ type: 'checkPairing', code: code });
   };
 
+  /** A colour chip for "#RRGGBB" or "#RRGGBB 80%"; a dashed empty chip when there is none. */
+  function swatch(value) {
+    var s = el('span', 'sw');
+    var match = /^#([0-9A-Fa-f]{6})(?:\s+(\d+)%)?$/.exec(String(value || ''));
+    if (!match) {
+      s.className = 'sw none';
+      return s;
+    }
+    var n = parseInt(match[1], 16);
+    var alpha = match[2] ? Number(match[2]) / 100 : 1;
+    s.style.background = 'rgba(' + (n >> 16) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + alpha + ')';
+    s.title = value;
+    return s;
+  }
+
+  var KIND_LABEL = { added: 'Added', updated: 'Updated', renamed: 'Renamed', deprecated: 'Gone from Figma' };
+
+  /** Up to 20 rows of before → after; Unreal's Message Log has the rest. */
+  function renderChanges(host, changes) {
+    changes.slice(0, 20).forEach(function (c) {
+      var row = el('div', 'chg');
+      row.appendChild(el('span', 'k', KIND_LABEL[c.kind] || c.kind));
+      row.appendChild(swatch(c.before));
+      row.appendChild(el('span', null, '→'));
+      row.appendChild(swatch(c.after));
+      var name = el('span', 'n', c.kind === 'renamed' && c.oldName ? c.oldName + ' → ' + c.name : c.name);
+      name.title = name.textContent + (c.before ? '  ' + c.before : '') + (c.after ? ' → ' + c.after : '');
+      row.appendChild(name);
+      host.appendChild(row);
+    });
+    if (changes.length > 20) {
+      host.appendChild(el('div', 'empty', '…and ' + (changes.length - 20) + ' more. The full list is in Unreal’s Message Log.'));
+    }
+  }
+
   function showPush(m, res) {
     var out = $('exportReport');
     clear(out);
@@ -392,15 +433,29 @@
         : 'Unreal did not import it. It keeps the tokens it had:';
       out.appendChild(msg('err', title, res.errors || []));
     } else {
+      // The headline and the change list first: "did my colour land?" is the
+      // question, and the counts below only matter once that is answered.
+      var changes = res.changes || [];
+      var project = m.projectName || 'Unreal';
+      var parts = [];
+      if (res.updated) parts.push(res.updated + ' updated');
+      if (res.added) parts.push(res.added + ' added');
+      if (res.renamed) parts.push(res.renamed + ' renamed');
+      var newlyGone = changes.filter(function (c) { return c.kind === 'deprecated'; }).length;
+      if (newlyGone) parts.push(newlyGone + ' no longer in Figma');
+
+      var ok = el('div', 'msg ok');
+      ok.appendChild(el('div', null, parts.length
+        ? 'Imported into ' + project + ': ' + parts.join(', ') + '. Its tokens.json is updated for review, the same as after a Sync.'
+        : 'Already up to date in ' + project + '. Nothing was written.'));
+      out.appendChild(ok);
+      renderChanges(out, changes);
+
       out.appendChild(stat('Added', res.added));
       out.appendChild(stat('Updated', res.updated));
       out.appendChild(stat('Unchanged', res.unchanged));
       if (res.renamed) out.appendChild(stat('Renamed', res.renamed));
       if (res.deprecated) out.appendChild(stat('No longer in Figma', res.deprecated));
-      var ok = el('div', 'msg ok');
-      ok.appendChild(el('div', null, 'Imported into ' + (m.projectName || 'Unreal') +
-        '. Its tokens.json is updated for review, the same as after a Sync.'));
-      out.appendChild(ok);
       if (m.readMode === 'consumer') {
         out.appendChild(msg('warn',
           'Read from a consuming file, so only variables bound on this page were pushed. Push from the library file for the full set.'));
@@ -500,6 +555,19 @@
 
       if (m.warnings && m.warnings.length) {
         host.appendChild(msg('warn', 'Worth knowing before you link:', m.warnings));
+      }
+
+      // Tidiness of the file itself. Folded away: it never blocks an export,
+      // and it is the only place these notes appear.
+      if (m.hygiene && m.hygiene.length) {
+        var tidy = document.createElement('details');
+        tidy.className = 'msg';
+        tidy.appendChild(el('summary', null, m.hygiene.length + ' tidy-up' + (m.hygiene.length === 1 ? '' : 's') +
+          ' in this file (they don’t affect Unreal)'));
+        var list = el('ul');
+        m.hygiene.forEach(function (h) { list.appendChild(el('li', null, h)); });
+        tidy.appendChild(list);
+        host.appendChild(tidy);
       }
 
       // Refresh the checkbox list if the editor is open.

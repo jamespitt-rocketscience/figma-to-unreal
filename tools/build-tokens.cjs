@@ -206,7 +206,7 @@ check('a primitive resolves to itself',
   byName['global.gray_900'].resolvesTo,
   byName['global.gray_900'].key);
 check('the alias graph has no duplicated primitives',
-  built.warnings.filter((w) => w.indexOf('drift apart') !== -1).length,
+  (built.hygiene || []).filter((w) => w.indexOf('drift apart') !== -1).length,
   0);
 
 // The colour-space conversion — the headline Phase 0 test vector.
@@ -227,8 +227,23 @@ check('below-knee value uses the linear segment',
 
 // The warning we expect the designer to see and act on.
 check('warns about the upper-case leaf name',
-  built.warnings.some((w) => w.indexOf('icon-secondary-Inactive') !== -1 && w.indexOf('upper-case') !== -1),
+  (built.hygiene || []).some((w) => w.indexOf('icon-secondary-Inactive') !== -1 && w.indexOf('upper-case') !== -1),
   true);
+
+// Tidiness notes belong on Scan, not in every publish and push report, where
+// they read as problems with the export and teach people to ignore warnings.
+check('tidiness notes are not export warnings',
+  built.warnings.some((w) => /upper-case|ALL_SCOPES|drift apart/.test(w)), false);
+check('tidiness notes are still reported',
+  (built.hygiene || []).some((w) => w.indexOf('icon-secondary-Inactive') !== -1), true);
+// Scan collects them by building with no link at all.
+check('tidiness notes do not depend on a link',
+  bridge.buildDocument(records, {
+    fileKey: FILE_KEY, fileName: raw.source.fileName, readMode: raw.source.readMode,
+    defaultModeId: raw.source.modeId, modes: [{ id: raw.source.modeId, name: 'Value' }],
+    published: [], target: null, exportedAt: '2026-08-19T00:00:00.000Z'
+  }).hygiene,
+  built.hygiene);
 
 // --- the designer-authored link ------------------------------------------
 
