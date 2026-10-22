@@ -12,7 +12,7 @@
 
 namespace
 {
-	const TCHAR* TokenLocation = TEXT("Editor Preferences > Plugins > Figma Token Bridge");
+	const TCHAR* TokenLocation = TEXT("Editor Preferences > Plugins > Sygma");
 
 	/** Turn a failed response into something a developer can act on. */
 	FString DescribeFailure(const FHttpResponsePtr& Response, const FString& FileKey)
@@ -60,11 +60,11 @@ FString FFigmaTokenFetcher::WhyCannotPull()
 	const UDesignTokenSettings* Settings = UDesignTokenSettings::Get();
 	if (!Settings || !Settings->bPullFromFigma)
 	{
-		return TEXT("Pull from Figma is turned off in Project Settings > Plugins > Figma Token Bridge.");
+		return TEXT("Pull from Figma is turned off in Project Settings > Plugins > Sygma.");
 	}
 	if (Settings->FigmaFileKey.TrimStartAndEnd().IsEmpty())
 	{
-		return TEXT("This project has no Figma file key, so there is nothing to pull from. Set it in Project Settings > Plugins > Figma Token Bridge.");
+		return TEXT("This project has no Figma file key, so there is nothing to pull from. Set it in Project Settings > Plugins > Sygma.");
 	}
 	if (UDesignTokenUserSettings::Get()->GetAccessToken().IsEmpty())
 	{

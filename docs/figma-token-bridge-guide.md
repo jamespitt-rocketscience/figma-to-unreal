@@ -1,4 +1,4 @@
-# Figma Token Bridge
+# Sygma
 
 A designer changes a colour in Figma. Every widget in Unreal that uses it follows, without anyone regenerating or re-importing a single widget.
 
@@ -130,7 +130,7 @@ There is no build step. If `manifest.json` itself changes, remove the plugin and
 
 ### Scan the file
 
-Open the design system file, then **Plugins → Development → Figma Token Bridge → Scan this file**.
+Open the design system file, then **Plugins → Development → Sygma → Scan this file**.
 
 The report tells you the read mode, how many variables were found, and lists the tiers and groups. Check the read mode says **library file** before going further.
 
@@ -162,7 +162,7 @@ The published count being lower than the stored count is expected, not a bug. Se
 
 After the first link exists you do not need to open the plugin at all:
 
-- **Plugins → Figma Token Bridge → Publish all links to Unreal**, or
+- **Plugins → Sygma → Publish all links to Unreal**, or
 - the **Publish tokens to Unreal** button in the right-hand panel when nothing is selected.
 
 Both publish every link in the file and confirm with a toast.
@@ -199,7 +199,7 @@ The plugin has two modules: a runtime module carrying the asset, settings and Bl
 
 ### Pair the project with a Figma file
 
-**Project Settings → Plugins → Figma Token Bridge**
+**Project Settings → Plugins → Sygma**
 
 | Setting | What to set |
 |---|---|
@@ -218,7 +218,7 @@ The id is generated on first editor run and written to `Config/DefaultGame.ini`,
 
 ### Add your Figma access token (the developer who syncs)
 
-**Editor Preferences → Plugins → Figma Token Bridge → Figma Access Token.** Create the token in Figma under **Settings → Security → Personal access tokens**, with the *File content: read* scope.
+**Editor Preferences → Plugins → Sygma → Figma Access Token.** Create the token in Figma under **Settings → Security → Personal access tokens**, with the *File content: read* scope.
 
 It is saved under `Saved/`, not `DefaultGame.ini`, so it is never committed. Build machines can set `FIGMA_ACCESS_TOKEN` instead.
 
@@ -232,13 +232,13 @@ It is saved under `Saved/`, not `DefaultGame.ini`, so it is never committed. Bui
 
 With a token, this fetches the designer's latest publish from Figma, rewrites `tokens.json`, and imports it. `tokens.json` is only rewritten if the publish passes both interlocks. Without a token, it imports the local `tokens.json` and warns that it did not fetch from Figma.
 
-You get a summary like `171 tokens (4 added, 2 updated, 165 unchanged, 1 renamed, 0 deprecated), 2 warning(s)`. The detail goes to **Window → Message Log → Figma Token Bridge**, one page per import, and the toast links to it. The page stays after the toast fades, and earlier imports are a dropdown away.
+You get a summary like `171 tokens (4 added, 2 updated, 165 unchanged, 1 renamed, 0 deprecated), 2 warning(s)`. The detail goes to **Window → Message Log → Sygma**, one page per import, and the toast links to it. The page stays after the toast fades, and earlier imports are a dropdown away.
 
 ### Live link (optional)
 
 **Tools → Figma Live Link** lets the Figma plugin on this computer push tokens straight into this editor. **Tools → Copy Live Link Pairing Code** turns it on and copies the code a designer pastes into the plugin. Pair once per computer.
 
-| Setting (**Editor Preferences → Plugins → Figma Token Bridge**) | What it does |
+| Setting (**Editor Preferences → Plugins → Sygma**) | What it does |
 |---|---|
 | **Enable Live Link** | Listen while the editor is open. Off by default |
 | **Live Link Port** | `30871`. The plugin's manifest allows only this port, so change both together |

@@ -17,7 +17,7 @@ namespace
 	const TCHAR* ManifestPrefix = TEXT("manifest/");
 
 	const TCHAR* RepublishAdvice =
-		TEXT("Ask a designer to open Figma Token Bridge and click Publish to Unreal again.");
+		TEXT("Ask a designer to open Sygma and click Publish to Unreal again.");
 
 	FString DescribeProject(const FFigmaPublication& P)
 	{

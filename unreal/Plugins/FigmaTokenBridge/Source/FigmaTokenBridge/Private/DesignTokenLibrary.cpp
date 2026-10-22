@@ -43,7 +43,7 @@ namespace
 			{
 				GReportedMissing.Add(NAME_None);
 				UE_LOG(LogFigmaTokens, Warning,
-					TEXT("No design token asset is set. Project Settings > Plugins > Figma Token Bridge > Active Tokens."));
+					TEXT("No design token asset is set. Project Settings > Plugins > Sygma > Active Tokens."));
 			}
 			return Fallback;
 		}

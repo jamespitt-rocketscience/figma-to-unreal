@@ -11,7 +11,7 @@
  *
  * The bridge is built to serve many projects, so nothing about a particular
  * Figma file is compiled in. Pairing happens here, once, per project:
- * Project Settings > Plugins > Figma Token Bridge. The settings land in
+ * Project Settings > Plugins > Sygma. The settings land in
  * DefaultGame.ini and are committed with the project.
  *
  * FigmaFileKey is the safety interlock. Every tokens.json records the file it
@@ -19,7 +19,7 @@
  * so tokens from the wrong design system cannot be imported into the wrong
  * project by accident.
  */
-UCLASS(Config = Game, DefaultConfig, meta = (DisplayName = "Figma Token Bridge"))
+UCLASS(Config = Game, DefaultConfig, meta = (DisplayName = "Sygma"))
 class FIGMATOKENBRIDGE_API UDesignTokenSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
@@ -29,7 +29,7 @@ public:
 
 	virtual FName GetContainerName() const override { return TEXT("Project"); }
 	virtual FName GetCategoryName() const override { return TEXT("Plugins"); }
-	virtual FName GetSectionName() const override { return TEXT("Figma Token Bridge"); }
+	virtual FName GetSectionName() const override { return TEXT("Sygma"); }
 
 	// ------------------------------------------------------- this project's id
 
@@ -86,7 +86,7 @@ public:
 	 * export is still written to TokensFile, so it can be reviewed and committed.
 	 *
 	 * Needs FigmaFileKey here, plus a Figma access token in Editor Preferences >
-	 * Plugins > Figma Token Bridge. That token is per user and never committed. A
+	 * Plugins > Sygma. That token is per user and never committed. A
 	 * user without one falls back to the local TokensFile, with a warning.
 	 */
 	UPROPERTY(Config, EditAnywhere, Category = "Figma Link")

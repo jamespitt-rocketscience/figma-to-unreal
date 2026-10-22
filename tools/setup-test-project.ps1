@@ -1,5 +1,5 @@
 <#
-    Prepares unreal/TestProject so the Figma Token Bridge plugin can be built.
+    Prepares unreal/TestProject so the Sygma plugin can be built.
 
     The plugin lives at unreal/Plugins/FigmaTokenBridge because that is where it
     is copied from when adding it to a real project. Unreal, though, only picks

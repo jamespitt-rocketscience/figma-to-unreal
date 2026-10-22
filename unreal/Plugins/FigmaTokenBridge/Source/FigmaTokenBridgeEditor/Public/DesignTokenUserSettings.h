@@ -15,9 +15,9 @@
  * never committed. Here SaveConfig() writing to Saved/ is exactly what we want,
  * unlike the DefaultConfig trap in UDesignTokenSettings.
  *
- * Editor Preferences > Plugins > Figma Token Bridge.
+ * Editor Preferences > Plugins > Sygma.
  */
-UCLASS(Config = EditorPerProjectUserSettings, meta = (DisplayName = "Figma Token Bridge"))
+UCLASS(Config = EditorPerProjectUserSettings, meta = (DisplayName = "Sygma"))
 class FIGMATOKENBRIDGEEDITOR_API UDesignTokenUserSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
@@ -25,7 +25,7 @@ class FIGMATOKENBRIDGEEDITOR_API UDesignTokenUserSettings : public UDeveloperSet
 public:
 	virtual FName GetContainerName() const override { return TEXT("Editor"); }
 	virtual FName GetCategoryName() const override { return TEXT("Plugins"); }
-	virtual FName GetSectionName() const override { return TEXT("Figma Token Bridge"); }
+	virtual FName GetSectionName() const override { return TEXT("Sygma"); }
 
 	/**
 	 * A Figma personal access token with the file_content:read scope. Create one

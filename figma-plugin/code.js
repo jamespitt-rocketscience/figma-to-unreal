@@ -1,5 +1,5 @@
 /*
- * Figma Token Bridge — plugin main thread.
+ * Sygma — plugin main thread.
  *
  * Plain JavaScript on purpose. Phase 0 keeps the moving parts to a minimum:
  * no TypeScript, no bundler, no build step. `manifest.json` points straight at
@@ -476,7 +476,7 @@ function parsePairingCode(code) {
   // later as an unexplained network error. Say so now instead.
   if (port !== LIVE_PORT) {
     return { error: 'Unreal is listening on port ' + port + ', but this plugin may only reach port ' + LIVE_PORT +
-      '. Set the port back to ' + LIVE_PORT + ' in Unreal (Editor Preferences › Plugins › Figma Token Bridge), or add the new port to manifest.json.' };
+      '. Set the port back to ' + LIVE_PORT + ' in Unreal (Editor Preferences › Plugins › Sygma), or add the new port to manifest.json.' };
   }
   if (!/^[0-9A-Za-z]{32,128}$/.test(parts[2])) {
     return { error: 'The pairing code looks cut short. Copy it again from Unreal.' };
@@ -906,7 +906,7 @@ if (typeof figma !== 'undefined') {
     try {
       var store = loadLinkStore();
       if (!store.links.length) {
-        figma.closePlugin('No Unreal links in this file yet. Open Figma Token Bridge to create one.');
+        figma.closePlugin('No Unreal links in this file yet. Open Sygma to create one.');
         return;
       }
 
@@ -995,7 +995,7 @@ if (typeof figma !== 'undefined') {
         if (msg.type === 'savePairing') {
           var hello = msg.hello || {};
           if (!looksLikeProjectId(hello.projectId)) {
-            reply({ type: 'pairResult', error: 'The editor answered, but did not give a project id. Is its Figma Token Bridge plugin up to date?' });
+            reply({ type: 'pairResult', error: 'The editor answered, but did not give a project id. Is its Sygma plugin up to date?' });
             return;
           }
           var pairings = await loadPairings();
@@ -1065,7 +1065,7 @@ if (typeof figma !== 'undefined') {
           }
           if (!looksLikeProjectId(msg.link.projectId)) {
             return fail('That does not look like an Unreal project id.',
-              'Copy it from Project Settings > Plugins > Figma Token Bridge > Project Id.');
+              'Copy it from Project Settings > Plugins > Sygma > Project Id.');
           }
           if (!msg.link.published || !msg.link.published.length) {
             return fail('Select at least one tier or group to publish.');

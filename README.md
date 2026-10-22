@@ -1,11 +1,11 @@
-# Figma Token Bridge
+# Sygma
 
 Carries colour, typography and icons out of Figma and into Unreal Engine as a
 single referenced asset, so a designer's change reaches every widget without
 regenerating any of them.
 
 **Status: Phase 0 — colour only.** Full architecture: see the design doc
-(`Figma Token Bridge`, published as an artifact).
+(`Sygma`, published as an artifact).
 
 **To run it end to end, start at [TESTING.md](TESTING.md).** A test Figma file
 and a test Unreal project are already built.

@@ -117,7 +117,7 @@ bool FDesignTokenImporter::ParseDocument(const FString& JsonText, FDesignTokenDo
 		{
 			InOutResult.Errors.Add(FString::Printf(
 				TEXT("This project is linked to Figma file '%s' but tokens.json came from '%s'. ")
-				TEXT("Re-export from the linked file, or change the link in Project Settings > Plugins > Figma Token Bridge."),
+				TEXT("Re-export from the linked file, or change the link in Project Settings > Plugins > Sygma."),
 				*Settings->FigmaFileKey, *OutDoc.FileKey));
 			return false;
 		}
@@ -351,7 +351,7 @@ FDesignTokenImportResult FDesignTokenImporter::WriteAsset(const FDesignTokenDocu
 	const UDesignTokenSettings* Settings = UDesignTokenSettings::Get();
 	if (!Settings)
 	{
-		Result.Errors.Add(TEXT("Figma Token Bridge settings are unavailable."));
+		Result.Errors.Add(TEXT("Sygma settings are unavailable."));
 		return Result;
 	}
 
@@ -551,7 +551,7 @@ FDesignTokenImportResult FDesignTokenImporter::ImportFromSettings()
 
 	if (Path.IsEmpty())
 	{
-		Result.Errors.Add(TEXT("No tokens.json is configured. Set it in Project Settings > Plugins > Figma Token Bridge."));
+		Result.Errors.Add(TEXT("No tokens.json is configured. Set it in Project Settings > Plugins > Sygma."));
 		return Result;
 	}
 

@@ -1,5 +1,5 @@
 {
-  "name": "Figma Token Bridge",
+  "name": "Sygma",
   "id": "figma-token-bridge-rocketscience",
   "api": "1.0.0",
   "main": "code.js",
@@ -9,12 +9,12 @@
   "permissions": ["currentuser"],
   "enablePrivatePluginApi": true,
   "menu": [
-    { "name": "Open Token Bridge", "command": "open" },
+    { "name": "Open Sygma", "command": "open" },
     { "name": "Publish all links to Unreal", "command": "publish-all" }
   ],
   "relaunchButtons": [
     { "command": "publish-all", "name": "Publish tokens to Unreal" },
-    { "command": "open", "name": "Open Token Bridge" }
+    { "command": "open", "name": "Open Sygma" }
   ],
   "networkAccess": {
     "allowedDomains": ["http://localhost:30871"],

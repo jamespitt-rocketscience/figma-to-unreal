@@ -27,7 +27,7 @@
 
 #define LOCTEXT_NAMESPACE "FigmaTokenBridgeEditor"
 
-/** Message Log › Figma Token Bridge: one page per import, kept after the toast fades. */
+/** Message Log › Sygma: one page per import, kept after the toast fades. */
 static const FName MessageLogName(TEXT("FigmaTokenBridge"));
 
 class FFigmaTokenBridgeEditorModule : public IModuleInterface
@@ -38,7 +38,7 @@ public:
 		// Make sure this project has an identity before anyone opens settings to
 		// copy it into a Figma link. Generated once, then committed.
 		const FString ProjectId = UDesignTokenSettings::GetOrCreateProjectId();
-		UE_LOG(LogFigmaTokens, Log, TEXT("Figma Token Bridge project id: %s"), *ProjectId);
+		UE_LOG(LogFigmaTokens, Log, TEXT("Sygma project id: %s"), *ProjectId);
 
 		UToolMenus::RegisterStartupCallback(
 			FSimpleMulticastDelegate::FDelegate::CreateRaw(this, &FFigmaTokenBridgeEditorModule::RegisterMenus));
@@ -59,7 +59,7 @@ public:
 		FMessageLogInitializationOptions LogOptions;
 		LogOptions.bShowPages = true;
 		FModuleManager::LoadModuleChecked<FMessageLogModule>("MessageLog").RegisterLogListing(
-			MessageLogName, LOCTEXT("MessageLogLabel", "Figma Token Bridge"), LogOptions);
+			MessageLogName, LOCTEXT("MessageLogLabel", "Sygma"), LogOptions);
 
 		UDesignTokenUserSettings::GetMutable()->OnSettingChanged().AddRaw(
 			this, &FFigmaTokenBridgeEditorModule::OnUserSettingsChanged);
@@ -140,7 +140,7 @@ private:
 		}
 
 		FToolMenuSection& Section = ToolsMenu->FindOrAddSection(
-			TEXT("FigmaTokenBridge"), LOCTEXT("SectionLabel", "Figma Token Bridge"));
+			TEXT("FigmaTokenBridge"), LOCTEXT("SectionLabel", "Sygma"));
 
 		Section.AddMenuEntry(
 			TEXT("SyncDesignTokens"),
@@ -468,8 +468,8 @@ private:
 		if (Result.Warnings.Num() || Result.Errors.Num())
 		{
 			Info.SubText = Context.IsEmpty()
-				? LOCTEXT("SeeReport", "Details are in the Message Log, under Figma Token Bridge.")
-				: FText::FromString(Context + TEXT(" Details are in the Message Log, under Figma Token Bridge."));
+				? LOCTEXT("SeeReport", "Details are in the Message Log, under Sygma.")
+				: FText::FromString(Context + TEXT(" Details are in the Message Log, under Sygma."));
 		}
 		else if (!Context.IsEmpty())
 		{

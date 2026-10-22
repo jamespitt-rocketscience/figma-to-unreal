@@ -59,7 +59,7 @@ component.icons_secondary.vital_heart_rate]]></ac:plain-text-body>
 <ol><li><p><strong>Plugins → Development → Import plugin from manifest…</strong></p></li><li><p>Choose <code>figma-plugin/manifest.json</code> from the repository.</p></li></ol>
 <p>There is no build step. If <code>manifest.json</code> itself changes, remove the plugin and re-import it — Figma reads the manifest once, at import.</p>
 <h3>Scan the file</h3>
-<p>Open the design system file, then <strong>Plugins → Development → Figma Token Bridge → Scan this file</strong>.</p>
+<p>Open the design system file, then <strong>Plugins → Development → Sygma → Scan this file</strong>.</p>
 <p>The report tells you the read mode, how many variables were found, and lists the tiers and groups. Check the read mode says <strong>library file</strong> before going further.</p>
 <p>If it reports <strong>0 variables</strong>, you are in a file that neither owns nor binds any — open the library file instead.</p>
 <h3>Create a link</h3>
@@ -74,7 +74,7 @@ component.icons_secondary.vital_heart_rate]]></ac:plain-text-body>
 <p>The published count being lower than the stored count is expected, not a bug. See <strong>Publishing gates the picker, not the import</strong>, above.</p>
 <p><strong>That is all.</strong> There is nothing to download, send or commit. Developers fetch it with <strong>Sync Design Tokens</strong>.</p>
 <p>After the first link exists you do not need to open the plugin at all:</p>
-<ul><li><p><strong>Plugins → Figma Token Bridge → Publish all links to Unreal</strong>, or</p></li><li><p>the <strong>Publish tokens to Unreal</strong> button in the right-hand panel when nothing is selected.</p></li></ul>
+<ul><li><p><strong>Plugins → Sygma → Publish all links to Unreal</strong>, or</p></li><li><p>the <strong>Publish tokens to Unreal</strong> button in the right-hand panel when nothing is selected.</p></li></ul>
 <p>Both publish every link in the file and confirm with a toast.</p>
 <p>If there are errors, nothing is published, and Unreal keeps the previous publish until you fix them. Unreal pulls whatever is published without anyone checking it first, so a broken export is never stored.</p>
 <ac:structured-macro ac:name="info" ac:schema-version="1">
@@ -92,13 +92,13 @@ component.icons_secondary.vital_heart_rate]]></ac:plain-text-body>
 <ol><li><p>Copy <code>unreal/Plugins/FigmaTokenBridge</code> into your project's <code>Plugins/</code> folder.</p></li><li><p>Regenerate project files and build.</p></li><li><p>Enable the plugin if it is not already.</p></li></ol>
 <p>The plugin has two modules: a runtime module carrying the asset, settings and Blueprint API, and an editor module carrying the importer, menus and tests.</p>
 <h3>Pair the project with a Figma file</h3>
-<p><strong>Project Settings → Plugins → Figma Token Bridge</strong></p>
+<p><strong>Project Settings → Plugins → Sygma</strong></p>
 <table><tbody><tr><th>Setting</th><th>What to set</th></tr><tr><td><strong>Figma File Key</strong></td><td>The key of the design system file. Leave empty to accept any file — not recommended</td></tr><tr><td><strong>Pull From Figma</strong></td><td>On by default. Sync fetches the latest publish instead of reading a file someone sent</td></tr><tr><td><strong>Tokens File</strong></td><td>Path to <code>tokens.json</code>, relative to the project directory. Pulling rewrites it on every sync</td></tr><tr><td><strong>Generated Package Path</strong></td><td>Defaults to <code>/Game/DesignSystem/Generated</code>. Machine-owned</td></tr><tr><td><strong>Tokens Asset Name</strong></td><td>Defaults to <code>DA_DesignTokens</code></td></tr><tr><td><strong>Active Tokens</strong></td><td>Set automatically on first import</td></tr></tbody></table>
 <h3>Send your project id to the designer</h3>
 <p><strong>Tools → Copy Project Id for Figma</strong> puts it on the clipboard.</p>
 <p>The id is generated on first editor run and written to <code>Config/DefaultGame.ini</code>, so it is committed with the project and is the same for everyone. Do not change it — every existing Figma link points at it.</p>
 <h3>Add your Figma access token (the developer who syncs)</h3>
-<p><strong>Editor Preferences → Plugins → Figma Token Bridge → Figma Access Token.</strong> Create the token in Figma under <strong>Settings → Security → Personal access tokens</strong>, with the <em>File content: read</em> scope.</p>
+<p><strong>Editor Preferences → Plugins → Sygma → Figma Access Token.</strong> Create the token in Figma under <strong>Settings → Security → Personal access tokens</strong>, with the <em>File content: read</em> scope.</p>
 <p>It is saved under <code>Saved/</code>, not <code>DefaultGame.ini</code>, so it is never committed. Build machines can set <code>FIGMA_ACCESS_TOKEN</code> instead.</p>
 <ac:structured-macro ac:name="info" ac:schema-version="1">
   <ac:rich-text-body><p><strong>Seat type matters.</strong> Figma allows Dev and Full seats about 20 file reads a minute, but <strong>View and Collab seats only 20 a month</strong>. Each sync is one read. Usually one person with a Dev or Full seat syncs and commits, and everyone else gets the result from source control with no Figma account at all.</p></ac:rich-text-body>
@@ -107,10 +107,10 @@ component.icons_secondary.vital_heart_rate]]></ac:plain-text-body>
 <h3>Sync</h3>
 <p><strong>Tools → Sync Design Tokens.</strong></p>
 <p>With a token, this fetches the designer's latest publish from Figma, rewrites <code>tokens.json</code>, and imports it. <code>tokens.json</code> is only rewritten if the publish passes both interlocks. Without a token, it imports the local <code>tokens.json</code> and warns that it did not fetch from Figma.</p>
-<p>You get a summary like <code>171 tokens (4 added, 2 updated, 165 unchanged, 1 renamed, 0 deprecated), 2 warning(s)</code>. The detail goes to <strong>Window → Message Log → Figma Token Bridge</strong>, one page per import, and the toast links to it. The page stays after the toast fades, and earlier imports are a dropdown away.</p>
+<p>You get a summary like <code>171 tokens (4 added, 2 updated, 165 unchanged, 1 renamed, 0 deprecated), 2 warning(s)</code>. The detail goes to <strong>Window → Message Log → Sygma</strong>, one page per import, and the toast links to it. The page stays after the toast fades, and earlier imports are a dropdown away.</p>
 <h3>Live link (optional)</h3>
 <p><strong>Tools → Figma Live Link</strong> lets the Figma plugin on this computer push tokens straight into this editor. <strong>Tools → Copy Live Link Pairing Code</strong> turns it on and copies the code a designer pastes into the plugin. Pair once per computer.</p>
-<table><tbody><tr><th>Setting (<strong>Editor Preferences → Plugins → Figma Token Bridge</strong>)</th><th>What it does</th></tr><tr><td><strong>Enable Live Link</strong></td><td>Listen while the editor is open. Off by default</td></tr><tr><td><strong>Live Link Port</strong></td><td><code>30871</code>. The plugin's manifest allows only this port, so change both together</td></tr><tr><td><strong>Live Link Secret</strong></td><td>Generated on first use. Clear it to revoke every pairing</td></tr></tbody></table>
+<table><tbody><tr><th>Setting (<strong>Editor Preferences → Plugins → Sygma</strong>)</th><th>What it does</th></tr><tr><td><strong>Enable Live Link</strong></td><td>Listen while the editor is open. Off by default</td></tr><tr><td><strong>Live Link Port</strong></td><td><code>30871</code>. The plugin's manifest allows only this port, so change both together</td></tr><tr><td><strong>Live Link Secret</strong></td><td>Generated on first use. Clear it to revoke every pairing</td></tr></tbody></table>
 <p>All three are per user, saved under <code>Saved/</code>, and never committed. The editor listens on this computer only, and answers nothing without the secret. The exception is a project whose engine config sets <code>[HTTPServer.Listeners] DefaultBindAddress</code> to all addresses. The secret still applies then, but check before turning the live link on.</p>
 <p>If the import is refused, the error says exactly which interlock failed and names both values. That is working as designed — read the message before changing settings.</p>
 <hr />

@@ -1,6 +1,6 @@
 # Testing the bridge end to end
 
-A runbook for taking the Figma Token Bridge from source to a colour resolved in
+A runbook for taking the Sygma from source to a colour resolved in
 a Blueprint, using a Figma file and an Unreal project that have never seen it
 before. Follow it in order the first time; after that, the loop in
 [§4](#4-the-loop-youll-actually-live-in) is the one you repeat.
@@ -132,7 +132,7 @@ id above, so if you are on this machine you can skip straight to the sync.
 > it unchanged. Declining to write is not a failure, so the assertions still
 > exit 0 and CI stays green.
 
-Then in the editor: **Project Settings → Plugins → Figma Token Bridge**, set
+Then in the editor: **Project Settings → Plugins → Sygma**, set
 *Figma File Key* to `FruupulmvbUZbkUlTQ0kIm`, and run **Tools → Sync Design
 Tokens**.
 
@@ -204,7 +204,7 @@ the old permissions stay in force.
 ### 3.2 Scan
 
 Open the [test design system file](https://www.figma.com/design/FruupulmvbUZbkUlTQ0kIm)
-→ **Plugins → Development → Figma Token Bridge** → **Scan this file**.
+→ **Plugins → Development → Sygma** → **Scan this file**.
 
 Expected report:
 
@@ -280,7 +280,7 @@ properties-panel button.
 `published just now by <you> · 10 tokens`. After the first link exists, the same
 thing is one click with the plugin closed:
 
-- **Plugins → Development → Figma Token Bridge → Publish all links to Unreal**, or
+- **Plugins → Development → Sygma → Publish all links to Unreal**, or
 - the **Publish tokens to Unreal** button in the right-hand panel when nothing is
   selected.
 
@@ -288,7 +288,7 @@ Either way, a toast confirms it and no window opens.
 
 **In Unreal, once per developer:** create a Figma personal access token (Figma →
 Settings → Security → *Personal access tokens*, scope *File content: read*) and
-paste it into **Editor Preferences → Plugins → Figma Token Bridge → Figma Access
+paste it into **Editor Preferences → Plugins → Sygma → Figma Access
 Token**. It is saved under `Saved/`, never in `DefaultGame.ini`, so it is never
 committed. `FIGMA_ACCESS_TOKEN` in the environment works too.
 
@@ -333,7 +333,7 @@ live** button on the link card for this project.
 **Push live.** Expected in Figma: added/updated/unchanged counts and *Imported
 into FigmaBridgeTest*. Expected in Unreal: the usual summary toast with *Pushed
 live from Figma by <you>.*, and a new page in **Window → Message Log → Figma
-Token Bridge**. `tokens/FigmaBridgeTest.tokens.json` is rewritten exactly as a
+Sygma**. `tokens/FigmaBridgeTest.tokens.json` is rewritten exactly as a
 Sync would rewrite it.
 
 **Verified end to end on 2026-10-22** in Figma desktop against this test
@@ -354,7 +354,7 @@ the secret is kept in `Saved/Config/…/EditorPerProjectUserSettings.ini`. That
 is the improvement over Unity's connector, whose token changes on every restart.
 
 **Revoke:** clear *Live Link Secret* in **Editor Preferences → Plugins → Figma
-Token Bridge**. A new one is generated, and the plugin's next push gets *did not
+Sygma**. A new one is generated, and the plugin's next push gets *did not
 recognise the pairing code*.
 
 ---

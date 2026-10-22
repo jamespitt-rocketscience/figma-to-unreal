@@ -1,5 +1,5 @@
 <#
-    Builds the Figma Token Bridge plugin inside unreal/TestProject and, unless
+    Builds the Sygma plugin inside unreal/TestProject and, unless
     told otherwise, runs its automation tests headless.
 
         pwsh tools/build-unreal.ps1              # build, then test

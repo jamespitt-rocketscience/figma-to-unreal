@@ -122,7 +122,7 @@ const built = bridge.buildDocument(records, {
   exportedBy: 'tools/build-tokens.cjs'
 });
 
-console.log(`\nFigma Token Bridge — fixture build`);
+console.log(`\nSygma — fixture build`);
 console.log(`  source   ${raw.source.fileName} (${FILE_KEY})`);
 console.log(`  target   ${FIXTURE_LINK.projectName} (${FIXTURE_LINK.projectId})`);
 console.log(`  readMode ${raw.source.readMode}`);
