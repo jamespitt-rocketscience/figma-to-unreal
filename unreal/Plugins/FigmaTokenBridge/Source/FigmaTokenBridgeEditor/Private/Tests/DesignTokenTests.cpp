@@ -9,6 +9,9 @@
 #include "DesignTokens.h"
 #include "FigmaLiveLink.h"
 #include "FigmaPublication.h"
+#include "FigmaTokenBridgeReport.h"
+
+#include "Algo/AllOf.h"
 
 #include "Dom/JsonObject.h"
 #include "HAL/FileManager.h"
@@ -956,7 +959,72 @@ bool FDesignTokenNoOpTest::RunTest(const FString& Parameters)
 
 		const FDesignTokenImportResult R3 = FDesignTokenImporter::ImportFromText(C, TempJson);
 		TestTrue(TEXT("a real change rewrites tokens.json"), R3.bWroteTokensFile);
+
+		// The recolour reaches three tokens: the Global and both aliases of it.
+		TestEqual(TEXT("the recolour lists three changes"), R3.Changes.Num(), 3);
+		TestTrue(TEXT("each is an update"), R3.Changes.Num() > 0 && Algo::AllOf(R3.Changes,
+			[](const FDesignTokenChange& Change) { return Change.Kind == EDesignTokenChangeKind::Updated; }));
+		const FDesignTokenChange* Goals = R3.Changes.FindByPredicate(
+			[](const FDesignTokenChange& Change) { return Change.Name == FName(TEXT("component.blades.accent_goals")); });
+		TestTrue(TEXT("accent_goals is listed"), Goals != nullptr);
+		if (Goals)
+		{
+			TestEqual(TEXT("with its old colour"), Goals->Before, FString(TEXT("#00D86C")));
+			TestEqual(TEXT("and its new colour"), Goals->After, FString(TEXT("#7B61FF")));
+		}
 	}
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDesignTokenChangeReportTest,
+	"FigmaTokenBridge.Import.ChangeReport",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FDesignTokenChangeReportTest::RunTest(const FString& Parameters)
+{
+	FDesignColourToken Translucent;
+	Translucent.SrgbHex = TEXT("#1c1b1a");
+	Translucent.Colour = FLinearColor(0.01f, 0.01f, 0.01f, 0.8f);
+	TestEqual(TEXT("a swatch is upper-case hex with its alpha"),
+		FDesignTokenImporter::FormatSwatch(Translucent), FString(TEXT("#1C1B1A 80%")));
+
+	FDesignColourToken Opaque;
+	Opaque.SrgbHex = TEXT("#00d86c");
+	Opaque.Colour = FLinearColor(0.f, 0.686685f, 0.149960f, 1.f);
+	TestEqual(TEXT("an opaque swatch has no alpha"), FDesignTokenImporter::FormatSwatch(Opaque), FString(TEXT("#00D86C")));
+
+	TArray<FDesignTokenChange> Many;
+	for (int32 i = 0; i < 60; ++i)
+	{
+		FDesignTokenChange Change;
+		Change.Name = FName(*FString::Printf(TEXT("component.test.token_%02d"), i));
+		Change.Kind = EDesignTokenChangeKind::Added;
+		Change.After = TEXT("#FFFFFF");
+		Many.Add(Change);
+	}
+	const TArray<FString> Lines = FFigmaTokenBridgeReport::ChangeLines(Many, 50);
+	TestEqual(TEXT("change lines are capped"), Lines.Num(), 51);
+	TestEqual(TEXT("and say how many were left out"), Lines.Last(), FString(TEXT("…and 10 more")));
+
+	FDesignTokenChange Updated;
+	Updated.Name = TEXT("component.blades.accent_goals");
+	Updated.Kind = EDesignTokenChangeKind::Updated;
+	Updated.Before = TEXT("#00D86C");
+	Updated.After = TEXT("#7B61FF");
+	TestEqual(TEXT("an update line names both colours"), FFigmaTokenBridgeReport::ChangeLines({ Updated }, 50)[0],
+		FString(TEXT("Updated  component.blades.accent_goals  #00D86C → #7B61FF")));
+
+	FDesignTokenImportResult Result;
+	Result.bSuccess = true;
+	Result.bWroteAsset = true;
+	Result.Updated = 1;
+	Result.Changes.Add(Updated);
+	const FString Json = FFigmaLiveLink::MakePushResultJson(Result);
+	TestTrue(TEXT("the push response lists the change"), Json.Contains(TEXT("\"kind\":\"updated\"")));
+	TestTrue(TEXT("with its old colour"), Json.Contains(TEXT("\"before\":\"#00D86C\"")));
+	TestTrue(TEXT("and its new colour"), Json.Contains(TEXT("\"after\":\"#7B61FF\"")));
+	TestTrue(TEXT("and its name"), Json.Contains(TEXT("\"name\":\"component.blades.accent_goals\"")));
 
 	return true;
 }

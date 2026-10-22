@@ -7,6 +7,18 @@
 
 class UDesignTokens;
 
+enum class EDesignTokenChangeKind : uint8 { Added, Updated, Renamed, Deprecated };
+
+/** One token an import changed, with its colour before and after, for reports. */
+struct FIGMATOKENBRIDGEEDITOR_API FDesignTokenChange
+{
+	FName Name;
+	EDesignTokenChangeKind Kind = EDesignTokenChangeKind::Updated;
+	FString Before;   // "" when Added; e.g. "#00D86C" or "#1C1B1A 80%"
+	FString After;    // "" when Deprecated
+	FName OldName;    // set when Renamed
+};
+
 /** Outcome of one import, suitable for logging or showing in a dialog. */
 struct FIGMATOKENBRIDGEEDITOR_API FDesignTokenImportResult
 {
@@ -26,6 +38,9 @@ struct FIGMATOKENBRIDGEEDITOR_API FDesignTokenImportResult
 
 	/** False when tokens.json already held this content, or no path was given. */
 	bool bWroteTokensFile = false;
+
+	/** Every token this import added, updated, renamed or newly deprecated. */
+	TArray<FDesignTokenChange> Changes;
 
 	UDesignTokens* Asset = nullptr;
 
@@ -83,6 +98,12 @@ public:
 	 * text that is not JSON.
 	 */
 	static FString ContentFingerprint(const FString& JsonText);
+
+	/** "#RRGGBB", upper case, plus " NN%" when the token is not opaque. */
+	static FString FormatSwatch(const FDesignColourToken& Token);
+
+	/** "added", "updated", "renamed" or "deprecated", as the push response spells it. */
+	static const TCHAR* ChangeKindName(EDesignTokenChangeKind Kind);
 
 	/** Parse the file at JsonPath, then create or update the configured asset. */
 	static FDesignTokenImportResult ImportFromFile(const FString& JsonPath);

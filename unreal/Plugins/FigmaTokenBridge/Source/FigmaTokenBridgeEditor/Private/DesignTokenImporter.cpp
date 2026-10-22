@@ -356,6 +356,29 @@ bool FDesignTokenImporter::ParseDocument(const FString& JsonText, FDesignTokenDo
 	return InOutResult.Errors.Num() == 0;
 }
 
+FString FDesignTokenImporter::FormatSwatch(const FDesignColourToken& Token)
+{
+	FString Hex = Token.SrgbHex.ToUpper();
+	if (!Hex.StartsWith(TEXT("#")))
+	{
+		Hex = TEXT("#") + Hex;
+	}
+	return Token.Colour.A < 0.995f
+		? FString::Printf(TEXT("%s %d%%"), *Hex, FMath::RoundToInt(Token.Colour.A * 100.f))
+		: Hex;
+}
+
+const TCHAR* FDesignTokenImporter::ChangeKindName(EDesignTokenChangeKind Kind)
+{
+	switch (Kind)
+	{
+	case EDesignTokenChangeKind::Added:      return TEXT("added");
+	case EDesignTokenChangeKind::Renamed:    return TEXT("renamed");
+	case EDesignTokenChangeKind::Deprecated: return TEXT("deprecated");
+	default:                                 return TEXT("updated");
+	}
+}
+
 FString FDesignTokenImporter::ContentFingerprint(const FString& JsonText)
 {
 	TSharedPtr<FJsonObject> Root;
@@ -437,6 +460,17 @@ FDesignTokenImportResult FDesignTokenImporter::WriteAsset(const FDesignTokenDocu
 	// --- build the new token map -------------------------------------------
 	TMap<FName, FDesignColourToken> NewColours = Doc.Colours;
 
+	auto RecordChange = [&Result](FName Name, EDesignTokenChangeKind Kind,
+		const FDesignColourToken* Before, const FDesignColourToken* After, FName OldName = NAME_None)
+	{
+		FDesignTokenChange& Change = Result.Changes.AddDefaulted_GetRef();
+		Change.Name = Name;
+		Change.Kind = Kind;
+		Change.Before = Before ? FormatSwatch(*Before) : FString();
+		Change.After = After ? FormatSwatch(*After) : FString();
+		Change.OldName = OldName;
+	};
+
 	for (const TPair<FName, FDesignColourToken>& Pair : NewColours)
 	{
 		const FDesignColourToken* Before = Previous.Find(Pair.Key);
@@ -450,10 +484,12 @@ FDesignTokenImportResult FDesignTokenImporter::WriteAsset(const FDesignTokenDocu
 				Result.Renamed++;
 				Result.Warnings.Add(FString::Printf(TEXT("Token renamed: '%s' -> '%s'. Update any references."),
 					*OldName->ToString(), *Pair.Key.ToString()));
+				RecordChange(Pair.Key, EDesignTokenChangeKind::Renamed, Previous.Find(*OldName), &Pair.Value, *OldName);
 			}
 			else
 			{
 				Result.Added++;
+				RecordChange(Pair.Key, EDesignTokenChangeKind::Added, nullptr, &Pair.Value);
 			}
 		}
 		else if (ColoursMatch(*Before, Pair.Value))
@@ -463,6 +499,7 @@ FDesignTokenImportResult FDesignTokenImporter::WriteAsset(const FDesignTokenDocu
 		else
 		{
 			Result.Updated++;
+			RecordChange(Pair.Key, EDesignTokenChangeKind::Updated, Before, &Pair.Value);
 		}
 	}
 
@@ -499,6 +536,7 @@ FDesignTokenImportResult FDesignTokenImporter::WriteAsset(const FDesignTokenDocu
 				TEXT("Token '%s' is gone from Figma. Kept and marked deprecated — remove it deliberately once nothing references it."),
 				*Pair.Key.ToString()));
 			NewlyDeprecated++;
+			RecordChange(Pair.Key, EDesignTokenChangeKind::Deprecated, &Pair.Value, nullptr);
 		}
 		Kept.bDeprecated = true;
 		NewColours.Add(Pair.Key, Kept);

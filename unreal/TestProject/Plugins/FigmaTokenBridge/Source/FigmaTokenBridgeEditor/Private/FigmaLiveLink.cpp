@@ -260,6 +260,25 @@ FString FFigmaLiveLink::MakePushResultJson(const FDesignTokenImportResult& Resul
 	Body->SetNumberField(TEXT("renamed"), Result.Renamed);
 	Body->SetArrayField(TEXT("warnings"), ToJsonArray(Result.Warnings));
 	Body->SetArrayField(TEXT("errors"), ToJsonArray(Result.Errors));
+
+	// Capped so a first import of a large system stays a small response; the
+	// plugin shows the first rows and the counts say how many there were.
+	TArray<TSharedPtr<FJsonValue>> Changes;
+	for (const FDesignTokenChange& Change : Result.Changes)
+	{
+		if (Changes.Num() >= 200)
+		{
+			break;
+		}
+		const TSharedRef<FJsonObject> Entry = MakeShared<FJsonObject>();
+		Entry->SetStringField(TEXT("name"), Change.Name.ToString());
+		Entry->SetStringField(TEXT("kind"), FDesignTokenImporter::ChangeKindName(Change.Kind));
+		Entry->SetStringField(TEXT("before"), Change.Before);
+		Entry->SetStringField(TEXT("after"), Change.After);
+		Entry->SetStringField(TEXT("oldName"), Change.OldName.IsNone() ? FString() : Change.OldName.ToString());
+		Changes.Add(MakeShared<FJsonValueObject>(Entry));
+	}
+	Body->SetArrayField(TEXT("changes"), Changes);
 	return ToJson(Body);
 }
 

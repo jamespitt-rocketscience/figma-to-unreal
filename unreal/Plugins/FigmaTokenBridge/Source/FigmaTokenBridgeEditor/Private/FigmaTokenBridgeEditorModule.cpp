@@ -10,6 +10,7 @@
 #include "DesignTokens.h"
 #include "FigmaLiveLink.h"
 #include "FigmaTokenBridgeLog.h"
+#include "FigmaTokenBridgeReport.h"
 #include "FigmaTokenFetcher.h"
 
 #include "MessageLogModule.h"
@@ -511,6 +512,10 @@ private:
 		for (const FString& Warning : Result.Warnings)
 		{
 			Report.Warning(FText::FromString(Warning));
+		}
+		for (const FString& Line : FFigmaTokenBridgeReport::ChangeLines(Result.Changes, 50))
+		{
+			Report.Info(FText::FromString(Line));
 		}
 		Report.Info(FText::FromString(Result.Summary()));
 	}
