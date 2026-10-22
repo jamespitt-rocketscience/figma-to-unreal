@@ -397,9 +397,12 @@ private:
 			}
 
 			const UDesignTokens* Active = Cast<UDesignTokens>(UDesignTokenSettings::Get()->ActiveTokens.TryLoad());
-			if (Active && Active->ExportedAt == Fetched.Publication.ExportedAt)
+			// Compared by content, not exportedAt: a republish of the same tokens
+			// is not news, and an unchanged sync leaves the asset's exportedAt as it was.
+			if (Active && !Active->ContentFingerprint.IsEmpty()
+				&& Active->ContentFingerprint == FDesignTokenImporter::ContentFingerprint(Fetched.Publication.DocumentJson))
 			{
-				UE_LOG(LogFigmaTokens, Log, TEXT("Design tokens are up to date with Figma (%s)."), *Active->ExportedAt);
+				UE_LOG(LogFigmaTokens, Log, TEXT("Design tokens are up to date with Figma."));
 				return;
 			}
 

@@ -50,6 +50,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Source")
 	FString ImportedAt;
 
+	/**
+	 * What was imported, ignoring when and by whom it was exported. An import
+	 * whose fingerprint matches this, and changes no token, writes nothing.
+	 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Source")
+	FString ContentFingerprint;
+
 	// --- the link the designer authored in Figma ---
 
 	/** Name the designer gave this link, e.g. "Clinical Sim — main UI". */

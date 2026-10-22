@@ -21,6 +21,12 @@ struct FIGMATOKENBRIDGEEDITOR_API FDesignTokenImportResult
 	TArray<FString> Errors;
 	TArray<FString> Warnings;
 
+	/** False when the content was already imported, so the asset was left untouched. */
+	bool bWroteAsset = false;
+
+	/** False when tokens.json already held this content, or no path was given. */
+	bool bWroteTokensFile = false;
+
 	UDesignTokens* Asset = nullptr;
 
 	int32 TotalImported() const { return Added + Updated + Unchanged; }
@@ -37,6 +43,9 @@ struct FIGMATOKENBRIDGEEDITOR_API FDesignTokenDocument
 	FString ModeId;
 	FString CollectionId;
 	FString ExportedAt;
+
+	/** FDesignTokenImporter::ContentFingerprint of the text this was parsed from. */
+	FString Fingerprint;
 
 	// The link the designer authored in Figma.
 	FString LinkName;
@@ -66,6 +75,14 @@ public:
 	 * reference. Pure: touches no assets.
 	 */
 	static bool ParseDocument(const FString& JsonText, FDesignTokenDocument& OutDoc, FDesignTokenImportResult& InOutResult);
+
+	/**
+	 * Identity of an export's content: lower-case hex SHA-1 of the condensed JSON
+	 * with source.exportedAt and source.exportedBy removed, so a re-export of the
+	 * same tokens, pretty-printed or not, has the same fingerprint. Empty for
+	 * text that is not JSON.
+	 */
+	static FString ContentFingerprint(const FString& JsonText);
 
 	/** Parse the file at JsonPath, then create or update the configured asset. */
 	static FDesignTokenImportResult ImportFromFile(const FString& JsonPath);

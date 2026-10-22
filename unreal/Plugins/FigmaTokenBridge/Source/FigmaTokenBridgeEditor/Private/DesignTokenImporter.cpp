@@ -12,8 +12,11 @@
 #include "Dom/JsonObject.h"
 #include "Misc/FileHelper.h"
 #include "Misc/PackageName.h"
+#include "Misc/SecureHash.h"
+#include "Policies/CondensedJsonPrintPolicy.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
+#include "Serialization/JsonWriter.h"
 #include "UObject/Package.h"
 #include "UObject/SavePackage.h"
 
@@ -52,6 +55,14 @@ FString FDesignTokenImportResult::Summary() const
 	{
 		return FString::Printf(TEXT("Import failed: %s"),
 			Errors.Num() ? *Errors[0] : TEXT("unknown error"));
+	}
+
+	// WriteAsset only declines to write when nothing changed.
+	if (!bWroteAsset)
+	{
+		return Deprecated > 0
+			? FString::Printf(TEXT("Already up to date (%d tokens unchanged, %d deprecated)"), Unchanged, Deprecated)
+			: FString::Printf(TEXT("Already up to date (%d tokens unchanged)"), Unchanged);
 	}
 
 	return FString::Printf(
@@ -341,7 +352,37 @@ bool FDesignTokenImporter::ParseDocument(const FString& JsonText, FDesignTokenDo
 		return false;
 	}
 
+	OutDoc.Fingerprint = ContentFingerprint(JsonText);
 	return InOutResult.Errors.Num() == 0;
+}
+
+FString FDesignTokenImporter::ContentFingerprint(const FString& JsonText)
+{
+	TSharedPtr<FJsonObject> Root;
+	const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonText);
+	if (!FJsonSerializer::Deserialize(Reader, Root) || !Root.IsValid())
+	{
+		return FString();
+	}
+
+	// When and by whom it was exported changes on every publish; what was
+	// exported is all that decides whether anything needs writing.
+	const TSharedPtr<FJsonObject>* Source = nullptr;
+	if (Root->TryGetObjectField(TEXT("source"), Source) && Source)
+	{
+		(*Source)->RemoveField(TEXT("exportedAt"));
+		(*Source)->RemoveField(TEXT("exportedBy"));
+	}
+
+	FString Condensed;
+	const TSharedRef<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> Writer =
+		TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&Condensed);
+	FJsonSerializer::Serialize(Root.ToSharedRef(), Writer);
+
+	const FTCHARToUTF8 Utf8(*Condensed);
+	FSHAHash Hash;
+	FSHA1::HashBuffer(Utf8.Get(), Utf8.Length(), Hash.Hash);
+	return Hash.ToString().ToLower();
 }
 
 FDesignTokenImportResult FDesignTokenImporter::WriteAsset(const FDesignTokenDocument& Doc)
@@ -360,6 +401,7 @@ FDesignTokenImportResult FDesignTokenImporter::WriteAsset(const FDesignTokenDocu
 
 	UPackage* Package = LoadPackage(nullptr, *PackagePath, LOAD_NoWarn | LOAD_Quiet);
 	UDesignTokens* Asset = Package ? FindObject<UDesignTokens>(Package, *AssetName) : nullptr;
+	const bool bAssetExisted = Asset != nullptr;
 
 	// Capture prior state so the diff can report adds, updates, renames and drops.
 	TMap<FName, FDesignColourToken> Previous;
@@ -427,6 +469,7 @@ FDesignTokenImportResult FDesignTokenImporter::WriteAsset(const FDesignTokenDocu
 	// Anything previously present and now absent is deprecated, never dropped.
 	// It keeps resolving to its last known value so a tidy-up in Figma cannot
 	// silently turn shipped UI magenta.
+	int32 NewlyDeprecated = 0;
 	for (const TPair<FName, FDesignColourToken>& Pair : Previous)
 	{
 		const bool bStillPresentByName = NewColours.Contains(Pair.Key);
@@ -455,10 +498,26 @@ FDesignTokenImportResult FDesignTokenImporter::WriteAsset(const FDesignTokenDocu
 			Result.Warnings.Add(FString::Printf(
 				TEXT("Token '%s' is gone from Figma. Kept and marked deprecated — remove it deliberately once nothing references it."),
 				*Pair.Key.ToString()));
+			NewlyDeprecated++;
 		}
 		Kept.bDeprecated = true;
 		NewColours.Add(Pair.Key, Kept);
 		Result.Deprecated++;
+	}
+
+	// --- nothing changed: write nothing --------------------------------------
+	// A token deprecated by an earlier import is still counted above, but it is
+	// not a change: without this distinction every sync after one deletion in
+	// Figma would rewrite (and, under Perforce, check out) the asset.
+	const bool bNothingChanged = Result.Added == 0 && Result.Updated == 0
+		&& Result.Renamed == 0 && NewlyDeprecated == 0;
+
+	if (bAssetExisted && bNothingChanged && Asset->ContentFingerprint == Doc.Fingerprint)
+	{
+		UE_LOG(LogFigmaTokens, Log, TEXT("Tokens are already up to date (%d unchanged); nothing written."), Result.Unchanged);
+		Result.Asset = Asset;
+		Result.bSuccess = true;
+		return Result;
 	}
 
 	// --- commit ------------------------------------------------------------
@@ -475,18 +534,9 @@ FDesignTokenImportResult FDesignTokenImporter::WriteAsset(const FDesignTokenDocu
 	Asset->TargetProjectName = Doc.TargetProjectName;
 	Asset->PublishedSelection = Doc.PublishedSelection;
 	Asset->LinkedBy = Doc.LinkedBy;
+	Asset->ContentFingerprint = Doc.Fingerprint;
 
 	Asset->MarkPackageDirty();
-
-	const bool bNothingChanged = Result.Added == 0 && Result.Updated == 0
-		&& Result.Renamed == 0 && Result.Deprecated == 0;
-
-	if (bNothingChanged)
-	{
-		// Phase 1 will skip the Perforce checkout entirely in this case; for now
-		// we still save so a first run always produces the asset on disk.
-		UE_LOG(LogFigmaTokens, Log, TEXT("Tokens are already up to date (%d unchanged)."), Result.Unchanged);
-	}
 
 	const FString FileName = FPackageName::LongPackageNameToFilename(
 		PackagePath, FPackageName::GetAssetPackageExtension());
@@ -517,6 +567,7 @@ FDesignTokenImportResult FDesignTokenImporter::WriteAsset(const FDesignTokenDocu
 
 	Result.Asset = Asset;
 	Result.bSuccess = true;
+	Result.bWroteAsset = true;
 	return Result;
 }
 
@@ -568,21 +619,33 @@ FDesignTokenImportResult FDesignTokenImporter::ImportFromText(const FString& Jso
 		return Result;
 	}
 
+	// Rewritten only when what it holds changes. A re-export differs only in
+	// exportedAt, and rewriting for that would put a meaningless diff up for review.
+	bool bWroteTokensFile = false;
 	if (!SaveToPath.IsEmpty())
 	{
+		FString Existing;
+		const bool bSame = FFileHelper::LoadFileToString(Existing, *SaveToPath)
+			&& ContentFingerprint(Existing) == Doc.Fingerprint;
+
 		// A failed write is not worth failing the sync over: the asset is what the
 		// game uses. The file is for review, so say plainly that it is now stale.
-		if (!FFileHelper::SaveStringToFile(FFigmaPublicationReader::PrettyPrint(JsonText), *SaveToPath,
-			FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM))
+		if (!bSame)
 		{
-			Result.Warnings.Add(FString::Printf(
-				TEXT("Imported, but could not update '%s' (is it read-only or checked in?). It no longer matches the asset."),
-				*SaveToPath));
+			bWroteTokensFile = FFileHelper::SaveStringToFile(FFigmaPublicationReader::PrettyPrint(JsonText), *SaveToPath,
+				FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
+			if (!bWroteTokensFile)
+			{
+				Result.Warnings.Add(FString::Printf(
+					TEXT("Imported, but could not update '%s' (is it read-only or checked in?). It no longer matches the asset."),
+					*SaveToPath));
+			}
 		}
 	}
 
 	FDesignTokenImportResult Written = WriteAsset(Doc);
 	Written.Warnings.Append(Result.Warnings);
+	Written.bWroteTokensFile = bWroteTokensFile;
 	return Written;
 }
 

@@ -15,7 +15,9 @@
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
+#include "Misc/FileHelper.h"
 #include "Misc/PackageName.h"
+#include "Misc/Paths.h"
 #include "Misc/ScopeExit.h"
 #include "Policies/CondensedJsonPrintPolicy.h"
 #include "Serialization/JsonSerializer.h"
@@ -822,6 +824,139 @@ bool FDesignTokenPublicationTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("pretty-prints like JSON.stringify(..., null, 2)"),
 		FFigmaPublicationReader::PrettyPrint(TEXT("{\"a\":1,\"b\":[0.8,\"x,y:{\"],\"c\":{},\"d\":[],\"e\":{\"f\":\"q\\\"}\"}}")),
 		FString(TEXT("{\n  \"a\": 1,\n  \"b\": [\n    0.8,\n    \"x,y:{\"\n  ],\n  \"c\": {},\n  \"d\": [],\n  \"e\": {\n    \"f\": \"q\\\"}\"\n  }\n}\n")));
+
+	return true;
+}
+
+/**
+ * An import whose content has not changed must write nothing: no asset save, no
+ * tokens.json rewrite. Re-exports only change exportedAt, and under Perforce a
+ * pointless write means a pointless checkout of a binary asset.
+ */
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDesignTokenNoOpTest,
+	"FigmaTokenBridge.Import.NoOpWhenUnchanged",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FDesignTokenNoOpTest::RunTest(const FString& Parameters)
+{
+	const FString MyId = UDesignTokenSettings::GetOrCreateProjectId();
+	const FString A = MakeDoc(MyId, GoalsChain);
+	const FString B = A.Replace(TEXT("2026-08-19T00:00:00.000Z"), TEXT("2026-10-22T14:05:48.655Z"));
+	const FString C = A.Replace(TEXT("#00d86c"), TEXT("#7b61ff"));
+	const FString D = A.Replace(TEXT("Automated test link"), TEXT("Renamed link"));
+
+	TestEqual(TEXT("fingerprint ignores exportedAt"),
+		FDesignTokenImporter::ContentFingerprint(A), FDesignTokenImporter::ContentFingerprint(B));
+	TestNotEqual(TEXT("fingerprint sees a colour"),
+		FDesignTokenImporter::ContentFingerprint(A), FDesignTokenImporter::ContentFingerprint(C));
+	TestEqual(TEXT("fingerprint ignores whitespace"),
+		FDesignTokenImporter::ContentFingerprint(A), FDesignTokenImporter::ContentFingerprint(FFigmaPublicationReader::PrettyPrint(A)));
+	TestEqual(TEXT("invalid JSON has no fingerprint"),
+		FDesignTokenImporter::ContentFingerprint(TEXT("not json")), FString());
+	TestFalse(TEXT("a fingerprint is not empty"), FDesignTokenImporter::ContentFingerprint(A).IsEmpty());
+
+	UDesignTokenSettings* Settings = GetMutableDefault<UDesignTokenSettings>();
+	const FString OldPath = Settings->GeneratedPackagePath;
+	const FString OldName = Settings->TokensAssetName;
+	const FSoftObjectPath OldActive = Settings->ActiveTokens;
+	Settings->GeneratedPackagePath = TEXT("/Game/DesignSystem/Generated/AutomationTest");
+	Settings->TokensAssetName = FString::Printf(TEXT("DA_TokensNoOp_%s"), *FGuid::NewGuid().ToString(EGuidFormats::Digits));
+
+	const FString PackagePath = Settings->GetTokensAssetPackagePath();
+	const FString AssetFile = FPackageName::LongPackageNameToFilename(PackagePath, FPackageName::GetAssetPackageExtension());
+	const FString TempJson = FPaths::ProjectSavedDir() / TEXT("Automation") /
+		FString::Printf(TEXT("tokens-%s.json"), *FGuid::NewGuid().ToString(EGuidFormats::Digits));
+
+	ON_SCOPE_EXIT
+	{
+		Settings->GeneratedPackagePath = OldPath;
+		Settings->TokensAssetName = OldName;
+		Settings->ActiveTokens = OldActive;
+		UDesignTokenLibrary::InvalidateDesignTokenCache();
+		// See FDesignTokenWriteAssetTest: WriteAsset saved the whole section to
+		// DefaultGame.ini, so it has to be saved again with the real values.
+		Settings->TryUpdateDefaultConfigFile();
+		IFileManager::Get().Delete(*AssetFile, false, true, true);
+		IFileManager::Get().Delete(*TempJson, false, true, true);
+	};
+
+	auto Parse = [this](const FString& Text)
+	{
+		FDesignTokenDocument Doc;
+		FDesignTokenImportResult Unused;
+		TestTrue(TEXT("fixture parses"), FDesignTokenImporter::ParseDocument(Text, Doc, Unused));
+		return Doc;
+	};
+
+	// First write: everything is new.
+	const FDesignTokenImportResult First = FDesignTokenImporter::WriteAsset(Parse(A));
+	TestTrue(TEXT("first write saves the asset"), First.bWroteAsset);
+	if (!First.Asset)
+	{
+		AddError(TEXT("first write produced no asset"));
+		return false;
+	}
+	UDesignTokens* Asset = First.Asset;
+	TestEqual(TEXT("the asset records the fingerprint"), Asset->ContentFingerprint, FDesignTokenImporter::ContentFingerprint(A));
+
+	// Same tokens, re-exported later: nothing is written.
+	const FDateTime Old(2000, 1, 1);
+	IFileManager::Get().SetTimeStamp(*AssetFile, Old);
+	const FString ImportedAtBefore = Asset->ImportedAt;
+	{
+		const FDesignTokenImportResult R = FDesignTokenImporter::WriteAsset(Parse(B));
+		TestTrue(TEXT("unchanged import succeeds"), R.bSuccess);
+		TestFalse(TEXT("unchanged import does not save"), R.bWroteAsset);
+		TestEqual(TEXT("unchanged import counts every token"), R.Unchanged, 4);
+		TestEqual(TEXT("the package file is untouched"), IFileManager::Get().GetTimeStamp(*AssetFile), Old);
+		TestEqual(TEXT("ImportedAt is untouched"), Asset->ImportedAt, ImportedAtBefore);
+		TestEqual(TEXT("summary says so"), R.Summary(), FString(TEXT("Already up to date (4 tokens unchanged)")));
+	}
+
+	// An asset written before fingerprints existed is written once.
+	Asset->ContentFingerprint.Reset();
+	TestTrue(TEXT("upgrade write"), FDesignTokenImporter::WriteAsset(Parse(B)).bWroteAsset);
+
+	// Same tokens under a renamed link is a provenance change: written, no token changes.
+	{
+		const FDesignTokenImportResult R = FDesignTokenImporter::WriteAsset(Parse(D));
+		TestTrue(TEXT("link rename writes"), R.bWroteAsset);
+		TestEqual(TEXT("link rename changes no token"), R.Added + R.Updated + R.Renamed + R.Deprecated, 0);
+	}
+
+	// A token already deprecated is not a change the next time round.
+	{
+		const FString Chain(GoalsChain);
+		const int32 KeyAt = Chain.Find(TEXT("\"key\": \"5dda8aa2"));
+		const int32 BraceAt = Chain.Find(TEXT("{"), ESearchCase::CaseSensitive, ESearchDir::FromEnd, KeyAt);
+		const int32 CommaAt = Chain.Find(TEXT(","), ESearchCase::CaseSensitive, ESearchDir::FromEnd, BraceAt);
+		const FString E = MakeDoc(MyId, Chain.Left(CommaAt));
+
+		const FDesignTokenImportResult Dropped = FDesignTokenImporter::WriteAsset(Parse(E));
+		TestTrue(TEXT("dropping a token writes"), Dropped.bWroteAsset);
+		TestEqual(TEXT("and deprecates it"), Dropped.Deprecated, 1);
+
+		const FDesignTokenImportResult Again = FDesignTokenImporter::WriteAsset(Parse(E));
+		TestFalse(TEXT("an already-deprecated token does not force a write"), Again.bWroteAsset);
+		TestEqual(TEXT("it is still reported as deprecated"), Again.Deprecated, 1);
+	}
+
+	// tokens.json is rewritten only when its content changes.
+	{
+		const FDesignTokenImportResult R1 = FDesignTokenImporter::ImportFromText(A, TempJson);
+		TestTrue(TEXT("a missing tokens.json is written"), R1.bWroteTokensFile);
+
+		const FDesignTokenImportResult R2 = FDesignTokenImporter::ImportFromText(B, TempJson);
+		TestTrue(TEXT("re-export imports"), R2.bSuccess);
+		TestFalse(TEXT("re-export does not rewrite tokens.json"), R2.bWroteTokensFile);
+
+		FString OnDisk;
+		FFileHelper::LoadFileToString(OnDisk, *TempJson);
+		TestTrue(TEXT("tokens.json keeps its first exportedAt"), OnDisk.Contains(TEXT("2026-08-19T00:00:00.000Z")));
+
+		const FDesignTokenImportResult R3 = FDesignTokenImporter::ImportFromText(C, TempJson);
+		TestTrue(TEXT("a real change rewrites tokens.json"), R3.bWroteTokensFile);
+	}
 
 	return true;
 }
