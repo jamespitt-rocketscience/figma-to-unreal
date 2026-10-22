@@ -355,6 +355,31 @@ check('asciiJson escapes non-ASCII', bridge.asciiJson({ n: 'Blades — café' })
     bridge.staleChunkKeys(['chunk/link-10/1/0'], 'link-1', []), []);
 }
 
+// ---------------------------------------------------------------- live link
+
+{
+  // Same code as FFigmaLiveLink::MakePairingCode produces in the C++ test.
+  const secret = '0123456789abcdef0123456789ABCDEF';
+  check('parses an Unreal pairing code',
+    bridge.parsePairingCode('ftb1:30871:' + secret), { port: 30871, secret: secret });
+  check('tolerates whitespace from the clipboard',
+    bridge.parsePairingCode('  ftb1:30871:' + secret + '\n'), { port: 30871, secret: secret });
+  check('refuses something that is not a pairing code',
+    /not a live link pairing code/.test(bridge.parsePairingCode('A1B2C3D4-E5F6-7890-ABCD-EF1234567890').error), true);
+  check('refuses a port the manifest does not allow, and says how to fix it',
+    /may only reach port 30871/.test(bridge.parsePairingCode('ftb1:30872:' + secret).error), true);
+  check('refuses a truncated secret',
+    /cut short/.test(bridge.parsePairingCode('ftb1:30871:0123').error), true);
+  check('manifest allows exactly the live link port',
+    require('../figma-plugin/manifest.json').networkAccess.allowedDomains,
+    ['http://127.0.0.1:' + bridge.LIVE_PORT, 'http://localhost:' + bridge.LIVE_PORT]);
+  check('project ids match whatever their formatting',
+    bridge.normaliseProjectId('{a1b2c3d4-e5f6-7890-abcd-ef1234567890}'),
+    bridge.normaliseProjectId('A1B2C3D4E5F67890ABCDEF1234567890'));
+  check('push goes to the editor on this machine',
+    bridge.liveUrl(30871, 'push'), 'http://127.0.0.1:30871/figma-token-bridge/v1/push');
+}
+
 // ---------------------------------------------------------------- write
 
 /*

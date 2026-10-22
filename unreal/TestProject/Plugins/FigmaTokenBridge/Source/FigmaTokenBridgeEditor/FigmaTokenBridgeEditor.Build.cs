@@ -28,6 +28,8 @@ public class FigmaTokenBridgeEditor : ModuleRules
 			"Projects",
 			"PropertyEditor",
 			"HTTP",
+			"HTTPServer",
+			"MessageLog",
 			"Json",
 			"JsonUtilities",
 			"DeveloperSettings",

@@ -65,7 +65,7 @@ tokens/
   FigmaUnrealTest.tokens.json   from the real Rocket Science system
   FigmaBridgeTest.tokens.json   from the small purpose-built test system
 tools/
-  build-tokens.cjs        replays PART 1 over a fixture; 60 assertions
+  build-tokens.cjs        replays PART 1 over a fixture; 68 assertions
   setup-test-project.ps1  junctions the plugin into the test project
   build-unreal.ps1        builds the plugin, then runs the automation tests
   md-to-confluence.cjs    regenerates the Confluence version of docs/
@@ -98,7 +98,7 @@ node tools/build-tokens.cjs --fixture tools/fixtures/tokenbridgetest.raw.json
 Replays the plugin's pure logic over a captured fixture and runs every assertion.
 No Figma account needed, well under a second. Two fixtures: the real 171-variable
 Rocket Science system, and a 25-variable one built to contain every awkward case
-on purpose. The same 60 assertions run against both, which is the point — the
+on purpose. The same 68 assertions run against both, which is the point — the
 counts live in the fixture, the rules are shared.
 
 A run defaults to a deliberately impossible target project id, so an export it
@@ -150,6 +150,30 @@ Neither side can be silently wrong about where tokens are going:
   with. The importer refuses a `tokens.json` from anywhere else.
 
 Both can be turned off for a deliberate re-link; both are on by default.
+
+### The live link: Figma straight into the open editor
+
+Publish and Sync are the route between machines. For whoever has Figma and
+Unreal open on the same computer there is a shorter loop. **Tools → Copy Live
+Link Pairing Code** in Unreal, paste it under *Live link* in the plugin, and
+each link to that project gets a **Push live** button. The push goes through
+the same importer and the same `tokens.json` as Sync, so both interlocks still
+run and the Git diff is still the review.
+
+It is modelled on Unity's UI Toolkit Connector for Figma, with one deliberate
+difference. Unity's pairing token changes on every editor restart; here the
+port is fixed (30871, the only one the plugin's manifest allows) and the secret
+is kept in per-user editor settings. So a designer pairs once per computer. The
+editor listens through the engine's HTTPServer module, which binds to localhost
+unless the project sets `[HTTPServer.Listeners] DefaultBindAddress`. Nothing is
+answered without the secret.
+
+### The import report
+
+Every sync and every live push writes a page to **Message Log → Figma Token
+Bridge**: where the tokens came from, every warning and error, and the summary.
+The toast links to it. Unlike the toast, it stays, so *what did the last sync
+skip, and why* has an answer afterwards.
 
 ### Publishing controls the picker, not the import
 
@@ -233,11 +257,16 @@ Phase 0 is deliberately colour-only. Deferred, in order:
   `EAutomationTestFlags` and `FSavePackageArgs`, were both already correct.
 - **The exporter is validated against two independent design systems** — the
   real 171-variable one and a 25-variable one built from scratch in a fresh
-  Figma file via the Plugin API. All 60 assertions pass against both. What
+  Figma file via the Plugin API. All 68 assertions pass against both. What
   that does *not* cover is PART 2 of `code.js`, the half that talks to Figma:
   the packaged plugin has still not been imported into Figma desktop, so
   `scan()` and the link UI are the only things left untested. See
   [TESTING.md §3](TESTING.md).
+- **The live link is proven from the Unreal side only.** An automation test
+  makes real HTTP requests to the listener: the preflight, a missing secret,
+  hello, and a push the importer refuses. What it cannot prove is that Figma
+  lets the plugin's UI reach `127.0.0.1`. Unity's published connector does the
+  same, which is encouraging but not proof. See [TESTING.md §3.6](TESTING.md).
 - Two hygiene items in the **Rocket Science** file, both reported by the exporter as
   warnings: `icon-secondary-Inactive` is the only capitalised token in 103, and
   all 171 variables use `ALL_SCOPES`, which clutters Figma's property pickers

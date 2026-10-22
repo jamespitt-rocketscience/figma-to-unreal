@@ -445,6 +445,55 @@ function readPublication(entries, linkId) {
   return { doc: JSON.parse(text), manifest: manifest };
 }
 
+/* ---------------- live link (push straight into an open editor) ----------- */
+
+/*
+ * Publish and Sync go through this Figma file and Figma's REST API, which suits
+ * a team. The live link is the quick loop for one person with Figma and Unreal
+ * open on the same machine: the UI posts the export to the editor's local port,
+ * and the editor runs the same importer as Sync.
+ *
+ * Pairing is a code copied once from Unreal (Tools > Copy Live Link Pairing
+ * Code), "ftb1:<port>:<secret>". It is kept in this user's clientStorage, never
+ * in the file, keyed by the project id the editor reports, so each link finds
+ * its own editor and the secret is never shared with other designers.
+ */
+var LIVE_PAIRING_VERSION = 'ftb1';
+var LIVE_PORT = 30871;  // the only port manifest.json allows; FFigmaLiveLink::DefaultPort
+var LIVE_PAIRINGS_KEY = 'livePairings';
+
+/** "ftb1:30871:<secret>" -> { port, secret }, or { error } saying what to do. */
+function parsePairingCode(code) {
+  var parts = String(code || '').trim().split(':');
+  if (parts.length !== 3 || parts[0] !== LIVE_PAIRING_VERSION) {
+    return { error: 'That is not a live link pairing code. In Unreal, use Tools › Copy Live Link Pairing Code and paste the whole thing.' };
+  }
+  if (!/^[0-9]{1,5}$/.test(parts[1])) {
+    return { error: 'The pairing code has no valid port. Copy it again from Unreal.' };
+  }
+  var port = Number(parts[1]);
+  // Figma enforces the manifest's allowedDomains, so any other port would fail
+  // later as an unexplained network error. Say so now instead.
+  if (port !== LIVE_PORT) {
+    return { error: 'Unreal is listening on port ' + port + ', but this plugin may only reach port ' + LIVE_PORT +
+      '. Set the port back to ' + LIVE_PORT + ' in Unreal (Editor Preferences › Plugins › Figma Token Bridge), or add the new port to manifest.json.' };
+  }
+  if (!/^[0-9A-Za-z]{32,128}$/.test(parts[2])) {
+    return { error: 'The pairing code looks cut short. Copy it again from Unreal.' };
+  }
+  return { port: port, secret: parts[2] };
+}
+
+/** Same rule as UDesignTokenSettings::NormaliseProjectId, so formatting never matters. */
+function normaliseProjectId(id) {
+  return String(id || '').replace(/[{}-]/g, '').trim().toUpperCase();
+}
+
+/** 127.0.0.1 rather than localhost: the editor binds IPv4, and localhost may resolve to ::1 first. */
+function liveUrl(port, route) {
+  return 'http://127.0.0.1:' + port + '/figma-token-bridge/v1/' + route;
+}
+
 /* ============================================================
    PART 2 — Figma runtime
    ============================================================ */
@@ -884,6 +933,22 @@ if (typeof figma !== 'undefined') {
     }
   };
 
+  /** This user's live link pairings, keyed by normalised project id. */
+  var loadPairings = async function () {
+    var stored = await figma.clientStorage.getAsync(LIVE_PAIRINGS_KEY);
+    return stored && typeof stored === 'object' ? stored : {};
+  };
+
+  /** What the UI lists: everything but the secrets. */
+  var pairingSummary = function (pairings) {
+    var out = {};
+    Object.keys(pairings).forEach(function (k) {
+      var p = pairings[k];
+      out[k] = { projectId: p.projectId, projectName: p.projectName, port: p.port, pairedAt: p.pairedAt };
+    });
+    return out;
+  };
+
   if (figma.command === 'publish-all') {
     publishAllHeadless();
   } else {
@@ -905,7 +970,75 @@ if (typeof figma !== 'undefined') {
             fileKey: safeFileKey(),
             links: store.links,
             activeLinkId: store.activeLinkId,
-            publications: publicationStatus(store.links)
+            publications: publicationStatus(store.links),
+            pairings: pairingSummary(await loadPairings())
+          });
+          return;
+        }
+
+        // Pairing is three steps because the network lives in the UI: check the
+        // code here, let the UI ask the editor who it is, then store the answer.
+        if (msg.type === 'checkPairing') {
+          var parsed = parsePairingCode(msg.code);
+          if (parsed.error) {
+            reply({ type: 'pairResult', error: parsed.error });
+            return;
+          }
+          reply({ type: 'pairProbe', port: parsed.port, secret: parsed.secret, url: liveUrl(parsed.port, 'hello') });
+          return;
+        }
+
+        if (msg.type === 'savePairing') {
+          var hello = msg.hello || {};
+          if (!looksLikeProjectId(hello.projectId)) {
+            reply({ type: 'pairResult', error: 'The editor answered, but did not give a project id. Is its Figma Token Bridge plugin up to date?' });
+            return;
+          }
+          var pairings = await loadPairings();
+          pairings[normaliseProjectId(hello.projectId)] = {
+            projectId: hello.projectId,
+            projectName: hello.projectName || '',
+            port: msg.port,
+            secret: msg.secret,
+            pairedAt: new Date().toISOString()
+          };
+          await figma.clientStorage.setAsync(LIVE_PAIRINGS_KEY, pairings);
+          reply({ type: 'pairings', pairings: pairingSummary(pairings), paired: hello.projectName || hello.projectId });
+          return;
+        }
+
+        if (msg.type === 'forgetPairing') {
+          var kept = await loadPairings();
+          delete kept[msg.key];
+          await figma.clientStorage.setAsync(LIVE_PAIRINGS_KEY, kept);
+          reply({ type: 'pairings', pairings: pairingSummary(kept) });
+          return;
+        }
+
+        if (msg.type === 'pushLive') {
+          // Rescan for the same reason Publish does: what lands in Unreal must be
+          // the file as it is now.
+          cached = await scan();
+
+          var pushLink = findLink(loadLinkStore(), msg.id);
+          if (!pushLink) {
+            return fail('That link no longer exists. Re-create it and try again.');
+          }
+          var pairing = (await loadPairings())[normaliseProjectId(pushLink.projectId)];
+          var live = buildForLink(pushLink);
+          reply({
+            type: 'liveDoc',
+            link: pushLink,
+            url: pairing ? liveUrl(pairing.port, 'push') : null,
+            secret: pairing ? pairing.secret : null,
+            port: pairing ? pairing.port : null,
+            projectName: pairing ? (pairing.projectName || pushLink.projectName) : pushLink.projectName,
+            readMode: cached.meta.readMode,
+            publishedCount: live.publishedCount,
+            doc: live.doc,
+            warnings: live.warnings,
+            errors: pairing ? live.errors
+              : ['This computer is not paired with that project. In Unreal, use Tools › Copy Live Link Pairing Code, then paste it under Live link.']
           });
           return;
         }
@@ -1053,6 +1186,10 @@ if (typeof module !== 'undefined' && module.exports) {
     fnv1a32: fnv1a32,
     planPublication: planPublication,
     staleChunkKeys: staleChunkKeys,
-    readPublication: readPublication
+    readPublication: readPublication,
+    LIVE_PORT: LIVE_PORT,
+    parsePairingCode: parsePairingCode,
+    normaliseProjectId: normaliseProjectId,
+    liveUrl: liveUrl
   };
 }

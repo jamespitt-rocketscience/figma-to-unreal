@@ -49,8 +49,34 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "Figma Access")
 	bool bCheckForPublishedTokensOnStartup = false;
 
+	/**
+	 * Let the Figma plugin push tokens straight into this editor while it is open.
+	 * Tools > Copy Live Link Pairing Code turns this on and copies what the
+	 * designer pastes into the plugin, once per machine.
+	 */
+	UPROPERTY(Config, EditAnywhere, Category = "Live Link")
+	bool bEnableLiveLink = false;
+
+	/**
+	 * The local port the live link listens on. The Figma plugin's manifest allows
+	 * only 30871, so change this only together with that manifest.
+	 */
+	UPROPERTY(Config, EditAnywhere, Category = "Live Link", meta = (ClampMin = 1024, ClampMax = 65535))
+	int32 LiveLinkPort = 30871;
+
+	/**
+	 * What the plugin must present to push. Generated on first use and kept here,
+	 * so pairing survives editor restarts. Clear it to revoke every pairing.
+	 */
+	UPROPERTY(Config, EditAnywhere, Category = "Live Link", meta = (PasswordField = true))
+	FString LiveLinkSecret;
+
 	static const UDesignTokenUserSettings* Get();
+	static UDesignTokenUserSettings* GetMutable();
 
 	/** FigmaAccessToken if set, otherwise FIGMA_ACCESS_TOKEN, otherwise empty. */
 	FString GetAccessToken() const;
+
+	/** LiveLinkSecret, generating and saving one first if it is empty. */
+	FString GetOrCreateLiveLinkSecret();
 };

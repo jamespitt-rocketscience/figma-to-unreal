@@ -1,8 +1,9 @@
 <!-- Figma Token Bridge — the designer's authoring surface.
      A link says: this part of the design system feeds that Unreal project.
      Links live in the Figma file, so every designer sees the same set.
-     No network access. Publishing stores the tokens in this Figma file, where
-     Unreal pulls them; the downloadable file remains as a fallback. -->
+     Publishing stores the tokens in this Figma file, where Unreal pulls them;
+     the downloadable file remains as a fallback. The only network access is the
+     live link: a push to an Unreal editor on this machine, on 127.0.0.1. -->
 <style>
   :root { color-scheme: light dark; }
   * { box-sizing: border-box; }
@@ -89,6 +90,16 @@
   <button id="publishAll" class="sec wide hide">Publish all</button>
 </div>
 
+<h2>Live link <span style="text-transform:none;letter-spacing:0">— this computer only</span></h2>
+<p class="sub">Push straight into an Unreal editor open on this computer. In Unreal, use
+  Tools › Copy Live Link Pairing Code and paste it here. Once per computer.</p>
+<div id="pairings"></div>
+<div class="row">
+  <input type="text" id="pairingCode" placeholder="ftb1:30871:…" autocomplete="off" spellcheck="false">
+  <button id="pair" class="sec">Pair</button>
+</div>
+<div id="pairMsg"></div>
+
 <div id="editor" class="hide">
   <h2 id="editorTitle">New link</h2>
   <div class="card">
@@ -118,7 +129,10 @@
 <div id="exportReport"></div>
 
 <script>
-  var state = { links: [], activeLinkId: null, inventory: null, readMode: null, total: 0, editing: null, doc: null, fileKey: null, publications: {} };
+  var state = { links: [], activeLinkId: null, inventory: null, readMode: null, total: 0, editing: null, doc: null, fileKey: null, publications: {}, pairings: {} };
+
+  /** Same rule as normaliseProjectId in code.js, which keys the pairings. */
+  function normId(id) { return String(id || '').replace(/[{}-]/g, '').trim().toUpperCase(); }
 
   /** "3 min ago", falling back to the date once it stops being recent. */
   function ago(iso) {
@@ -191,6 +205,17 @@
         send({ type: 'publish', id: link.id });
       };
       row.appendChild(publishBtn);
+
+      if (state.pairings[normId(link.projectId)]) {
+        var pushBtn = el('button', 'tiny sec', 'Push live');
+        pushBtn.title = 'Send the tokens straight to the Unreal editor open on this computer';
+        pushBtn.onclick = function () {
+          pushBtn.disabled = true;
+          pushBtn.textContent = 'Pushing…';
+          send({ type: 'pushLive', id: link.id });
+        };
+        row.appendChild(pushBtn);
+      }
 
       // Kept for review outside Figma, or a project that is not pulling yet.
       var exportBtn = el('button', 'tiny sec', 'Export file');
@@ -306,6 +331,85 @@
     send({ type: 'scan' });
   };
 
+  /* ------------------------------- live link ------------------------------ */
+
+  function renderPairings() {
+    var host = $('pairings');
+    clear(host);
+    Object.keys(state.pairings).forEach(function (key) {
+      var p = state.pairings[key];
+      var row = el('div', 'stat');
+      row.appendChild(el('span', null, (p.projectName || p.projectId) + ' · port ' + p.port + ' · paired ' + ago(p.pairedAt)));
+      var forget = el('button', 'tiny sec danger', 'Forget');
+      forget.onclick = function () { send({ type: 'forgetPairing', key: key }); };
+      row.appendChild(forget);
+      host.appendChild(row);
+    });
+  }
+
+  function pairMessage(node) {
+    clear($('pairMsg'));
+    if (node) $('pairMsg').appendChild(node);
+  }
+
+  /**
+   * The editor answers every request with JSON, refusals included. A failure
+   * to connect at all means nothing is listening, which is the common case and
+   * gets its own explanation.
+   */
+  function callEditor(url, secret, body) {
+    var headers = { 'Authorization': 'Bearer ' + secret };
+    if (body !== undefined) headers['Content-Type'] = 'application/json';
+    return fetch(url, { method: body === undefined ? 'GET' : 'POST', headers: headers, body: body })
+      .then(function (r) {
+        return r.json().catch(function () {
+          return { ok: false, errors: ['Unreal answered ' + r.status + ' without a readable reply.'] };
+        });
+      }, function () {
+        var port = url.split(':')[2].split('/')[0];
+        return { ok: false, unreachable: true, errors: [
+          'Could not reach Unreal on port ' + port + '. Is the project open, with Tools › Figma Live Link ticked?',
+          'If you are using Figma in a browser, try the desktop app.'
+        ] };
+      });
+  }
+
+  $('pair').onclick = function () {
+    var code = $('pairingCode').value.trim();
+    if (!code) return;
+    this.disabled = true;
+    pairMessage(null);
+    send({ type: 'checkPairing', code: code });
+  };
+
+  function showPush(m, res) {
+    var out = $('exportReport');
+    clear(out);
+    out.appendChild(el('h2', null, 'Live push — ' + m.link.linkName));
+    if (!res.ok) {
+      var title = res.notSent ? 'Not pushed. Fix these first:'
+        : res.unreachable ? 'Not pushed.'
+        : 'Unreal did not import it. It keeps the tokens it had:';
+      out.appendChild(msg('err', title, res.errors || []));
+    } else {
+      out.appendChild(stat('Added', res.added));
+      out.appendChild(stat('Updated', res.updated));
+      out.appendChild(stat('Unchanged', res.unchanged));
+      if (res.renamed) out.appendChild(stat('Renamed', res.renamed));
+      if (res.deprecated) out.appendChild(stat('No longer in Figma', res.deprecated));
+      var ok = el('div', 'msg ok');
+      ok.appendChild(el('div', null, 'Imported into ' + (m.projectName || 'Unreal') +
+        '. Its tokens.json is updated for review, the same as after a Sync.'));
+      out.appendChild(ok);
+      if (m.readMode === 'consumer') {
+        out.appendChild(msg('warn',
+          'Read from a consuming file, so only variables bound on this page were pushed. Push from the library file for the full set.'));
+      }
+    }
+    var warnings = (m.warnings || []).concat(res.warnings || []);
+    if (warnings.length) out.appendChild(msg('warn', 'Warnings:', warnings));
+  }
+
   /* ------------------------------- messages ------------------------------- */
 
   onmessage = function (e) {
@@ -319,7 +423,54 @@
       state.links = m.links;
       state.activeLinkId = m.activeLinkId;
       state.publications = m.publications || {};
+      state.pairings = m.pairings || {};
       renderLinks();
+      renderPairings();
+      return;
+    }
+
+    if (m.type === 'pairResult') {
+      $('pair').disabled = false;
+      pairMessage(msg('err', m.error));
+      return;
+    }
+
+    // The code is well-formed; ask the editor who it is before keeping it, so a
+    // pairing is only ever stored against the project that actually answered.
+    if (m.type === 'pairProbe') {
+      callEditor(m.url, m.secret).then(function (hello) {
+        if (!hello.ok) {
+          $('pair').disabled = false;
+          pairMessage(msg('err', 'Not paired.', hello.errors || []));
+          return;
+        }
+        send({ type: 'savePairing', port: m.port, secret: m.secret, hello: hello });
+      });
+      return;
+    }
+
+    if (m.type === 'pairings') {
+      $('pair').disabled = false;
+      state.pairings = m.pairings || {};
+      if (m.paired) {
+        $('pairingCode').value = '';
+        pairMessage(msg('ok', 'Paired with ' + m.paired + '. Links to that project now have a Push live button.'));
+      }
+      renderPairings();
+      renderLinks();
+      return;
+    }
+
+    if (m.type === 'liveDoc') {
+      var done = function (res) {
+        renderLinks();  // re-enables the button left saying "Pushing…"
+        showPush(m, res);
+      };
+      if (m.errors.length) {
+        done({ ok: false, notSent: true, errors: m.errors });
+        return;
+      }
+      callEditor(m.url, m.secret, JSON.stringify(m.doc)).then(done);
       return;
     }
 

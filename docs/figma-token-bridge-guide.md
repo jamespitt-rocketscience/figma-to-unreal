@@ -171,6 +171,18 @@ If there are errors, nothing is published, and Unreal keeps the previous publish
 
 > **Export file** is still on the card, for reviewing an export outside Figma or feeding a project that is not pulling yet. Publishing does not need it.
 
+### Push live (Figma and Unreal on the same computer)
+
+If you have the Unreal project open on your own computer, you can skip Publish and Sync and see a change in Unreal straight away.
+
+1. In Unreal: **Tools → Copy Live Link Pairing Code**.
+2. In the plugin, paste it under **Live link** and click **Pair**. You do this once per computer. It keeps working after Unreal restarts.
+3. Links to that project now have a **Push live** button. Click it, and the plugin reports what Unreal imported.
+
+A push goes through the same checks as Sync and rewrites the same `tokens.json`, so it still has to be committed like any other change. Other designers and developers still get your change through Publish and Sync. The live link only reaches the computer you are on.
+
+Use the Figma desktop app. The browser version may block it.
+
 ---
 
 ## Part 2 — For developers (Unreal)
@@ -218,7 +230,19 @@ It is saved under `Saved/`, not `DefaultGame.ini`, so it is never committed. Bui
 
 With a token, this fetches the designer's latest publish from Figma, rewrites `tokens.json`, and imports it. `tokens.json` is only rewritten if the publish passes both interlocks. Without a token, it imports the local `tokens.json` and warns that it did not fetch from Figma.
 
-You get a summary like `171 tokens (4 added, 2 updated, 165 unchanged, 1 renamed, 0 deprecated), 2 warning(s)`. Detail goes to the Output Log under `LogFigmaTokens`.
+You get a summary like `171 tokens (4 added, 2 updated, 165 unchanged, 1 renamed, 0 deprecated), 2 warning(s)`. The detail goes to **Window → Message Log → Figma Token Bridge**, one page per import, and the toast links to it. The page stays after the toast fades, and earlier imports are a dropdown away.
+
+### Live link (optional)
+
+**Tools → Figma Live Link** lets the Figma plugin on this computer push tokens straight into this editor. **Tools → Copy Live Link Pairing Code** turns it on and copies the code a designer pastes into the plugin. Pair once per computer.
+
+| Setting (**Editor Preferences → Plugins → Figma Token Bridge**) | What it does |
+|---|---|
+| **Enable Live Link** | Listen while the editor is open. Off by default |
+| **Live Link Port** | `30871`. The plugin's manifest allows only this port, so change both together |
+| **Live Link Secret** | Generated on first use. Clear it to revoke every pairing |
+
+All three are per user, saved under `Saved/`, and never committed. The editor listens on this computer only, and answers nothing without the secret. The exception is a project whose engine config sets `[HTTPServer.Listeners] DefaultBindAddress` to all addresses. The secret still applies then, but check before turning the live link on.
 
 If the import is refused, the error says exactly which interlock failed and names both values. That is working as designed — read the message before changing settings.
 
@@ -344,6 +368,9 @@ A typo or a removed token returns **magenta**, and logs a warning once per token
 | Blueprint dropdown is empty | No import has run yet, or *Active Tokens* is unset in project settings |
 | Everything is magenta | The fallback. Either no token asset is set, or the token name is unknown — check `LogFigmaTokens` |
 | Colours will not change after a re-sync | *Active Tokens* may point at an old asset. Re-check project settings |
+| *Figma live link could not start* | Another program, or a second open Unreal project, is using port 30871 |
+| *Could not reach Unreal* when pairing or pushing | The project is not open, **Tools → Figma Live Link** is not ticked, or you are using Figma in a browser |
+| *Did not recognise the pairing code* | The secret was reset in Unreal. Copy a fresh code and pair again |
 
 ---
 
@@ -365,7 +392,7 @@ Widget and layout generation is **not** planned. Two open-source tools already d
 |---|---|
 | `figma-plugin/` | The Figma plugin — plain JS, no build step |
 | `tokens/` | Committed `tokens.json` exports |
-| `tools/build-tokens.cjs` | Replays the exporter's logic over a captured fixture; 60 assertions, no Figma access needed |
+| `tools/build-tokens.cjs` | Replays the exporter's logic over a captured fixture; 68 assertions, no Figma access needed |
 | `tools/setup-test-project.ps1` | Links the plugin into the test project |
 | `tools/build-unreal.ps1` | Builds the plugin and runs the automation tests |
 | `tools/md-to-confluence.cjs` | Regenerates the Confluence version of this page from its Markdown source |

@@ -7,10 +7,14 @@
 #include "DesignTokenTypes.h"
 #include "DesignTokenLibrary.h"
 #include "DesignTokens.h"
+#include "FigmaLiveLink.h"
 #include "FigmaPublication.h"
 
 #include "Dom/JsonObject.h"
 #include "HAL/FileManager.h"
+#include "HttpModule.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
 #include "Misc/PackageName.h"
 #include "Misc/ScopeExit.h"
 #include "Policies/CondensedJsonPrintPolicy.h"
@@ -818,6 +822,217 @@ bool FDesignTokenPublicationTest::RunTest(const FString& Parameters)
 	TestEqual(TEXT("pretty-prints like JSON.stringify(..., null, 2)"),
 		FFigmaPublicationReader::PrettyPrint(TEXT("{\"a\":1,\"b\":[0.8,\"x,y:{\"],\"c\":{},\"d\":[],\"e\":{\"f\":\"q\\\"}\"}}")),
 		FString(TEXT("{\n  \"a\": 1,\n  \"b\": [\n    0.8,\n    \"x,y:{\"\n  ],\n  \"c\": {},\n  \"d\": [],\n  \"e\": {\n    \"f\": \"q\\\"}\"\n  }\n}\n")));
+
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDesignTokenLiveLinkTest,
+	"FigmaTokenBridge.LiveLink.Protocol",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FDesignTokenLiveLinkTest::RunTest(const FString& Parameters)
+{
+	const FString Secret = TEXT("0123456789abcdef0123456789ABCDEF");
+
+	// Same code as tools/build-tokens.cjs parses.
+	TestEqual(TEXT("pairing code format"), FFigmaLiveLink::MakePairingCode(30871, Secret),
+		FString(TEXT("ftb1:30871:0123456789abcdef0123456789ABCDEF")));
+
+	// Header keys arrive lower-cased from HTTPServer.
+	auto Headers = [](const FString& Value)
+	{
+		TMap<FString, TArray<FString>> H;
+		H.Add(TEXT("authorization"), { Value });
+		return H;
+	};
+
+	TestTrue(TEXT("accepts the secret as a bearer token"), FFigmaLiveLink::IsAuthorised(Headers(TEXT("Bearer ") + Secret), Secret));
+	TestTrue(TEXT("the scheme name is case-insensitive"), FFigmaLiveLink::IsAuthorised(Headers(TEXT("bearer ") + Secret), Secret));
+	TestFalse(TEXT("the secret itself is case-sensitive"), FFigmaLiveLink::IsAuthorised(Headers(TEXT("Bearer ") + Secret.ToLower()), Secret));
+	TestFalse(TEXT("refuses a wrong secret"), FFigmaLiveLink::IsAuthorised(Headers(TEXT("Bearer nope")), Secret));
+	TestFalse(TEXT("refuses the bare secret without a scheme"), FFigmaLiveLink::IsAuthorised(Headers(Secret), Secret));
+	TestFalse(TEXT("refuses a request with no header"), FFigmaLiveLink::IsAuthorised({}, Secret));
+	TestFalse(TEXT("an empty secret never matches"), FFigmaLiveLink::IsAuthorised(Headers(TEXT("Bearer ")), FString()));
+	{
+		TMap<FString, TArray<FString>> Twice;
+		Twice.Add(TEXT("authorization"), { TEXT("Bearer nope"), TEXT("Bearer ") + Secret });
+		TestFalse(TEXT("refuses two authorization headers"), FFigmaLiveLink::IsAuthorised(Twice, Secret));
+	}
+
+	// /hello is what the plugin keys a pairing on.
+	{
+		TSharedPtr<FJsonObject> Hello;
+		const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(
+			FFigmaLiveLink::MakeHelloJson(TEXT("A1B2C3D4-E5F6-7890-ABCD-EF1234567890"), TEXT("FigmaBridgeTest"), TEXT("abc123")));
+		TestTrue(TEXT("hello is valid JSON"), FJsonSerializer::Deserialize(Reader, Hello) && Hello.IsValid());
+		if (Hello.IsValid())
+		{
+			TestEqual(TEXT("hello names the project"), Hello->GetStringField(TEXT("projectId")),
+				FString(TEXT("A1B2C3D4-E5F6-7890-ABCD-EF1234567890")));
+			TestEqual(TEXT("hello names the paired file"), Hello->GetStringField(TEXT("fileKey")), FString(TEXT("abc123")));
+		}
+	}
+
+	// A refused push reaches the designer with the importer's own words.
+	{
+		FDesignTokenImportResult Refused;
+		Refused.Errors.Add(TEXT("This export targets another project."));
+
+		TSharedPtr<FJsonObject> Body;
+		const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(FFigmaLiveLink::MakePushResultJson(Refused));
+		TestTrue(TEXT("push result is valid JSON"), FJsonSerializer::Deserialize(Reader, Body) && Body.IsValid());
+		if (Body.IsValid())
+		{
+			TestFalse(TEXT("push result says it failed"), Body->GetBoolField(TEXT("ok")));
+			const TArray<TSharedPtr<FJsonValue>>& Errors = Body->GetArrayField(TEXT("errors"));
+			TestTrue(TEXT("push result carries the importer's error"),
+				Errors.Num() == 1 && Errors[0]->AsString() == TEXT("This export targets another project."));
+		}
+	}
+
+	TestEqual(TEXT("names who pushed"),
+		FFigmaLiveLink::DescribePush(TEXT("{\"source\":{\"exportedBy\":\"Ada\"}}")), FString(TEXT("Pushed live from Figma by Ada.")));
+	TestEqual(TEXT("copes with an anonymous push"),
+		FFigmaLiveLink::DescribePush(TEXT("{\"source\":{\"exportedBy\":null}}")), FString(TEXT("Pushed live from Figma.")));
+	TestEqual(TEXT("copes with a body that is not JSON"),
+		FFigmaLiveLink::DescribePush(TEXT("not json")), FString(TEXT("Pushed live from Figma.")));
+
+	return true;
+}
+
+namespace
+{
+	/** One real HTTP request to the listener, and what came back. */
+	struct FLiveLinkProbe
+	{
+		bool bDone = false;
+		int32 Code = 0;
+		FString Body;
+		FString AllowOrigin;
+		FString AllowPrivateNetwork;
+	};
+
+	constexpr int32 LiveLinkTestPort = 30899;
+	const TCHAR* LiveLinkTestSecret = TEXT("feedfacefeedfacefeedfacefeedface");
+
+	TSharedRef<FLiveLinkProbe> SendProbe(const FString& Verb, const FString& Route,
+		const TMap<FString, FString>& Headers, const FString& Body = FString())
+	{
+		TSharedRef<FLiveLinkProbe> Probe = MakeShared<FLiveLinkProbe>();
+
+		const TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
+		Request->SetVerb(Verb);
+		Request->SetURL(FString::Printf(TEXT("http://127.0.0.1:%d/figma-token-bridge/v1/%s"), LiveLinkTestPort, *Route));
+		for (const TPair<FString, FString>& Header : Headers)
+		{
+			Request->SetHeader(Header.Key, Header.Value);
+		}
+		if (!Body.IsEmpty())
+		{
+			Request->SetContentAsString(Body);
+		}
+		Request->OnProcessRequestComplete().BindLambda(
+			[Probe](FHttpRequestPtr, FHttpResponsePtr Response, bool)
+			{
+				Probe->bDone = true;
+				if (Response.IsValid())
+				{
+					Probe->Code = Response->GetResponseCode();
+					Probe->Body = Response->GetContentAsString();
+					Probe->AllowOrigin = Response->GetHeader(TEXT("Access-Control-Allow-Origin"));
+					Probe->AllowPrivateNetwork = Response->GetHeader(TEXT("Access-Control-Allow-Private-Network"));
+				}
+			});
+		Request->ProcessRequest();
+		return Probe;
+	}
+}
+
+DEFINE_LATENT_AUTOMATION_COMMAND_TWO_PARAMETER(FWaitForLiveLinkProbes, TArray<TSharedRef<FLiveLinkProbe>>, Probes, double, Deadline);
+
+bool FWaitForLiveLinkProbes::Update()
+{
+	if (FPlatformTime::Seconds() > Deadline)
+	{
+		return true;  // the checks then report whichever probe never answered
+	}
+	for (const TSharedRef<FLiveLinkProbe>& Probe : Probes)
+	{
+		if (!Probe->bDone)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+DEFINE_LATENT_AUTOMATION_COMMAND_ONE_PARAMETER(FRunLiveLinkChecks, TFunction<void()>, Checks);
+
+bool FRunLiveLinkChecks::Update()
+{
+	Checks();
+	return true;
+}
+
+/**
+ * The listener end to end, over real HTTP on 127.0.0.1: the browser preflight
+ * the Figma plugin triggers, the secret check, /hello, and a push. The push is
+ * aimed at another project so the importer refuses it before writing anything,
+ * which proves the body reached the importer without touching this project's
+ * tokens.
+ */
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDesignTokenLiveLinkServerTest,
+	"FigmaTokenBridge.LiveLink.Server",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FDesignTokenLiveLinkServerTest::RunTest(const FString& Parameters)
+{
+	if (FFigmaLiveLink::IsRunning())
+	{
+		AddInfo(TEXT("Skipped: this editor's live link is on, and the test would take over its listener."));
+		return true;
+	}
+
+	const FString StartError = FFigmaLiveLink::Start(LiveLinkTestPort, LiveLinkTestSecret, nullptr);
+	if (!TestTrue(TEXT("the listener starts"), StartError.IsEmpty()))
+	{
+		AddError(StartError);
+		return true;
+	}
+
+	const FString Bearer = FString(TEXT("Bearer ")) + LiveLinkTestSecret;
+	const FString OtherId = TEXT("FFFFFFFF-FFFF-4FFF-8FFF-FFFFFFFFFFFF");
+
+	const TSharedRef<FLiveLinkProbe> Preflight = SendProbe(TEXT("OPTIONS"), TEXT("push"), {
+		{ TEXT("Origin"), TEXT("null") },
+		{ TEXT("Access-Control-Request-Method"), TEXT("POST") },
+		{ TEXT("Access-Control-Request-Headers"), TEXT("authorization,content-type") },
+		{ TEXT("Access-Control-Request-Private-Network"), TEXT("true") } });
+	const TSharedRef<FLiveLinkProbe> NoSecret = SendProbe(TEXT("GET"), TEXT("hello"), {});
+	const TSharedRef<FLiveLinkProbe> Hello = SendProbe(TEXT("GET"), TEXT("hello"), { { TEXT("Authorization"), Bearer } });
+	const TSharedRef<FLiveLinkProbe> Push = SendProbe(TEXT("POST"), TEXT("push"),
+		{ { TEXT("Authorization"), Bearer }, { TEXT("Content-Type"), TEXT("application/json") } },
+		MakeDoc(OtherId, GoalsChain));
+
+	ADD_LATENT_AUTOMATION_COMMAND(FWaitForLiveLinkProbes({ Preflight, NoSecret, Hello, Push }, FPlatformTime::Seconds() + 10.0));
+	ADD_LATENT_AUTOMATION_COMMAND(FRunLiveLinkChecks([this, Preflight, NoSecret, Hello, Push, OtherId]()
+	{
+		FFigmaLiveLink::Stop();
+
+		TestEqual(TEXT("preflight is answered with 204"), Preflight->Code, 204);
+		TestEqual(TEXT("preflight allows the plugin's null origin"), Preflight->AllowOrigin, FString(TEXT("*")));
+		TestEqual(TEXT("preflight allows a private-network request"), Preflight->AllowPrivateNetwork, FString(TEXT("true")));
+
+		TestEqual(TEXT("refuses a request without the secret"), NoSecret->Code, 401);
+		TestEqual(TEXT("and the plugin can read the refusal"), NoSecret->AllowOrigin, FString(TEXT("*")));
+
+		TestEqual(TEXT("hello answers"), Hello->Code, 200);
+		TestTrue(TEXT("hello names this project"), Hello->Body.Contains(UDesignTokenSettings::GetOrCreateProjectId()));
+
+		TestEqual(TEXT("push answers"), Push->Code, 200);
+		TestTrue(TEXT("a push aimed at another project reaches the importer and is refused"),
+			Push->Body.Contains(TEXT("\"ok\":false")) && Push->Body.Contains(OtherId));
+	}));
 
 	return true;
 }

@@ -315,6 +315,44 @@ opt-in *Check For Published Tokens On Startup* costs one read per editor launch,
 so leave it off on a View seat. If you hit the limit, the error says so and names
 the seat type.
 
+### 3.6 Live link (Figma and Unreal on one machine)
+
+**Re-import the plugin first** (§3.1): the manifest now allows network access to
+`127.0.0.1:30871`, and Figma only reads that on import.
+
+**In Unreal:** **Tools → Copy Live Link Pairing Code.** Expected: a toast saying
+it was copied, and **Tools → Figma Live Link** now shows a tick. The Output Log
+shows `Figma live link listening on port 30871.`
+
+**In Figma:** paste the code under **Live link** and click **Pair**. Expected:
+*Paired with FigmaBridgeTest*, a row listing the project and port, and a **Push
+live** button on the link card for this project.
+
+**Push live.** Expected in Figma: added/updated/unchanged counts and *Imported
+into FigmaBridgeTest*. Expected in Unreal: the usual summary toast with *Pushed
+live from Figma by <you>.*, and a new page in **Window → Message Log → Figma
+Token Bridge**. `tokens/FigmaBridgeTest.tokens.json` is rewritten exactly as a
+Sync would rewrite it.
+
+**First live run — check these specifically.** The automation test
+`FigmaTokenBridge.LiveLink.Server` proves the listener over real HTTP. What
+it cannot prove:
+
+- that Figma lets the plugin UI reach `127.0.0.1`. If Pair says *Could not reach
+  Unreal* while the editor is open with the tick showing, this is the cause. Check
+  the plugin console (**Plugins → Development → Show/Hide console**) for a CSP or
+  Private Network Access error, and note which one it is.
+- whether the browser version of Figma allows it at all. Unity requires the
+  desktop app for its connector; ours probably does too.
+
+**Restart the editor and push again without re-pairing.** It should just work:
+the secret is kept in `Saved/Config/…/EditorPerProjectUserSettings.ini`. That
+is the improvement over Unity's connector, whose token changes on every restart.
+
+**Revoke:** clear *Live Link Secret* in **Editor Preferences → Plugins → Figma
+Token Bridge**. A new one is generated, and the plugin's next push gets *did not
+recognise the pairing code*.
+
 ---
 
 ## 4. The loop you'll actually live in
@@ -339,7 +377,7 @@ Each of these protects against a failure that would otherwise be silent.
 node tools/build-tokens.cjs --fixture tools/fixtures/tokenbridgetest.raw.json
 ```
 
-60 assertions, well under a second, no Figma access. The last 16 cover publishing:
+68 assertions, well under a second, no Figma access. 16 cover publishing:
 chunking, the round trip, and refusing a missing or corrupted chunk. The headline one: `#00d86c`
 must arrive as `(0.000000, 0.686685, 0.149960)`. Copying the bytes across instead
 gives `(0, 0.847059, 0.423529)` — 19% out in green and 2.8× in blue. That is
@@ -399,4 +437,8 @@ Rename a Component token in Figma, re-export, re-sync. The summary should say
 | `Incompatible or missing module` | a previous build failed partway. Rebuild; `build-unreal.ps1` now prints the compiler errors |
 | Editor exits 255 with no test output | transient startup failure, seen once. Re-run before investigating |
 | Blueprint dropdown is empty | no import has run yet, or *Active Tokens* in project settings is unset |
+| *Figma live link could not start… port 30871* | another program, or a second open Unreal project, has the port. Close it, or change the port in Unreal **and** `manifest.json` |
+| Pair or Push says *Could not reach Unreal* | the editor is closed, the live link is off (no tick under Tools), or Figma blocked the request. See the first-live-run note in §3.6 |
+| *did not recognise the pairing code* | the secret was cleared or the plugin paired with another project on this port. Copy a fresh code and pair again |
+| *may only reach port 30871* when pairing | Unreal's *Live Link Port* was changed. Set it back, or add the new port to `manifest.json` |
 | Every colour comes out magenta | that is the fallback. Either there is no token asset, or the token name is unknown — check `LogFigmaTokens` |
