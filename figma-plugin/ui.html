@@ -293,7 +293,9 @@
     // Default a new link to the Component tier, matching the board's own advice.
     renderGroups(link ? link.published : (state.inventory ? ['Component'] : []));
     $('editor').classList.remove('hide');
-    $('linkName').focus();
+    // The form sits below the links and the live link, often off screen.
+    $('editor').scrollIntoView({ block: 'start', behavior: 'smooth' });
+    $('linkName').focus({ preventScroll: true });  // a focus scroll would cancel the one above
   }
 
   function closeEditor() {
@@ -485,6 +487,8 @@
     }
     var warnings = (m.warnings || []).concat(res.warnings || []);
     if (warnings.length) out.appendChild(msg('warn', 'Warnings:', warnings));
+    // The report renders at the bottom; without this a push looks like it did nothing.
+    out.scrollIntoView({ block: 'start', behavior: 'smooth' });
   }
 
   /* ------------------------------- messages ------------------------------- */

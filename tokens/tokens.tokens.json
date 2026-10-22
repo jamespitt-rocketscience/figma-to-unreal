@@ -12,20 +12,20 @@
         "name": "Value"
       }
     ],
-    "exportedAt": "2026-10-22T14:05:48.655Z",
+    "exportedAt": "2026-10-22T15:12:25.619Z",
     "exportedBy": "James Pitt"
   },
   "target": {
     "projectId": "B608334A-43F8-7269-83DF-96892C5638C5",
     "projectName": "FigmaBridgeTest",
-    "linkName": "FigmaBridgeTest - walkthrough",
+    "linkName": "FigmaBridgeTest",
     "published": [
       "Component/Blades",
       "Component/Chat",
       "Component/Icons - Secondary"
     ],
     "linkedBy": "James Pitt",
-    "linkedAt": "2026-10-22T14:01:52.241Z"
+    "linkedAt": "2026-10-22T15:12:11.542Z"
   },
   "colours": [
     {
