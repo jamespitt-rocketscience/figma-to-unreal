@@ -502,6 +502,31 @@ function liveUrl(port, route) {
   return 'http://localhost:' + port + '/figma-token-bridge/v1/' + route;
 }
 
+/**
+ * What "Link this project" fills the link form with. A pairing already knows
+ * the project id, its name, and the Figma file key the project is set to
+ * accept, because the editor's /hello reported all three.
+ *
+ * The file's own key (fileKeyFromApi) wins over the pairing's: the link is for
+ * this file. When both are known and differ, Unreal will refuse this file's
+ * tokens, so say so before the designer saves a link that cannot work.
+ */
+function linkDefaultsFromPairing(pairing, fileKeyFromApi) {
+  var paired = (pairing && pairing.fileKey) || '';
+  var warning = null;
+  if (fileKeyFromApi && paired && fileKeyFromApi !== paired) {
+    warning = 'This Unreal project is paired with a different Figma file (' + paired +
+      '). Unreal will refuse tokens from this file until its Figma File Key matches.';
+  }
+  return {
+    linkName: pairing.projectName || 'Unreal project',
+    projectId: pairing.projectId,
+    projectName: pairing.projectName || '',
+    fileKey: fileKeyFromApi || paired,
+    warning: warning
+  };
+}
+
 /* ============================================================
    PART 2 — Figma runtime
    ============================================================ */
@@ -947,12 +972,19 @@ if (typeof figma !== 'undefined') {
     return stored && typeof stored === 'object' ? stored : {};
   };
 
-  /** What the UI lists: everything but the secrets. */
+  /**
+   * What the UI lists: everything but the secrets, plus what "Link this
+   * project" would fill in, worked out here because the UI can't run PART 1.
+   */
   var pairingSummary = function (pairings) {
     var out = {};
+    var fileKey = safeFileKey();
     Object.keys(pairings).forEach(function (k) {
       var p = pairings[k];
-      out[k] = { projectId: p.projectId, projectName: p.projectName, port: p.port, pairedAt: p.pairedAt };
+      out[k] = {
+        projectId: p.projectId, projectName: p.projectName, fileKey: p.fileKey || '', port: p.port, pairedAt: p.pairedAt,
+        linkDefaults: linkDefaultsFromPairing(p, fileKey)
+      };
     });
     return out;
   };
@@ -1006,6 +1038,7 @@ if (typeof figma !== 'undefined') {
           pairings[normaliseProjectId(hello.projectId)] = {
             projectId: hello.projectId,
             projectName: hello.projectName || '',
+            fileKey: hello.fileKey || '',
             port: msg.port,
             secret: msg.secret,
             pairedAt: new Date().toISOString()
@@ -1206,6 +1239,7 @@ if (typeof module !== 'undefined' && module.exports) {
     LIVE_PORT: LIVE_PORT,
     parsePairingCode: parsePairingCode,
     normaliseProjectId: normaliseProjectId,
-    liveUrl: liveUrl
+    liveUrl: liveUrl,
+    linkDefaultsFromPairing: linkDefaultsFromPairing
   };
 }

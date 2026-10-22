@@ -396,6 +396,19 @@ check('asciiJson escapes non-ASCII', bridge.asciiJson({ n: 'Blades — café' })
   // Figma rejects an IP address in allowedDomains, so the manifest must never carry one.
   check('manifest allowedDomains holds no IP address',
     require('../figma-plugin/manifest.json').networkAccess.allowedDomains.some((d) => /\/\/\d+\.\d+\.\d+\.\d+/.test(d)), false);
+
+  // "Link this project": a pairing already knows everything the link form asks for.
+  const p = { projectId: 'B608334A-43F8-7269-83DF-96892C5638C5', projectName: 'FigmaBridgeTest', fileKey: 'FruupulmvbUZbkUlTQ0kIm' };
+  check('link defaults come from the pairing', bridge.linkDefaultsFromPairing(p, null),
+    { linkName: 'FigmaBridgeTest', projectId: p.projectId, projectName: 'FigmaBridgeTest', fileKey: 'FruupulmvbUZbkUlTQ0kIm', warning: null });
+  check('a different file is flagged',
+    /different Figma file \(FruupulmvbUZbkUlTQ0kIm\)/.test(bridge.linkDefaultsFromPairing(p, 'OtherKey1234567890ab').warning), true);
+  check('an old pairing without a file key still works',
+    bridge.linkDefaultsFromPairing({ projectId: p.projectId, projectName: '' }, null).fileKey, '');
+  check('the same file is not flagged',
+    bridge.linkDefaultsFromPairing(p, 'FruupulmvbUZbkUlTQ0kIm').warning, null);
+  check('an unnamed project still gets a link name',
+    bridge.linkDefaultsFromPairing({ projectId: p.projectId, projectName: '' }, null).linkName, 'Unreal project');
 }
 
 // ---------------------------------------------------------------- write
