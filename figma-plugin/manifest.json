@@ -17,7 +17,7 @@
     { "command": "open", "name": "Open Token Bridge" }
   ],
   "networkAccess": {
-    "allowedDomains": ["http://127.0.0.1:30871", "http://localhost:30871"],
+    "allowedDomains": ["http://localhost:30871"],
     "reasoning": "Live link only: pushes design tokens to the Unreal Editor running on the user's own computer, after they pair it with a code copied from that editor. Nothing is sent off the machine. Publishing stores tokens inside this Figma file's shared plugin data, and Unreal reads them with Figma's own REST API."
   }
 }

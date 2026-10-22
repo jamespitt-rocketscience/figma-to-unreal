@@ -372,12 +372,15 @@ check('asciiJson escapes non-ASCII', bridge.asciiJson({ n: 'Blades — café' })
     /cut short/.test(bridge.parsePairingCode('ftb1:30871:0123').error), true);
   check('manifest allows exactly the live link port',
     require('../figma-plugin/manifest.json').networkAccess.allowedDomains,
-    ['http://127.0.0.1:' + bridge.LIVE_PORT, 'http://localhost:' + bridge.LIVE_PORT]);
+    ['http://localhost:' + bridge.LIVE_PORT]);
   check('project ids match whatever their formatting',
     bridge.normaliseProjectId('{a1b2c3d4-e5f6-7890-abcd-ef1234567890}'),
     bridge.normaliseProjectId('A1B2C3D4E5F67890ABCDEF1234567890'));
   check('push goes to the editor on this machine',
-    bridge.liveUrl(30871, 'push'), 'http://127.0.0.1:30871/figma-token-bridge/v1/push');
+    bridge.liveUrl(30871, 'push'), 'http://localhost:30871/figma-token-bridge/v1/push');
+  // Figma rejects an IP address in allowedDomains, so the manifest must never carry one.
+  check('manifest allowedDomains holds no IP address',
+    require('../figma-plugin/manifest.json').networkAccess.allowedDomains.some((d) => /\/\/\d+\.\d+\.\d+\.\d+/.test(d)), false);
 }
 
 // ---------------------------------------------------------------- write

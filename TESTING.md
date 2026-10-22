@@ -318,7 +318,9 @@ the seat type.
 ### 3.6 Live link (Figma and Unreal on one machine)
 
 **Re-import the plugin first** (§3.1): the manifest now allows network access to
-`127.0.0.1:30871`, and Figma only reads that on import.
+`http://localhost:30871`, and Figma only reads that on import. It must be
+`localhost`: Figma refuses to import a manifest with an IP address in
+`allowedDomains` (*must be a valid URL*).
 
 **In Unreal:** **Tools → Copy Live Link Pairing Code.** Expected: a toast saying
 it was copied, and **Tools → Figma Live Link** now shows a tick. The Output Log
@@ -334,16 +336,18 @@ live from Figma by <you>.*, and a new page in **Window → Message Log → Figma
 Token Bridge**. `tokens/FigmaBridgeTest.tokens.json` is rewritten exactly as a
 Sync would rewrite it.
 
-**First live run — check these specifically.** The automation test
-`FigmaTokenBridge.LiveLink.Server` proves the listener over real HTTP. What
-it cannot prove:
+**Verified end to end on 2026-10-22** in Figma desktop against this test
+project: pairing, a push with nothing changed (25 unchanged), and a push after
+changing `Global/green-400` (4 updated: the Global, the Semantic alias and both
+Component tokens that alias it). Still unverified: the browser version of Figma.
+If Pair says *Could not reach Unreal* while the editor is open with the tick
+showing, check the plugin console (**Plugins → Development → Show/Hide
+console**) for a CSP or Private Network Access error.
 
-- that Figma lets the plugin UI reach `127.0.0.1`. If Pair says *Could not reach
-  Unreal* while the editor is open with the tick showing, this is the cause. Check
-  the plugin console (**Plugins → Development → Show/Hide console**) for a CSP or
-  Private Network Access error, and note which one it is.
-- whether the browser version of Figma allows it at all. Unity requires the
-  desktop app for its connector; ours probably does too.
+**An open widget editor does not repaint on its own.** After a push, the token
+swatch in Details updates at once, but the Designer preview keeps the old colour
+until you click **Compile** (or reopen the widget). Placed instances elsewhere
+pick it up when they next synchronise.
 
 **Restart the editor and push again without re-pairing.** It should just work:
 the secret is kept in `Saved/Config/…/EditorPerProjectUserSettings.ini`. That

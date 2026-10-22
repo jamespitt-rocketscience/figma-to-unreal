@@ -183,6 +183,8 @@ A push goes through the same checks as Sync and rewrites the same `tokens.json`,
 
 Use the Figma desktop app. The browser version may block it.
 
+If a widget is open in Unreal's widget editor when you push, its preview keeps the old colour until someone clicks **Compile**. The token itself has already changed.
+
 ---
 
 ## Part 2 — For developers (Unreal)

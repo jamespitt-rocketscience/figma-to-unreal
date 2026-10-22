@@ -262,11 +262,12 @@ Phase 0 is deliberately colour-only. Deferred, in order:
   the packaged plugin has still not been imported into Figma desktop, so
   `scan()` and the link UI are the only things left untested. See
   [TESTING.md §3](TESTING.md).
-- **The live link is proven from the Unreal side only.** An automation test
-  makes real HTTP requests to the listener: the preflight, a missing secret,
-  hello, and a push the importer refuses. What it cannot prove is that Figma
-  lets the plugin's UI reach `127.0.0.1`. Unity's published connector does the
-  same, which is encouraging but not proof. See [TESTING.md §3.6](TESTING.md).
+- **The live link is verified in Figma desktop** (2026-10-22): pair, push, and a
+  colour change landing as `4 updated`. The first real import found that Figma
+  rejects an IP address in `allowedDomains`, so the plugin uses `localhost`. An
+  open widget editor needs a **Compile** before its preview shows a pushed
+  change. The browser version of Figma is still untried. See
+  [TESTING.md §3.6](TESTING.md).
 - Two hygiene items in the **Rocket Science** file, both reported by the exporter as
   warnings: `icon-secondary-Inactive` is the only capitalised token in 103, and
   all 171 variables use `ALL_SCOPES`, which clutters Figma's property pickers

@@ -489,9 +489,13 @@ function normaliseProjectId(id) {
   return String(id || '').replace(/[{}-]/g, '').trim().toUpperCase();
 }
 
-/** 127.0.0.1 rather than localhost: the editor binds IPv4, and localhost may resolve to ::1 first. */
+/**
+ * localhost, not 127.0.0.1: Figma refuses to import a manifest whose
+ * allowedDomains holds an IP address ("must be a valid URL"), and the URL has
+ * to match that entry. Found on the first real import, 2026-10-22.
+ */
 function liveUrl(port, route) {
-  return 'http://127.0.0.1:' + port + '/figma-token-bridge/v1/' + route;
+  return 'http://localhost:' + port + '/figma-token-bridge/v1/' + route;
 }
 
 /* ============================================================

@@ -7,3 +7,6 @@ DerivedDataCache/
 .vs/
 *.sln
 dist/
+
+# Playwright MCP scratch output
+.playwright-mcp/

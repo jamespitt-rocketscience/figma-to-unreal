@@ -85,6 +85,7 @@ component.icons_secondary.vital_heart_rate]]></ac:plain-text-body>
 <ol><li><p>In Unreal: <strong>Tools → Copy Live Link Pairing Code</strong>.</p></li><li><p>In the plugin, paste it under <strong>Live link</strong> and click <strong>Pair</strong>. You do this once per computer. It keeps working after Unreal restarts.</p></li><li><p>Links to that project now have a <strong>Push live</strong> button. Click it, and the plugin reports what Unreal imported.</p></li></ol>
 <p>A push goes through the same checks as Sync and rewrites the same <code>tokens.json</code>, so it still has to be committed like any other change. Other designers and developers still get your change through Publish and Sync. The live link only reaches the computer you are on.</p>
 <p>Use the Figma desktop app. The browser version may block it.</p>
+<p>If a widget is open in Unreal's widget editor when you push, its preview keeps the old colour until someone clicks <strong>Compile</strong>. The token itself has already changed.</p>
 <hr />
 <h2>Part 2 — For developers (Unreal)</h2>
 <h3>Install the plugin into a project</h3>
